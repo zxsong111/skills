@@ -1,22 +1,22 @@
-# Frontend
+# 前端
 
-**Applies when:** Has a web / mobile UI
+**适用条件：** 有 Web / 移动端 UI
 
-**Probe first:** Framework, state management library, styling approach, component directory, existing a11y tooling
+**先探查：** 框架、状态管理库、样式方案、组件目录、已有的 a11y 工具
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Component granularity | The split between presentational and container components; a line cap per component | none |
-| State | What handles local state / global state / server cache | React Query handles server data |
-| Styling | One approach, never mixed | Tailwind, no inline styles |
-| a11y | Interactive elements work by keyboard, images have alt, forms have labels | none |
-| Verification | After a UI change, start the local server and check the real page and the console, not just that the build passes | none |
+| 组件粒度 | 展示组件与容器组件的划分；单个组件的行数上限 | 无 |
+| 状态 | 本地状态 / 全局状态 / 服务端缓存分别由什么负责 | 服务端数据由 React Query 负责 |
+| 样式 | 只用一种方案，绝不混用 | Tailwind，不写内联样式 |
+| a11y | 交互元素可用键盘操作，图片有 alt，表单有 label | 无 |
+| 验证 | UI 改动后启动本地服务，检查真实页面和控制台，不能只看构建是否通过 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: eslint-plugin-jsx-a11y and the like
-- Layer 3: `.claude/rules/frontend.md`, with `paths:` scoped to the frontend directories
+- 第 2 层：eslint-plugin-jsx-a11y 之类
+- 第 3 层：`.claude/rules/frontend.md`，`paths:` 限定在前端目录

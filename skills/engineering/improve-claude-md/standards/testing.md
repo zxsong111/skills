@@ -1,24 +1,24 @@
-# Testing
+# 测试
 
-**Applies when:** Projects with tests, or that plan to write them
+**适用条件：** 有测试或打算写测试的项目
 
-**Probe first:** Test framework and config, test directory layout, the test command CI runs, coverage config
+**先探查：** 测试框架和配置、测试目录布局、CI 运行的测试命令、覆盖率配置
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Layers | What unit / integration / e2e tests each cover, and where each lives | `tests/unit/`, `tests/integration/` |
-| Naming | Test file and test case naming; case names describe behavior | `test_rejects_expired_coupon` |
-| Coverage threshold | If there is one, state the number and put it in CI; if not, leave it out | `--cov-fail-under=80` |
-| Mocking | Real implementation > fake > stub > mock; mock only at slow / external boundaries | none |
-| Bug fixes | Must come with a reproduction test that fails first and then passes | none |
-| Banned | Skipping / deleting tests to turn the suite green; changing assertions to make tests pass | none |
+| 分层 | 单元 / 集成 / e2e 测试各覆盖什么，各放在哪 | `tests/unit/`、`tests/integration/` |
+| 命名 | 测试文件和测试用例的命名；用例名描述行为 | `test_rejects_expired_coupon` |
+| 覆盖率阈值 | 有的话写明数值并放进 CI；没有就不写 | `--cov-fail-under=80` |
+| Mock | 真实实现 > fake > stub > mock；只在慢的 / 外部的边界上 mock | 无 |
+| Bug 修复 | 必须附带一个先失败、后通过的复现测试 | 无 |
+| 禁止 | 跳过 / 删除测试来让测试套件变绿；为了让测试通过去改断言 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: the coverage threshold and test command go into CI, and back into the CLAUDE.md "Quality gates" table
-- Layer 3: `.claude/rules/testing.md`, with `paths:` scoped to the test directories
-- Related: the `test-driven-development` skill and its `writing-good-tests.md`
+- 第 2 层：覆盖率阈值和测试命令放进 CI，并写回 CLAUDE.md「质量门禁」表
+- 第 3 层：`.claude/rules/testing.md`，`paths:` 限定在测试目录
+- 相关：`test-driven-development` skill 及其 `writing-good-tests.md`

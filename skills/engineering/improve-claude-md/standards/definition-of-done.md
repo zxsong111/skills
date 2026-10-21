@@ -1,18 +1,18 @@
-# Definition of Done
+# 完成定义（Definition of Done）
 
-**Applies when:** All projects
+**适用条件：** 所有项目
 
-**Probe first:** This plugin's `references/definition-of-done.md`; the project's existing gates
+**先探查：** 本 plugin 的 `references/definition-of-done.md`；项目已有的门禁
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Tailoring | Cut the items that don't apply to the project, add the ones specific to it | none |
-| Relation to gates | Machine-checkable items belong in the "Quality gates" table; items needing human judgement stay in the DoD | none |
+| 裁剪 | 删掉不适用于本项目的条目，补上本项目特有的条目 | 无 |
+| 与门禁的关系 | 机器可检查的条目归入「质量门禁」表；需要人判断的留在 DoD 里 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 5: put the tailored checklist in CLAUDE.md "Project conventions" or reference the file inside the plugin; don't copy it in whole
+- 第 5 层：把裁剪后的清单写进 CLAUDE.md「项目约定」，或引用 plugin 内的文件；不要整份复制进来

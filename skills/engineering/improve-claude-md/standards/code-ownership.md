@@ -1,19 +1,19 @@
-# Code ownership
+# 代码归属
 
-**Applies when:** Repos where several people or teams contribute
+**适用条件：** 多人或多个团队共同贡献的仓库
 
-**Probe first:** Existing CODEOWNERS, how directories map to teams
+**先探查：** 已有的 CODEOWNERS，目录与团队的对应关系
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Ownership | The owner or team for each directory / module | `/src/payment/ @team-payment` |
-| Required review | Which directories need the owner's review for any change | Payments, auth |
+| 归属 | 每个目录 / 模块的负责人或团队 | `/src/payment/ @team-payment` |
+| 强制审查 | 哪些目录的任何改动都需要负责人审查 | 支付、认证 |
 
-## Where it lands
+## 落点
 
-- Layer 2: `.github/CODEOWNERS` + the branch protection setting "Require review from Code Owners"
-- Companion: with no CODEOWNERS, generate a skeleton and leave the owners blank for the user to fill in
+- 第 2 层：`.github/CODEOWNERS` + 分支保护设置「Require review from Code Owners」
+- 配套：没有 CODEOWNERS 时生成一份骨架，负责人留空，由用户填写

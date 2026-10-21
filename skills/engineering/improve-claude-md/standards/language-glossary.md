@@ -1,33 +1,33 @@
-# Language conventions
+# 语言约定
 
-**Applies when:** Mixed Chinese and English teams, or projects heavy in domain terms
+**适用条件：** 中英文混合的团队，或领域术语很多的项目
 
-**Probe first:** The language existing comments, commits, and docs use; how domain nouns are written in code
+**先探查：** 现有注释、commit 和文档使用的语言；领域名词在代码里怎么写
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Comment language | Chinese / English | none |
-| Commit / PR language | Chinese / English | none |
-| Docs language | Chinese / English | none |
-| Glossary | A one-to-one mapping of each domain noun's Chinese term, English term, and code identifier | `<Chinese term>` / dine-in / `DINE_IN` |
+| 注释语言 | 中文 / 英文 | 无 |
+| commit / PR 语言 | 中文 / 英文 | 无 |
+| 文档语言 | 中文 / 英文 | 无 |
+| 术语表 | 每个领域名词的中文术语、英文术语和代码标识符一一对应 | `堂食` / dine-in / `DINE_IN` |
 
-## Where it lands
+## 落点
 
-- Layer 5: language conventions go in CLAUDE.md; personal preferences such as reply language go in `CLAUDE.local.md`
-- Companion: when there are many terms, generate `docs/glossary.md`
+- 第 5 层：语言约定写进 CLAUDE.md；回复语言等个人偏好写进 `CLAUDE.local.md`
+- 配套：术语较多时生成 `docs/glossary.md`
 
-## Companion file skeleton
+## 配套文件骨架
 
-If the target file already exists, skip it and say so in the report. Don't overwrite it.
+目标文件已存在时跳过，并在报告中说明。不要覆盖。
 
 ```markdown
-# Glossary
+# 术语表
 
-| Chinese | English | Code identifier | Notes |
+| 中文 | 英文 | 代码标识符 | 备注 |
 |---|---|---|---|
 |  |  |  |  |
 ```

@@ -1,32 +1,32 @@
-# Coding style and naming
+# 代码风格与命名
 
-**Applies when:** Any project with source code
+**适用条件：** 任何有源代码的项目
 
-**Probe first:** Existing linter/formatter config (eslint, biome, prettier, ruff, golangci-lint, .editorconfig); the naming actually used in sampled files
+**先探查：** 已有的 linter/formatter 配置（eslint、biome、prettier、ruff、golangci-lint、.editorconfig）；抽样文件中实际使用的命名
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| File naming | kebab-case / snake_case / PascalCase, following the language's convention | `order-service.ts`, `order_service.py` |
-| Types / classes | PascalCase | `OrderTotal` |
-| Functions / variables | camelCase or snake_case, matching the language; booleans start with is/has/can | `isPaid`, `has_discount` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY` |
-| Import order | Standard library → third party → this project, blank line between groups; leave it to tooling | ruff `I`, eslint `import/order` |
-| File length | Past about 400 lines, consider splitting first | none |
-| Comments | Explain "why", not "what"; never leave commented-out code blocks | none |
+| 文件命名 | kebab-case / snake_case / PascalCase，遵循语言惯例 | `order-service.ts`、`order_service.py` |
+| 类型 / 类 | PascalCase | `OrderTotal` |
+| 函数 / 变量 | camelCase 或 snake_case，与语言一致；布尔值以 is/has/can 开头 | `isPaid`、`has_discount` |
+| 常量 | UPPER_SNAKE_CASE | `MAX_RETRY` |
+| import 顺序 | 标准库 → 第三方 → 本项目，组间空一行；交给工具处理 | ruff `I`、eslint `import/order` |
+| 文件长度 | 超过约 400 行，先考虑拆分 | 无 |
+| 注释 | 解释「为什么」，而不是「做了什么」；绝不留下被注释掉的代码块 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: everything a formatter / linter can handle (indentation, quotes, import order, line width) goes in config, not in text
-- Layer 5: naming semantics the linter can't reach (boolean prefixes, domain terms) go in CLAUDE.md "Project conventions"
-- Companion: with no `.editorconfig`, generate one (indentation, line endings, final newline, charset)
+- 第 2 层：formatter / linter 能处理的（缩进、引号、import 顺序、行宽）都写进配置，不写成文字
+- 第 5 层：linter 管不到的命名语义（布尔前缀、领域术语）写进 CLAUDE.md「项目约定」
+- 配套：没有 `.editorconfig` 时生成一份（缩进、换行符、文件末尾换行、字符集）
 
-## Companion file skeleton
+## 配套文件骨架
 
-If the target file already exists, skip it and say so in the report. Don't overwrite it.
+目标文件已存在时跳过，并在报告中说明。不要覆盖。
 
 ```ini
 root = true

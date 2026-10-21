@@ -1,103 +1,103 @@
-## What it does
+## 它做什么
 
-`wayfinder` takes an effort too big for one agent [session](https://www.aihero.dev/ai-coding-dictionary/session). This is an idea whose **destination** you can name but whose route you cannot yet see. Wayfinder charts it as a shared **map** of **decision tickets** on your issue tracker, then resolves the tickets one at a time until the route is clear.
+`wayfinder` 接手的是一个一次 agent [会话](https://www.aihero.dev/ai-coding-dictionary/session)装不下的工作。这是一个你能说出**目的地**(destination)、却还看不清路线的想法。wayfinder 把它绘制成你 issue tracker 上一张由**决策 ticket** 组成的共享**地图**(map)，然后一次解决一个 ticket，直到路线变得清晰。
 
-It plans and does not build. Every ticket asks a question, and the answer is a decision, not a slice of a build. The map is finished when nothing is left to decide before someone builds the thing. This rule separates a wayfinder ticket from an ordinary implementation [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket), and it is the rule agents break most often. When the map clears, wayfinder hands off and does not continue into code.
+它只规划，不构建。每个 ticket 提出一个问题，答案是一个决定，而不是构建的一个切片。当有人动手构建之前已经没有任何东西需要决定时，这张地图就完成了。这条规则把 wayfinder 的 ticket 和普通的实现 [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) 区分开来，也是 agent 最常违反的规则。地图清空后，wayfinder 就交接出去，不会继续写代码。
 
-## When to reach for it
+## 什么时候用
 
-You invoke this by typing `/wayfinder`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
+输入 `/wayfinder` 调用它，[agent](https://www.aihero.dev/ai-coding-dictionary/agent) 不会自己去用它。
 
-It is the heaviest flow in the set, so the trigger is narrow. The effort must be larger than one agent session can hold, and the route to the destination must be unclear. The split is session count: `/grill-with-docs` for single-session planning, `/wayfinder` for multi-session planning.
+它是整套 skill 里最重的流程，所以触发条件很窄。工作量必须大于一次 agent 会话能容纳的范围，而且通往目的地的路线必须不清楚。分界线是会话数量：单会话的规划用 `/grill-with-docs`，多会话的规划用 `/wayfinder`。
 
-| What you have in front of you | What to run |
+| 你面前的是什么 | 运行什么 |
 | --- | --- |
-| A well-scoped feature you can settle in one sitting | [grill-me](https://aihero.dev/skills-grill-me), or [grill-with-docs](https://aihero.dev/skills-grill-with-docs) when there is a codebase |
-| A greenfield project, or a build spanning many sessions, with the route still unclear | `/wayfinder` |
-| A thread where the deciding is already done | [to-spec](https://aihero.dev/skills-to-spec): skip straight past the map |
-| A cleared wayfinder map | [to-spec](https://aihero.dev/skills-to-spec), then [to-tickets](https://aihero.dev/skills-to-tickets) and [implement](https://aihero.dev/skills-implement) |
-| An existing session that has already grown too big | say "hand off to `/wayfinder`" ([handoff](https://aihero.dev/skills-handoff) bridges into a map as well as out of one) |
+| 一个范围清楚、一次坐下来就能定下来的功能 | [grill-me](https://aihero.dev/skills-grill-me)，有代码库时用 [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
+| 一个全新项目，或者一个跨很多会话的构建，路线仍不清楚 | `/wayfinder` |
+| 一段决定已经做完的对话 | [to-spec](https://aihero.dev/skills-to-spec)：直接跳过地图 |
+| 一张已清空的 wayfinder 地图 | [to-spec](https://aihero.dev/skills-to-spec)，然后 [to-tickets](https://aihero.dev/skills-to-tickets) 和 [implement](https://aihero.dev/skills-implement) |
+| 一个已经膨胀得太大的现有会话 | 说「交接给 `/wayfinder`」（[handoff](https://aihero.dev/skills-handoff) 既能把工作交接进地图，也能交接出来） |
 
-Greenfield is not a requirement. People use wayfinder routinely on legacy and half-built codebases, and it can be more useful there, because much of the fog is "what is already true here" rather than "what should we do".
+全新项目不是必要条件。人们经常在遗留代码库和做了一半的代码库上使用 wayfinder，而且在那里可能更有用，因为很多迷雾是「这里现在实际是什么情况」，而不是「我们应该做什么」。
 
-## Prerequisites
+## 前置条件
 
-The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker setup from [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills). That step writes a "Wayfinding operations" section. The section describes how to express the map, its child tickets, blocking edges, and frontier queries on GitHub, GitLab, or local markdown. Wayfinder finds that doc through the pointer in your `CLAUDE.md` / `AGENTS.md`, not at a fixed path. With no tracker configured, it falls back to local markdown files.
+地图和它的 ticket 都住在仓库的 issue tracker 上，所以 wayfinder 需要 [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) 完成的 tracker 设置。那一步会写入一个 "Wayfinding operations" 小节，描述如何在 GitHub、GitLab 或本地 markdown 上表达地图、它的子 ticket、阻塞边和前沿查询。wayfinder 是通过你 `CLAUDE.md` / `AGENTS.md` 里的指针找到这份文档的，而不是在某个固定路径。如果没有配置 tracker，它会退回到本地 markdown 文件。
 
-The tracker does real work. Its native blocking links show the frontier in the tracker's own UI. On a tracker without native dependency links (a self-hosted Gitea, say), wayfinder infers blockers from the map text. That works, but you must supervise it more closely.
+tracker 承担着实际的工作。它原生的阻塞链接能在 tracker 自己的 UI 里显示前沿。在没有原生依赖链接的 tracker 上（比如自托管的 Gitea），wayfinder 会从地图文本中推断阻塞关系。这样可行，但你必须更密切地监督它。
 
-## The map, the fog, and the frontier
+## 地图、迷雾和前沿
 
-The **map** is a single issue labelled `wayfinder:map`, and its tickets are its child issues. It is an **index, not a store**. A decision lives in exactly one place, its ticket, and the map only gives a one-line summary and a link. A session loads the map at low resolution and opens individual tickets when it needs them. This lets a map keep growing without every session loading its whole history.
+**地图**是一个打上 `wayfinder:map` 标签的 issue，它的 ticket 是它的子 issue。它是**索引，不是仓库**。一个决定只存在于一个地方，也就是它的 ticket，地图只给出一行摘要和一个链接。会话以低分辨率加载地图，需要时再打开单个 ticket。这让地图可以不断增长，而不必让每个会话都加载它的全部历史。
 
-The map has four sections:
+地图有四个小节：
 
-- **Destination.** What the end of this map looks like. You name it first, before any ticket exists, because the destination fixes the scope you measure every ticket against.
-- **Decisions so far.** One line per closed ticket, each with a link to where the detail lives.
-- **Not yet specified.** This is the **fog of war**: decisions you can tell are coming but cannot yet phrase sharply. The test for fog versus ticket is whether you can state the question precisely *now*, not whether you can answer it. When you resolve a ticket, the fog ahead of it clears, and anything you can now specify graduates into a new ticket.
-- **Out of scope.** Work beyond the destination. Fog only gathers *toward* the destination, so out-of-scope work stays closed and never graduates.
+- **Destination(目的地)。** 这张地图的终点是什么样子。你要最先说出它，在任何 ticket 存在之前，因为目的地确定了你衡量每个 ticket 所用的范围。
+- **Decisions so far(目前的决定)。** 每个已关闭的 ticket 一行，各自链接到细节所在的地方。
+- **Not yet specified(尚未明确)。** 这就是**战争迷雾**(fog of war)：你能感觉到即将到来、但还没法清晰表述的决定。区分迷雾和 ticket 的标准，是你*现在*能否准确地陈述这个问题，而不是你能否回答它。当你解决一个 ticket 时，它前方的迷雾就会散去，任何现在能够明确的东西都会升级为一个新的 ticket。
+- **Out of scope(超出范围)。** 目的地之外的工作。迷雾只会*朝着*目的地聚集，所以超出范围的工作保持关闭，永远不会升级。
 
-The **frontier** is the set of open, unblocked, unclaimed tickets (the edge of the known). A session claims a ticket by assigning it to itself before it does any work. The assignee *is* the claim, so concurrent sessions skip that ticket. Sessions refer to tickets by name, never by a bare `#42`, because a wall of issue numbers is hard to read in narration.
+**前沿**(frontier)是那些未关闭、未被阻塞、未被认领的 ticket 的集合（已知区域的边缘）。会话在做任何工作之前，先把 ticket 分配给自己来认领它。被分配人*就是*认领，所以并发的会话会跳过这个 ticket。会话用名称来指代 ticket，从不用光秃秃的 `#42`，因为一堆 issue 编号在叙述中很难读。
 
-## The four decision-ticket types
+## 四种决策 ticket 类型
 
-Every ticket carries a `wayfinder:<type>` label. Each ticket is either **[HITL](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop)** (worked with a human who speaks for themselves) or **[AFK](https://www.aihero.dev/ai-coding-dictionary/afk)** (driven by the agent alone). A HITL ticket resolves only through the live exchange. An agent that answers its own [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) questions has broken it.
+每个 ticket 都带有一个 `wayfinder:<type>` 标签。每个 ticket 要么是 **[HITL](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop)**（和一个为自己发言的人一起处理），要么是 **[AFK](https://www.aihero.dev/ai-coding-dictionary/afk)**（由 agent 独自推进）。HITL ticket 只能通过实时交流来解决。一个自问自答[盘问](https://www.aihero.dev/ai-coding-dictionary/grilling)问题的 agent 就破坏了它。
 
-| Type | Mode | Reach for it when | Resolved by |
+| 类型 | 模式 | 什么时候用 | 由什么解决 |
 | --- | --- | --- | --- |
-| `grilling` | HITL | The default. The question can be settled by talking it through. | [grilling](https://aihero.dev/skills-grilling) plus [domain-modeling](https://aihero.dev/skills-domain-modeling), in a fresh session |
-| `prototype` | HITL | "How should this look" or "how should this behave": a question talking cannot settle. | [prototype](https://aihero.dev/skills-prototype), with a link from the ticket to the built artifact |
-| `research` | AFK | A fact outside the working directory is blocking a decision. | A [research](https://aihero.dev/skills-research) [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent), started when you chart the map and run in parallel on a `research/<name>` branch |
-| `task` | Either | Nothing to decide, but manual work blocks a decision, such as provisioning access, signing up for a service, or moving data so you can see its shape. | The agent alone where it can, otherwise a precise checklist for the human |
+| `grilling` | HITL | 默认类型。问题可以通过讨论来解决。 | [grilling](https://aihero.dev/skills-grilling) 加 [domain-modeling](https://aihero.dev/skills-domain-modeling)，在一个全新会话里 |
+| `prototype` | HITL | 「这个该长什么样」或「这个该怎么表现」：讨论解决不了的问题。 | [prototype](https://aihero.dev/skills-prototype)，ticket 上链接到构建出的产物 |
+| `research` | AFK | 工作目录之外的某个事实阻塞了一个决定。 | 一个 [research](https://aihero.dev/skills-research) [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent)，在你绘制地图时启动，在 `research/<name>` branch 上并行运行 |
+| `task` | 两者皆可 | 没什么要决定的，但有手动工作阻塞了一个决定，比如开通权限、注册某个服务，或者搬运数据以便看清它的形态。 | 能做的部分由 agent 独自完成，否则给人一份精确的检查清单 |
 
-`task` is the only type that *does* rather than decides. It belongs on the map only because it unblocks a decision, never because it delivers part of the destination. This type goes wrong most often in practice. Agents read it as an implementation step and start to write product code inside the map.
+`task` 是唯一一种*去做*而不是去决定的类型。它之所以属于地图，只是因为它能解除对某个决定的阻塞，而绝不是因为它交付了目的地的一部分。实践中这种类型最常出问题。agent 会把它读成一个实现步骤，开始在地图里写产品代码。
 
-Research is the only exception to *one ticket per session*.
+research 是「一个会话一个 ticket」规则的唯一例外。
 
-## Common questions
+## 常见问题
 
-**How is this different from `/grill-with-docs`? Which should I start with?**
-Session count, not project size. `/grill-with-docs` is single-session planning; wayfinder is multi-session planning. If you can hold the whole thing in one conversation, grilling is cheaper and better, and wayfinder is slower and denser for that case. The community shorthand is that wayfinder only makes sense if the work does not fit into a single session. This is by far the most-asked wayfinder question. People keep asking it because the skill descriptions do not tell you where your own task sits on that line. You have to judge the session count yourself.
+**这和 `/grill-with-docs` 有什么不同？我该从哪个开始？**
+看会话数量，而不是项目大小。`/grill-with-docs` 是单会话规划；wayfinder 是多会话规划。如果你能在一段对话里装下整件事，盘问更便宜也更好，而 wayfinder 在这种情况下更慢、更密集。社区里的简短说法是：只有当工作装不进一个会话时，wayfinder 才有意义。这是关于 wayfinder 被问得最多的问题，没有之一。人们之所以一再问，是因为 skill 的描述并没有告诉你自己的任务落在这条线的哪一边。会话数量得由你自己判断。
 
-**When it asks for the "destination", does it mean the end of this session or the end of everything?**
-The end of the whole map, not just the first session. The question reads ambiguously, but wayfinder is a multi-session tool by definition, so a session-scoped answer never makes sense. Typical destinations are a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) to hand off, a decision to lock before planning starts, a proof of concept, or an in-place change such as a data migration.
+**它问「目的地」时，指的是这次会话的终点，还是一切的终点？**
+是整张地图的终点，而不只是第一个会话。这个问题读起来有歧义，但 wayfinder 按定义就是多会话工具，所以以会话为范围的回答永远说不通。典型的目的地有：一份要交接出去的 [spec](https://www.aihero.dev/ai-coding-dictionary/spec)，一个要在规划开始前锁定的决定，一个概念验证，或者一次原地进行的改动，比如数据迁移。
 
-**The map is cleared. Didn't wayfinder already write the spec and make the tickets? Why do I still need `/to-spec` and `/to-tickets`?**
-No. Wayfinder's tickets are decision tickets, and by the time the map closes they are all closed too. What is left is a map full of linked decisions, which is not a build plan. [to-spec](https://aihero.dev/skills-to-spec) collapses those linked decisions into one spec (`/to-spec #<map_issue>`), and [to-tickets](https://aihero.dev/skills-to-tickets) slices that spec into tracer-bullet implementation tickets. If you loop the map straight into [implement](https://aihero.dev/skills-implement), you skip the collapse and lose the linked detail. Go straight to implementation only when the effort turned out small. Some people run the shorter pipeline and report that it works. The two extra steps give you an explicit spec that a reviewer or a colleague can read, which matters more when you do not work alone.
+**地图已经清空了。wayfinder 不是已经写好了 spec、建好了 ticket 吗？为什么我还需要 `/to-spec` 和 `/to-tickets`？**
+不是。wayfinder 的 ticket 是决策 ticket，到地图关闭时它们也都已经关闭了。剩下的是一张满是链接起来的决定的地图，那不是一份构建计划。[to-spec](https://aihero.dev/skills-to-spec) 把这些链接起来的决定收拢成一份 spec（`/to-spec #<map_issue>`），[to-tickets](https://aihero.dev/skills-to-tickets) 再把这份 spec 切成曳光弹(tracer bullet)式的实现 ticket。如果你把地图直接接到 [implement](https://aihero.dev/skills-implement)，就跳过了收拢这一步，丢掉了那些链接起来的细节。只有当工作最后发现其实很小时，才直接进入实现。有些人跑的是更短的流水线，并报告说也能用。多出来的两步给你一份明确的 spec，reviewer 或同事都能读，当你不是一个人工作时，这一点更重要。
 
-**My agent started writing production code in the middle of a wayfinder session.**
-This is the most-reported failure with this skill, and a real gap in the skill causes it. You can override wayfinder's "plan, don't do" default in the map's **Notes**. But the agent writes the Notes, so the constraint and its exemption live in a file that the constrained agent owns. One user watched an agent write "this map carries execution" into its own Notes. In later sessions the agent read that line back as permission and built on a live server. The skill has no hard stop for "I meant the default." Until it does, read the Notes on any map you did not chart yourself, keep implementation in separate sessions, and treat any `wayfinder:task` that looks like a slice of the build as mis-typed.
+**我的 agent 在一次 wayfinder 会话中途开始写生产代码了。**
+这是这个 skill 被报告最多的失败，而且是 skill 里一个真实存在的缺口导致的。你可以在地图的 **Notes** 里覆盖 wayfinder「只规划，不动手」的默认设定。但 Notes 是 agent 写的，所以约束和它的豁免都住在一个由受约束的 agent 自己掌控的文件里。有位用户亲眼看到一个 agent 在自己的 Notes 里写下「this map carries execution」。在后来的会话里，agent 把这一行读回来当作许可，在一台线上服务器上动手构建了。这个 skill 没有针对「我指的是默认设定」的硬性停止机制。在有之前，对任何不是你自己绘制的地图都要读一读它的 Notes，把实现放在单独的会话里，并把任何看起来像构建切片的 `wayfinder:task` 视为类型标错了。
 
-**I charted 27 tickets, and by the time I got to the thirteenth, the rest no longer made sense.**
-This question is verbatim from a user report, and others report the same outcome. By default, wayfinder plans comprehensively. When later tickets rest on assumptions that earlier tickets invalidate, the map falls into the waterfall trap that critics accuse the skill of. Two things help. First, scope the map to a bounded destination, not to the whole product. Users report that maps scoped to one defined epic behave better than a sprawling "implement V1". The goal is to ship small increments, not to plan something very big. Second, [prototype](https://www.aihero.dev/ai-coding-dictionary/prototyping) aggressively. The route stays current because cheap concrete artifacts expose uncertainty before implementation depends on it. Wayfinder is "prototypemaxxing", not "planmaxxing".
+**我绘制了 27 个 ticket，等做到第十三个时，剩下的已经说不通了。**
+这个问题原封不动来自一份用户报告，其他人也报告了同样的结果。默认情况下，wayfinder 会做全面的规划。当后面的 ticket 建立在被前面的 ticket 推翻了的假设之上时，地图就掉进了批评者指责这个 skill 的那个瀑布式陷阱。有两件事有帮助。第一，把地图的范围限定在一个有边界的目的地，而不是整个产品。用户报告说，限定在一个明确 epic 上的地图，表现比一个铺天盖地的「实现 V1」好。目标是交付小的增量，而不是规划一个非常大的东西。第二，积极地做[原型](https://www.aihero.dev/ai-coding-dictionary/prototyping)。路线之所以能保持最新，是因为廉价而具体的产物能在实现依赖于不确定性之前把它暴露出来。wayfinder 是「原型拉满」，而不是「规划拉满」。
 
-**Can I work several tickets in parallel?**
-The frontier shows you which tickets you can take, and blocking edges make parallel work safe on paper. In practice, one ticket at a time is the safer default. If you work two grilling tickets at once, one session can ask you a question you just answered in the other, because the sessions share no [context](https://www.aihero.dev/ai-coding-dictionary/context). Prototype tickets have a known gap too. One user reported an agent that built three UI variations, chose one itself, and closed the ticket. That choice is yours, and the skill does not yet say so clearly enough. If you do run tickets in parallel, review the dependency graph yourself first.
+**我能并行处理几个 ticket 吗？**
+前沿会告诉你哪些 ticket 可以领，阻塞边让并行工作在纸面上是安全的。实践中，一次一个 ticket 是更安全的默认做法。如果你同时处理两个 grilling ticket，一个会话可能会问你一个你刚在另一个会话里回答过的问题，因为会话之间不共享[上下文](https://www.aihero.dev/ai-coding-dictionary/context)。prototype ticket 也有一个已知缺口。有位用户报告说，一个 agent 构建了三个 UI 变体，自己挑了一个，然后关闭了 ticket。那个选择应该由你来做，而 skill 目前还没有把这一点说得足够清楚。如果你确实要并行处理 ticket，先自己审一遍依赖图。
 
-**Do I have to use GitHub Issues?**
-No. Any issue tracker works. GitHub has the best support, because its native sub-issues and blocking relationships make the frontier visible without opening the map. People also use GitLab, Linear, Jira and local markdown. There are two caveats. On a tracker with no native blocking, wayfinder infers the dependency graph from text, and you must correct it by hand. Local markdown puts the artifacts in your repo, which is not recommended, because material stored in the repo tends to persist by accident. Open-source maintainers hit the opposite problem (public trackers fill up with agent-generated planning tickets) and often choose local markdown anyway.
+**我必须用 GitHub Issues 吗？**
+不必。任何 issue tracker 都可以。GitHub 的支持最好，因为它原生的子 issue 和阻塞关系让你不打开地图也能看到前沿。人们也在用 GitLab、Linear、Jira 和本地 markdown。有两点要注意。在没有原生阻塞的 tracker 上，wayfinder 会从文本推断依赖图，你必须手动修正。本地 markdown 会把这些产物放进你的仓库，这不推荐，因为存放在仓库里的材料往往会意外地一直留下来。开源维护者遇到的是相反的问题（公开的 tracker 被 agent 生成的规划 ticket 塞满），所以往往还是会选择本地 markdown。
 
-**The grilling is exhausting. Every question is three paragraphs long.**
-This is the sharpest open complaint about wayfinder, and nobody has fixed it yet. One user broke it down this way: the verbosity itself causes decision exhaustion, and the length hides *why* the agent asks a question, so you lose the chain from decision to decision as the map grows. The verbosity looks like a property of the current set of [models](https://www.aihero.dev/ai-coding-dictionary/model) rather than of the skill. Users try two mitigations: a lower [reasoning effort](https://www.aihero.dev/ai-coding-dictionary/effort), and a plain-language instruction in your global `CLAUDE.md`. Expect to think hard here anyway. Wayfinder demands a lot of thinking from you, and that is most of its purpose, not a defect.
+**盘问太累了。每个问题都有三段长。**
+这是关于 wayfinder 最尖锐的未解决抱怨，至今没人修好。有位用户是这样拆解的：冗长本身就会造成决策疲劳，而且篇幅掩盖了 agent *为什么*要问这个问题，所以随着地图增长，你会丢失从一个决定到下一个决定的链条。冗长看起来是当前这批[模型](https://www.aihero.dev/ai-coding-dictionary/model)的特性，而不是这个 skill 的特性。用户尝试过两种缓解办法：调低[推理强度](https://www.aihero.dev/ai-coding-dictionary/effort)，以及在全局 `CLAUDE.md` 里加一条用平实语言的指令。不管怎样，都要做好在这里费力思考的准备。wayfinder 要求你做大量思考，而这正是它大部分的意义所在，不是缺陷。
 
-**A decision I already closed turned out to be wrong. Do I edit the old ticket or make a new one?**
-There is no official guidance, and the agent's default is unhelpful. It tends to design around the bad decision instead of challenging it, so you must steer it yourself. What works is to tell wayfinder plainly what changed. It then updates the map, revises the affected tickets, and comments on the closed ones. You can recover from scope changes mid-map. But if you *designed* a map to change, that is a sign the scope is wrong.
+**一个我已经关闭的决定后来发现是错的。我该改旧 ticket 还是新建一个？**
+没有官方的指导，而 agent 的默认做法帮不上忙。它倾向于绕着那个坏决定去设计，而不是挑战它，所以你必须自己掌舵。有效的做法是直接告诉 wayfinder 什么变了。它会更新地图，修订受影响的 ticket，并在已关闭的 ticket 上发评论。地图进行到一半时的范围变化是可以挽回的。但如果你*设计*地图时就打算让它变，那说明范围定错了。
 
-**Where did `decision-mapping` go?**
-It is this skill. v1.1 renamed it to `wayfinder`, and you invoke it as `/wayfinder`. "Decision map" was jargon, and it was also inaccurate, because only one of the four ticket types is a decision by itself. The new name gave the skill one consistent vocabulary (destination, fog of war, frontier, the map) instead of an invented term on top. The unit kept the word "decision": a wayfinder ticket is a **decision ticket**, so that people do not read it as an implementation ticket.
+**`decision-mapping` 去哪了？**
+就是这个 skill。v1.1 把它改名为 `wayfinder`，你用 `/wayfinder` 调用它。「决策地图」是行话，而且也不准确，因为四种 ticket 类型里只有一种本身就是决定。新名字给了这个 skill 一套一致的词汇（目的地、战争迷雾、前沿、地图），而不是在上面再叠一个自创的术语。单元保留了「决策」这个词：wayfinder 的 ticket 是**决策 ticket**，这样人们就不会把它读成实现 ticket。
 
-## It's working if
+## 起作用的标志
 
-- The destination is written down and agreed before a single ticket exists.
-- Every open ticket reads as a question. Any ticket that reads "build the X" is either mis-typed or belongs downstream of the map.
-- You can look at your tracker and see which tickets are takeable without opening the map, because native blocking shows the frontier.
-- A session resolves one ticket, posts the answer as a resolution comment, closes it, and adds one line to the map's *Decisions so far*. Then it stops.
-- **Not yet specified** shrinks over time. When fog graduates into a ticket, it leaves that section and does not appear in both places.
-- When the opening breadth-first grill finds no fog at all, the skill stops and tells you the effort is small enough to skip the map.
-- The session that finishes the map points you toward a spec, not a pull request.
+- 在任何一个 ticket 存在之前，目的地就已经写下来并达成一致。
+- 每个未关闭的 ticket 读起来都是一个问题。任何读起来像「构建 X」的 ticket，要么类型标错了，要么属于地图的下游。
+- 你看一眼 tracker 就知道哪些 ticket 可以领，不需要打开地图，因为原生的阻塞关系显示了前沿。
+- 一个会话解决一个 ticket，把答案作为解决评论发出来，关闭它，往地图的 *Decisions so far* 里加一行，然后停下。
+- **Not yet specified** 随着时间缩小。当迷雾升级为 ticket 时，它会离开那一节，不会同时出现在两个地方。
+- 如果开场的广度优先盘问完全没发现迷雾，skill 会停下来告诉你，这项工作小到可以跳过地图。
+- 完成地图的那个会话会把你引向一份 spec，而不是一个 pull request。
 
-## Where it fits
+## 在体系中的位置
 
-`wayfinder` is a **situational on-ramp**, not the default starting point. Most work still starts on the grill-led idea → ship chain. You use wayfinder when the idea is too big to hold in one session. It rejoins that chain at [to-spec](https://aihero.dev/skills-to-spec), because a cleared map hands off and does not build.
+`wayfinder` 是一个**视情况使用的入口**(on-ramp)，不是默认的起点。大多数工作仍然从以盘问开头的「想法 → 上线」链路开始。当想法大到一个会话装不下时，你才用 wayfinder。它在 [to-spec](https://aihero.dev/skills-to-spec) 处重新汇入那条链路，因为一张清空的地图会交接出去，而不是自己构建。
 
-Most of the work happens in other skills that wayfinder schedules. [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type, [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talk cannot settle, and [research](https://aihero.dev/skills-research) runs as a subagent so its reading stays out of your session. [handoff](https://aihero.dev/skills-handoff) moves work in and out: into a map from a conversation that grew too big, and out of a map when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+大部分工作发生在 wayfinder 调度的其他 skill 里。[grilling](https://aihero.dev/skills-grilling) 和 [domain-modeling](https://aihero.dev/skills-domain-modeling) 解决默认类型的 ticket，[prototype](https://aihero.dev/skills-prototype) 解决讨论无法解决的 ticket，[research](https://aihero.dev/skills-research) 作为 subagent 运行，让它的阅读不进入你的会话。[handoff](https://aihero.dev/skills-handoff) 负责把工作移进移出：从一段膨胀得太大的对话移进地图，以及在会话中途冒出一个支线任务时移出地图。其他情况，[ask-matt](https://aihero.dev/skills-ask-matt) 会在整套 skill 上为你指路。

@@ -1,23 +1,23 @@
-# Concurrency and async
+# 并发与异步
 
-**Applies when:** Has async IO, background jobs, queues, multithreading, or offline sync
+**适用条件：** 有异步 IO、后台任务、队列、多线程或离线同步
 
-**Probe first:** The async framework, task queue, how locks and transactions are used, timeout settings on external calls
+**先探查：** 异步框架、任务队列、锁和事务的用法、外部调用的超时设置
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Timeouts | Every external call must set a timeout; state the value | HTTP default 10s |
-| Retries | Retry only idempotent operations; exponential backoff + a cap | none |
-| Idempotency | Message and callback handlers must be idempotent, deduplicated by idempotency key | none |
-| Locks / transactions | How shared state is protected, and where the boundaries are | none |
-| Banned | Blocking IO inside async functions; unbounded concurrency | none |
+| 超时 | 每个外部调用都必须设置超时；写明具体数值 | HTTP 默认 10s |
+| 重试 | 只重试幂等操作；指数退避 + 上限 | 无 |
+| 幂等 | 消息和回调处理器必须幂等，按幂等键去重 | 无 |
+| 锁 / 事务 | 共享状态如何保护，边界在哪 | 无 |
+| 禁止 | 在 async 函数里做阻塞 IO；无上限的并发 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: what can be checked goes in the linter (ruff `ASYNC`)
-- Layer 3: `.claude/rules/concurrency.md`, with `paths:` scoped to worker / sync modules
-- For high-risk concurrency changes, run `/grill-with-docs` first to settle the decisions, and record an ADR
+- 第 2 层：能检查的放进 linter（ruff `ASYNC`）
+- 第 3 层：`.claude/rules/concurrency.md`，`paths:` 限定在 worker / 同步模块
+- 高风险的并发改动，先运行 `/grill-with-docs` 把决策定下来，并记录一份 ADR

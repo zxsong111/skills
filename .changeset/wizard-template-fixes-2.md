@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`wizard` template fixes: `_existing` decodes a double-quoted `.env` value, so Enter-keeps-current no longer stores the quotes (#1220); stages run inside `run_wizard`, so editing the script mid-run can't kill it (#1142); `_clear` falls back to ANSI when `tput clear` fails (#1081); `write_env` sets the shell variable too (#1041); drop the unused `RED` (#1003).
+`wizard` 模板修复：`_existing` 会解码带双引号的 `.env` 值，所以按回车保留当前值时不再把引号也存进去（#1220）；各阶段在 `run_wizard` 内部运行，所以运行中途编辑脚本不会让它崩掉（#1142）；`tput clear` 失败时 `_clear` 会回退到 ANSI（#1081）；`write_env` 也会设置 shell 变量（#1041）；删掉了未使用的 `RED`（#1003）。

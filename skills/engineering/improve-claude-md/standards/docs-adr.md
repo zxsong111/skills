@@ -1,39 +1,39 @@
-# Docs and ADRs
+# 文档与 ADR
 
-**Applies when:** Projects delivered externally or maintained by several people
+**适用条件：** 对外交付或由多人维护的项目
 
-**Probe first:** Existing README sections, `docs/` structure, whether ADRs already exist
+**先探查：** README 已有的章节、`docs/` 结构、是否已有 ADR
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| README essentials | Overview, quick start, configuration, testing, deployment | none |
-| API docs | Where they live, who updates them (in the same PR as the code) | none |
-| ADRs | Important architecture decisions go in `docs/adr/NNNN-<title>.md`, append-only, marked when superseded | none |
-| Language | Docs describe the current state, not the change history | none |
+| README 必备内容 | 简介、快速开始、配置、测试、部署 | 无 |
+| API 文档 | 放在哪、谁来更新（和代码在同一个 PR 里） | 无 |
+| ADR | 重要的架构决策写进 `docs/adr/NNNN-<title>.md`，只追加，被取代时加标注 | 无 |
+| 写法 | 文档描述当前状态，不描述变更历史 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 5: goes in CLAUDE.md; after an interface change, check whether the README / API docs changed with it
-- Companion: with no ADR directory, generate `docs/adr/0000-template.md`
+- 第 5 层：写进 CLAUDE.md；接口变更后，检查 README / API 文档是否随之更新
+- 配套：没有 ADR 目录时生成 `docs/adr/0000-template.md`
 
-## Companion file skeleton
+## 配套文件骨架
 
-If the target file already exists, skip it and say so in the report. Don't overwrite it.
+目标文件已存在时跳过，并在报告中说明。不要覆盖。
 
 ```markdown
-# NNNN. <Decision title>
+# NNNN. <决策标题>
 
 - Status: proposed / accepted / superseded (by NNNN)
 - Date: YYYY-MM-DD
 
-## Context
+## 背景
 
-## Decision
+## 决策
 
-## Consequences
-<!-- benefits, costs, follow-up work -->
+## 后果
+<!-- 收益、代价、后续工作 -->
 ```

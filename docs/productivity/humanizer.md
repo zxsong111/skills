@@ -1,42 +1,42 @@
-## What it does
+## 它做什么
 
-`humanizer` rewrites text that reads as AI-written so it reads as human-written. It marks and rewrites 26 kinds of pattern (staging before the point, "not X but Y", forced triads, dashes everywhere, bold as decoration, chatbot residue, re-explaining background to the wrong reader) **without changing the meaning or inventing facts**. It touches only prose, never code, and a rewrite may not add a name, number, date or quote the source doesn't contain.
+`humanizer` 改写读起来像 AI 写的文字，让它读起来像人写的。它标记并改写 26 类模式（先铺垫再入题、"not X but Y"、强行三段排比、到处都是破折号、把加粗当装饰、聊天机器人的口水、向错误的读者重新解释背景），**不改变原意，不编造事实**。它只动文字，绝不碰代码，而且改写不得添加原文没有的名字、数字、日期或引文。
 
-This version's description has the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) use it automatically whenever it writes prose for people: PR descriptions, commit message bodies, READMEs, docs, reports, issues, summaries for the user. Text someone else has already written, it leaves alone unless you ask.
+这一版的 description 让 [agent](https://www.aihero.dev/ai-coding-dictionary/agent) 在为人写文字时自动使用它：PR 描述、commit message 正文、README、文档、报告、issue、给用户的摘要。别人已经写好的文字，除非你要求，否则一概不动。
 
-## When to reach for it
+## 什么时候用
 
-Type `/humanizer`, or the agent reaches for it automatically when a task fits. By hand, type `/humanizer` with pasted text or a file name, or just say "humanize" or "remove the AI tone". The agent also loads it on its own whenever it writes the prose above.
+输入 `/humanizer`，或者在任务匹配时由 agent 自动调用。手动用法：输入 `/humanizer` 并贴上文字或给出文件名，或者直接说「humanize」或「去掉 AI 腔」。agent 自己写上面这些文字时，也会自动加载它。
 
-| Situation | Use it? |
+| 情况 | 用不用 |
 | --- | --- |
-| The agent is writing a PR description, a README or docs | Automatically |
-| You paste a piece of your own writing to polish | Yes |
-| Code, commit subject lines, config files | No, it doesn't touch these |
-| Quotations, titles, proper names, a passage discussing a phrase itself | It skips them, because these aren't AI tone |
+| agent 正在写 PR 描述、README 或文档 | 自动用 |
+| 你贴一段自己写的东西想润色 | 用 |
+| 代码、commit 标题行、配置文件 | 不用，它不碰这些 |
+| 引文、标题、专有名词、讨论某个措辞本身的段落 | 它会跳过，因为这些不是 AI 腔 |
 
-## Patterns are ranked by strength
+## 模式按强度分级
 
-Patterns 1 to 5 (not X but Y, one-line closers, sayings that sound deep, a staged run-up before the point, arguing with no one) justify an edit on a single sighting. The later patterns marked *weak alone* need other tells in the same passage before the skill acts. It also has a Chinese text section that maps the patterns to their Chinese equivalents (the not-X-but-Y construction, a one-line "this is the key" paragraph, figurative buzzwords such as "empower" and "closed loop", the Chinese dash) and handles them by the same rules.
+模式 1 到 5（"not X but Y"、一句话收尾、听起来很深刻的格言、入题前的铺垫长跑、和没人质疑过你的观点辩论）只要出现一次就足以动手修改。后面标为*单独出现较弱*的模式，需要同一段落里还有其他特征，skill 才会动手。它还有一节中文文本规则，把这些模式映射到中文里的对应物（「不是 X 而是 Y」句式、「这才是关键」式的一句话段落、「赋能」「闭环」这类比喻型热词、中文的破折号类标点），并按同样的规则处理。
 
-## Common questions
+## 常见问题
 
-**Will it strip out my style too?**
-No. It keeps the details that carry a writer's voice: a specific, unusual detail, unresolved mixed feelings, dated references, a first-person choice the writer can explain, a genuine aside. It changes default choices, not personal ones.
+**它会把我的个人风格也一起去掉吗？**
+不会。它会保留承载写作者声音的细节：一个具体而不寻常的细节、未化解的矛盾心情、过时的旧梗、一个写作者自己说得清缘由的第一人称选择、一段真正的题外话。它改的是默认选择，不是个人选择。
 
-**Why fire automatically instead of when I ask?**
-Because AI tone shows up in every paragraph of prose the agent writes, and by the time you notice and ask, it is too late. The automatic scope is limited to prose the agent is writing itself. It won't touch what you or anyone else has already written.
+**为什么自动触发，而不是等我来喊？**
+因为 AI 腔出现在 agent 写的每一段文字里，等你注意到再喊，已经晚了。自动范围仅限于 agent 自己正在写的文字。你或别人已经写好的内容，它不会碰。
 
-**Can it translate?**
-No. It never switches the text into another language while rewriting it.
+**它能翻译吗？**
+不能。改写时它绝不会把文字换成另一种语言。
 
-## It's working if
+## 起作用的标志
 
-- PR descriptions the agent writes have no "not X but Y" contrasts, no clauses chained together with dashes, and no one-line summary closing every paragraph.
-- The facts before and after the rewrite match one to one, with no extra numbers or quotes.
-- Code blocks, commands, paths and URLs are untouched.
-- Text you pasted yourself still sounds like you after the rewrite.
+- agent 写的 PR 描述里没有 "not X but Y" 式的对照，没有用破折号串起来的从句，也没有每段结尾都来一句的总结。
+- 改写前后的事实一一对应，没有多出来的数字或引文。
+- 代码块、命令、路径和 URL 原封未动。
+- 你自己贴进去的文字，改写之后听起来仍然像你。
 
-## Where it fits
+## 在体系中的位置
 
-`humanizer` is a **reach-for-it-anytime standalone** that follows any step producing prose: [pr](https://aihero.dev/skills-pr) writing a PR body, [research](https://aihero.dev/skills-research) writing research notes, [retro](https://aihero.dev/skills-retro) writing its suggestions. For documents written for agents, use [writing-for-agents](https://aihero.dev/skills-writing-for-agents), which is a different set of rules. [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`humanizer` 是一个**随时可用的独立工具**，跟在任何一个产出文字的步骤后面：[pr](https://aihero.dev/skills-pr) 写 PR 正文，[research](https://aihero.dev/skills-research) 写调研笔记，[retro](https://aihero.dev/skills-retro) 写改进建议。写给 agent 读的文档要用 [writing-for-agents](https://aihero.dev/skills-writing-for-agents)，那是另一套规则。[ask-matt](https://aihero.dev/skills-ask-matt) 有整套体系的地图。

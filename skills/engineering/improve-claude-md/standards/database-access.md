@@ -1,21 +1,21 @@
-# Database access
+# 数据库访问
 
-**Applies when:** Services that read and write a database
+**适用条件：** 读写数据库的服务
 
-**Probe first:** ORM / query style, how transactions are written, slow query log
+**先探查：** ORM / 查询风格、事务的写法、慢查询日志
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| N+1 | List queries must preload associations; never query the database inside a loop | none |
-| Transactions | Transaction boundaries live in the service layer; no external calls inside a transaction | none |
-| Queries | Parameterized; never build SQL by string concatenation | none |
-| Indexes | Assess indexing for every new query condition | none |
-| Read/write split | Which queries may go to a read replica | none |
+| N+1 | 列表查询必须预加载关联；绝不在循环里查数据库 | 无 |
+| 事务 | 事务边界放在 service 层；事务内不做外部调用 | 无 |
+| 查询 | 参数化；绝不用字符串拼接 SQL | 无 |
+| 索引 | 每新增一个查询条件都评估是否需要索引 | 无 |
+| 读写分离 | 哪些查询可以走只读副本 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 3: `.claude/rules/database.md`, with `paths:` scoped to the repository / dao directories
+- 第 3 层：`.claude/rules/database.md`，`paths:` 限定在 repository / dao 目录

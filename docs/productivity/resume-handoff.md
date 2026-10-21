@@ -1,45 +1,45 @@
-## What it does
+## 它做什么
 
-`resume-handoff` is the other half of [handoff](https://aihero.dev/skills-handoff). In a new [session](https://www.aihero.dev/ai-coding-dictionary/session) it finds the handoff document by itself, checks the working state against it, and carries on from Next step. **It never asks you where the document is; it goes and looks.** When it finds nothing, it does not make up progress either: it says plainly that nothing turned up and asks you for a path.
+`resume-handoff` 是 [handoff](https://aihero.dev/skills-handoff) 的另一半。在一个新[会话](https://www.aihero.dev/ai-coding-dictionary/session)里，它自己找到交接文档，对照它检查工作状态，然后从「下一步」继续。**它从不问你文档在哪；它自己去找。**找不到时，它也不会编造进度：它会直说什么都没找到，然后向你要一个路径。
 
-The search order is fixed:
+查找顺序是固定的：
 
-1. `tasks/handoff.md` at the repo root.
-2. The same file in the repo's other worktrees.
-3. Handoff documents from the last 7 days in the system temp directory, where upstream `handoff` writes by default.
+1. 仓库根目录的 `tasks/handoff.md`。
+2. 仓库其他 worktree 里的同一个文件。
+3. 系统临时目录里最近 7 天的交接文档，上游 `handoff` 默认写在那里。
 
-If it finds several, it uses the newest and tells you where the others are.
+如果找到好几份，它用最新的，并告诉你其余的在哪里。
 
-## When to reach for it
+## 什么时候用
 
-You invoke this by typing `/resume-handoff`, and the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own. It takes no arguments.
+输入 `/resume-handoff` 调用它，[agent](https://www.aihero.dev/ai-coding-dictionary/agent) 不会自己去用它。它不接受参数。
 
-| Situation | What it does |
+| 情况 | 它做什么 |
 | --- | --- |
-| The last session ran `/handoff` | Finds the document, checks the branch and working tree, restates the goal and next step, and starts work |
-| The branch or changes don't match the document | Stops, tells you what differs, and asks before going on |
-| There is no handoff document | Checks the issue tracker for an in-progress ticket; if there is none either, says so and stops |
-| The document lists Pending user decisions | Asks first, then acts |
+| 上一个会话运行过 `/handoff` | 找到文档，检查 branch 和工作区，重申目标和下一步，然后开工 |
+| branch 或改动与文档对不上 | 停下来，告诉你差在哪里，先问再继续 |
+| 没有交接文档 | 去 issue tracker 查有没有进行中的 ticket；也没有的话，直说并停止 |
+| 文档列了「待用户决定」 | 先问，再动手 |
 
-## Check the working state, not the document
+## 检查工作状态，而不是检查文档
 
-A claim the handoff states as fact without evidence ("X is done", "Y doesn't exist") is treated as something to verify. Approaches listed under Ruled out are not tried again unless there is new evidence. Once the task is done and verification has produced evidence, the skill deletes the handoff document, so the next run doesn't pick up a handoff that is already finished.
+交接文档里被当作事实陈述却没有证据的说法（「X 做完了」「Y 不存在」）会被当作待验证的东西。「已排除」里列出的做法不会被再次尝试，除非出现了新的证据。任务完成、验证也拿出了证据之后，skill 会删掉交接文档，这样下一次运行就不会捡起一份已经完结的交接。
 
-## Common questions
+## 常见问题
 
-**Upstream `handoff` writes to the temp directory. Can it find that?**
-Yes. Its third step looks in `$TMPDIR` (or `/tmp` when that is unset) for markdown files from the last 7 days with handoff in the name. A file older than 7 days, or one lost when the system cleared temp, it won't find, and it asks you for a path instead.
+**上游 `handoff` 写到临时目录。它能找到那里吗？**
+能。它的第三步会在 `$TMPDIR`（未设置时是 `/tmp`）里找最近 7 天文件名带 handoff 的 markdown 文件。超过 7 天的文件，或者系统清空临时目录时丢掉的文件，它找不到，转而向你要路径。
 
-**How is it different from `/compact`?**
-`/compact` compresses the [context](https://www.aihero.dev/ai-coding-dictionary/context) and continues in the same session; `resume-handoff` recovers from a file in a brand-new session. The first keeps your intent. The second has only what was written to disk.
+**它和 `/compact` 有什么区别？**
+`/compact` 压缩[上下文](https://www.aihero.dev/ai-coding-dictionary/context)，在同一个会话里继续；`resume-handoff` 在一个全新的会话里从文件恢复。前者保住你的意图。后者只有写到磁盘上的那些东西。
 
-## It's working if
+## 起作用的标志
 
-- After `/resume-handoff`, the first two or three lines of the reply are the goal, the current state, and the next step.
-- It ran `git status` and `git branch` to check, rather than taking the document at its word.
-- Approaches under Ruled out in the document were not tried again.
-- Once the task was done, the handoff document was deleted.
+- 运行 `/resume-handoff` 之后，回复的头两三行是目标、当前状态和下一步。
+- 它跑了 `git status` 和 `git branch` 来核对，而不是听信文档的一面之词。
+- 文档「已排除」下的做法没有被再次尝试。
+- 任务做完后，交接文档被删掉了。
 
-## Where it fits
+## 在体系中的位置
 
-`resume-handoff` is a **reach-for-it-anytime standalone** that works at a phase boundary: `/handoff` writes, `/resume-handoff` reads. Its only neighbour is [handoff](https://aihero.dev/skills-handoff), because that writes the document this skill reads. For choosing among the five options at a phase boundary, see [ask-matt](https://aihero.dev/skills-ask-matt).
+`resume-handoff` 是一个**随时可用的独立工具**，工作在阶段边界上：`/handoff` 写，`/resume-handoff` 读。它唯一的邻居是 [handoff](https://aihero.dev/skills-handoff)，因为那个写下的文档正是这个 skill 要读的。要在阶段边界上的五个选项里做选择，见 [ask-matt](https://aihero.dev/skills-ask-matt)。

@@ -1,87 +1,87 @@
-## What it does
+## 它做什么
 
-`grilling` is the interview loop that stress-tests a plan, a decision, or an idea before anyone acts on it. It maps the subject as a **design tree**: every decision branches into the decisions that hang off it, and interviews you branch by branch until no assumption stays unstated.
+`grilling` 是一个访谈循环，在任何人动手之前，对一个计划、一个决策或一个想法做压力测试。它把主题画成一棵**决策树**（design tree）：每个决策都分叉出挂在它下面的决策，然后逐个分支地访谈你，直到没有任何假设是未说明的。
 
-It does not ask one question at a time, and it does not ask everything at once. Each **round** asks the whole **frontier**: every decision whose prerequisites are already settled, and nothing else. Two questions never share a round if one depends on the other; a question that hinges on an answer still open belongs to a later round. Your answers settle decisions, the frontier moves outward, and the next round asks what that unblocked. Thirteen questions typically land in about three rounds rather than thirteen.
+它不会一次只问一个问题，也不会一次把所有问题都问完。每一**轮**问的是整个**前沿**（frontier）：所有前提条件都已定下来的决策，仅此而已。如果一个问题依赖另一个，这两个问题绝不会出现在同一轮；一个取决于尚未确定的答案的问题，属于后面的轮次。你的回答定下了决策，前沿向外推进，下一轮就问那些刚被解锁的问题。十三个问题通常大约三轮就问完，而不是十三轮。
 
-## When to reach for it
+## 什么时候用
 
-Type `/grilling`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it on its own when a task fits. It is the only [skill](https://www.aihero.dev/ai-coding-dictionary/skill) in the grilling family that is model-invoked, so you rarely type it. Usually a skill you *did* type runs it for you.
+输入 `/grilling`，或者在任务匹配时由 [agent](https://www.aihero.dev/ai-coding-dictionary/agent) 自动调用。它是盘问家族里唯一一个模型自动调用的 [skill](https://www.aihero.dev/ai-coding-dictionary/skill)，所以你很少需要输入它。通常是你*确实*输入了的某个 skill 替你运行它。
 
-Typing `/grilling` directly gets you the plain interview and nothing else. Where you want something more than that:
+直接输入 `/grilling`，得到的就是单纯的访谈，别无其他。如果你想要的不止于此：
 
-| What you have | Reach for |
+| 你手上有什么 | 该用什么 |
 | --- | --- |
-| You aren't working in a working directory | [grill-me](https://aihero.dev/skills-grill-me): the same [session](https://www.aihero.dev/ai-coding-dictionary/session), under a name the agent will never fire by itself |
-| You are in a working directory | [grill-with-docs](https://aihero.dev/skills-grill-with-docs): the same session, and it writes `GLOSSARY.md` and ADRs as it goes |
-| An effort too big to hold in one session | [wayfinder](https://aihero.dev/skills-wayfinder): it charts a map and runs grilling inside the decision tickets |
-| A question that talking cannot settle: how something should look or feel | [prototype](https://aihero.dev/skills-prototype): build the throwaway version, then come back |
-| A skill of your own that needs an interview | Invoke `/grilling` from it, rather than writing another interview |
+| 你不在一个工作目录里 | [grill-me](https://aihero.dev/skills-grill-me)：同样的[会话](https://www.aihero.dev/ai-coding-dictionary/session)，换了一个 agent 永远不会自己触发的名字 |
+| 你在一个工作目录里 | [grill-with-docs](https://aihero.dev/skills-grill-with-docs)：同样的会话，并且会边聊边写 `GLOSSARY.md` 和 ADR |
+| 一项大到一次会话装不下的工作 | [wayfinder](https://aihero.dev/skills-wayfinder)：它画出一张地图，并在决策 ticket 里运行盘问 |
+| 一个靠聊天解决不了的问题：某样东西应该长什么样、是什么感觉 | [prototype](https://aihero.dev/skills-prototype)：先做出一次性的版本，然后再回来 |
+| 你自己写的、需要访谈的 skill | 在里面调用 `/grilling`，而不是再写一套访谈 |
 
-## The round, the frontier, and who decides
+## 轮次、前沿，以及谁来决定
 
-The skill rests on three ideas.
+这个 skill 建立在三个概念之上。
 
-The **design tree** is the model of the subject: decisions with decisions hanging off them. The **frontier** is the set of decisions whose prerequisites are all settled: the only questions the agent can ask yet. A **round** is one frontier, asked in full and answered in full.
+**决策树**是主题的模型：决策下面挂着决策。**前沿**是所有前提条件都已定下来的决策集合：也就是 agent 当前唯一能问的问题。**一轮**就是一个前沿，完整地问出，完整地回答。
 
-Inside a round, every question has a fixed format: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. This format lets you answer a round by number ("1 yes, 2 the second option, 3 no, here's why") instead of by quoting questions back. The format has one known problem. The recommendation sometimes argues *against* the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
+在一轮里，每个问题都有固定格式：编号和标题跟在 `❓` 后面，然后是正文，然后是 agent 的推荐答案，单独占一行，以 `➡️` 开头。这种格式让你可以按编号回答一整轮（「1 是，2 选第二个，3 不，原因如下」），而不用把问题引用回去。这个格式有一个已知问题。推荐答案有时会*反对*问题本身的措辞，于是同意推荐答案就意味着对问题回答「否」。遇到这种情况，就针对推荐答案作答，并说明这一点。
 
-The other half of the design is the split between facts and decisions. Facts are the skill's own job. When a frontier question needs something the [environment](https://www.aihero.dev/ai-coding-dictionary/environment) can settle, the agent dispatches a [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) to find out rather than asking you. The round does not wait for that research; only the questions that depend on it wait. Decisions are yours, and the agent must wait for them. An agent running `grilling` that answers its own decisions has broken the skill. The session ends when the frontier is empty. The agent then waits for you to confirm a shared understanding before it acts on what you agreed.
+设计的另一半是事实与决策的划分。事实是 skill 自己的事。当某个前沿问题需要的东西可以由[环境](https://www.aihero.dev/ai-coding-dictionary/environment)确定时，agent 会派出一个[子 agent](https://www.aihero.dev/ai-coding-dictionary/subagent) 去查明，而不是问你。这一轮不会等这项调研；只有依赖它的问题才会等。决策归你，agent 必须等你做出决策。一个运行 `grilling` 却自己回答自己决策问题的 agent，就是把这个 skill 用坏了。前沿清空时会话结束。然后 agent 会等你确认双方理解一致，才会按你们商定的去行动。
 
-The frontier has one limit. The agent chooses it by judgement; it does not compute it from a graph. So it can put two questions in one round and only later find that one answer should have changed the other. The only guard is to tell it. That reopens the affected branch in the next round.
+前沿有一个局限。agent 是凭判断选出前沿的，而不是从一张图里算出来的。所以它可能把两个问题放进同一轮，事后才发现其中一个的答案本该改变另一个。唯一的防护就是告诉它。这样受影响的分支会在下一轮重新打开。
 
-## What lives here and what lives in the wrappers
+## 这里讲什么，包装 skill 里讲什么
 
-This page covers the mechanism. The wrapper skills' pages answer the questions people ask most often.
+本页讲的是机制。包装 skill 的页面回答人们最常问的问题。
 
-| Question | Where it is answered |
+| 问题 | 在哪里回答 |
 | --- | --- |
-| The tree, the frontier, rounds, the question format, facts vs decisions | Here |
-| How long a session should run, what to do with a question you can't answer by talking, how to avoid nodding along | [grill-me](https://aihero.dev/skills-grill-me) |
-| What gets written to `GLOSSARY.md`, what becomes an ADR | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
+| 决策树、前沿、轮次、问题格式、事实与决策 | 本页 |
+| 一次会话该持续多久，碰到靠聊天答不出来的问题怎么办，怎样避免一路点头 | [grill-me](https://aihero.dev/skills-grill-me) |
+| 什么会被写进 `GLOSSARY.md`，什么会变成 ADR | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
 
-## Common questions
+## 常见问题
 
-**Can I go back to one question at a time?**
-Yes, and a large part of the audience does. Add this to your global `CLAUDE.md`:
+**我能改回一次只问一个问题吗？**
+可以，而且相当一部分用户就是这么做的。把这一行加到你的全局 `CLAUDE.md`：
 
 ```
-When grilling, ask one question at a time.
+盘问时，一次只问一个问题。
 ```
 
-Not everyone prefers the round-based default. Users who read slowly, who work in a second language, or who use the sequential format to help them focus report that one question at a time works better for them. The opt-out is a supported setting, not a workaround.
+不是每个人都喜欢默认的按轮提问。阅读较慢的用户、用第二语言工作的用户，或者借助逐个提问来帮自己集中注意力的用户，都反馈一次一个问题对他们更好用。这个退出选项是受支持的设置，而不是变通办法。
 
-**Where did `/batch-grill-me` go?**
-Into this skill. Round-based questioning shipped briefly as a separate skill, then moved into `grilling` itself, so everything built on the primitive (`grill-me`, `grill-with-docs`, `triage`, `wayfinder`) got it at once. There is no `batch-grill-me` to install, and no separate sequential skill either; the `CLAUDE.md` line above is the way back to one-at-a-time.
+**`/batch-grill-me` 去哪了？**
+并进了这个 skill。按轮提问曾短暂地作为一个独立 skill 发布，后来移进了 `grilling` 本身，这样所有建立在这个基础组件上的东西（`grill-me`、`grill-with-docs`、`triage`、`wayfinder`）一下子都有了它。没有 `batch-grill-me` 可以安装，也没有单独的逐个提问 skill；上面那行 `CLAUDE.md` 就是改回一次一个的方法。
 
-**Asking a whole round at once must lose the questions my earlier answers would have raised. Doesn't it?**
-This is the most common objection to rounds, and the frontier answers it. A round only contains questions that do not depend on each other, so no answer in a round can invalidate another question in that round. Your answers still change what comes after them, because the agent works out each next round from scratch. You do lose something, but less than "all questions at once" implies. See the frontier's limit above.
+**一次问完一整轮，肯定会漏掉我前面的回答本来会引出的问题吧？**
+这是对按轮提问最常见的反对意见，而前沿回答了它。一轮里只包含互不依赖的问题，所以一轮里的任何回答都不可能让同一轮的另一个问题失效。你的回答仍然会改变后面的内容，因为 agent 每一轮都会从头推算下一轮。你确实会损失一些东西，但比「一次问完所有问题」听起来要少。见上文前沿的局限。
 
-**It ran out of questions and started building.**
-The confirmation gate exists for this. The skill is finished when you say the understanding is shared, not when the frontier empties. Weaker and faster [models](https://www.aihero.dev/ai-coding-dictionary/model) still skip the gate. Users report this most often on lower-effort or non-frontier models, which collapse "interview until shared understanding" into a couple of questions and an outline. If yours does it, the reliable fix is a line in your own `AGENTS.md` or `CLAUDE.md` telling the agent not to implement without permission.
+**它问完了问题，就开始动手构建了。**
+确认关卡就是为此而设的。skill 的结束点是你说双方理解一致的时候，而不是前沿清空的时候。较弱、较快的[模型](https://www.aihero.dev/ai-coding-dictionary/model)仍然会跳过这道关卡。用户反馈这种情况最常出现在低推理强度或非前沿模型上，它们会把「访谈直到理解一致」压缩成几个问题加一份大纲。如果你的模型这么做，可靠的解决办法是在你自己的 `AGENTS.md` 或 `CLAUDE.md` 里加一行，告诉 agent 未经许可不要动手实现。
 
-**It answered its own questions instead of asking me.**
-That is a bug in the run, and it is the reason the skill's text separates facts from decisions. It happens most when another skill runs `grilling` to resolve a ticket, and the agent takes that task as permission to keep moving. The same constraint is why there is no async mode. People have asked for a variant that reads a GitHub issue and posts one consolidated decision memo, and that is a different skill, because a grilling session that nobody answers has produced the agent's opinion rather than yours.
+**它自己回答了自己的问题，而不是问我。**
+这是这次运行的 bug，也正是 skill 文本把事实和决策分开的原因。最常发生在另一个 skill 运行 `grilling` 来解决某个 ticket 时，agent 把这个任务当成了继续往前推进的许可。同样的约束也是没有异步模式的原因。有人要过一种变体：读取一个 GitHub issue，然后发布一份汇总的决策备忘录。那是另一个 skill，因为一次没人回答的盘问会话，产出的是 agent 的意见，而不是你的。
 
-**Can I cap the number of questions?**
-No, and a cap is out of scope on purpose. Some plans need three questions and some need fifty; a fixed ceiling either truncates the hard case or feels arbitrary on the easy one. The intended control is plain language. Tell it to wrap up, or stop and accept the plan where it stands. If a session is running very long, the cause is usually that the scope was too big; break the work up and grill the pieces.
+**我能给问题数量设个上限吗？**
+不能，而且上限是有意排除在范围之外的。有的计划需要三个问题，有的需要五十个；固定的上限要么截断困难的情况，要么在简单的情况下显得武断。预期的控制方式是直接说话。告诉它收尾，或者停下来，接受计划当前的样子。如果一次会话跑得特别长，原因通常是范围太大；把工作拆开，逐块盘问。
 
-**I installed `grill-me` on its own and nothing happens.**
-`grill-me` is a one-line skill whose whole body is "run a `/grilling` session", so it needs this skill installed too. The same is true of `grill-with-docs`, which additionally needs [domain-modeling](https://aihero.dev/skills-domain-modeling). Installing the whole set avoids the problem; installing selectively means installing the primitives as well.
+**我单独安装了 `grill-me`，结果什么都没发生。**
+`grill-me` 是一个只有一行的 skill，它的全部正文就是「运行一次 `/grilling` 会话」，所以它需要同时安装这个 skill。`grill-with-docs` 也一样，而且它还需要 [domain-modeling](https://aihero.dev/skills-domain-modeling)。安装整套就能避免这个问题；有选择地安装，就意味着也要装上这些基础组件。
 
-**`grill-with-docs` ran, but it never loaded `grilling`.**
-This is a real bug, still unfixed, and users report it across [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) and models. A skill that names another skill does not reliably cause that skill to load, and `grill-with-docs` names two. The sign is a session that asks everything at once with no recommendations. That means the model is improvising an interview rather than running this one. Asking the agent directly whether it loaded `grilling` and `domain-modeling` usually recovers it.
+**`grill-with-docs` 跑了，但它从来没有加载 `grilling`。**
+这是一个真实存在、尚未修复的 bug，用户在各种 [harness](https://www.aihero.dev/ai-coding-dictionary/harness) 和模型上都报告过。一个 skill 点名另一个 skill，并不能可靠地让那个 skill 被加载，而 `grill-with-docs` 点名了两个。征兆是一次会话把所有问题一次问完，而且没有推荐答案。这说明模型在即兴发挥一场访谈，而不是在运行这一套。直接问 agent 它有没有加载 `grilling` 和 `domain-modeling`，通常就能恢复。
 
-## It's working if
+## 起作用的标志
 
-- A round arrives as a numbered list, each question with its recommendation on a separate `➡️` line, and you can answer the whole round by number.
-- Nothing in a round needs another question in the same round answered first.
-- Later rounds ask things the first round could not have asked.
-- It goes and looks facts up (reading files, dispatching a sub-agent) rather than asking you something it could have found out.
-- Research running in the background does not stall the round; only the questions that depend on it wait.
-- It stops at the end and asks you to confirm the understanding is shared, instead of starting work.
-- Question count stays high while round count stays low.
+- 一轮以编号列表的形式到来，每个问题的推荐答案单独占一行 `➡️`，你可以按编号回答整轮。
+- 一轮里没有任何问题需要先回答同一轮的另一个问题。
+- 后面的轮次问到了第一轮不可能问出的东西。
+- 它会自己去查事实（读文件、派出子 agent），而不是问你一些它本可以自己查到的东西。
+- 后台运行的调研不会拖住这一轮；只有依赖它的问题才会等。
+- 它在结束时停下来，请你确认双方理解一致，而不是直接开工。
+- 问题数量多，轮次数量少。
 
-## Where it fits
+## 在体系中的位置
 
-`grilling` is a **primitive**, not a step you schedule: the single source of truth for the interview technique, kept in one place so every skill that needs an interview reaches for it instead of inventing one. [grill-me](https://aihero.dev/skills-grill-me) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) are its two user-invoked front doors, and `grill-with-docs` is where the main build chain begins, ahead of [to-spec](https://aihero.dev/skills-to-spec). [wayfinder](https://aihero.dev/skills-wayfinder) runs it to resolve decision tickets, [triage](https://aihero.dev/skills-triage) to grill a vague report into a workable one, and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) to walk the tree once you have picked a candidate to deepen. When you are unsure which entry point fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+`grilling` 是一个**基础组件**，而不是你要安排的一个步骤：它是访谈技巧唯一的事实来源，集中放在一处，让每个需要访谈的 skill 都来用它，而不是自己发明一套。[grill-me](https://aihero.dev/skills-grill-me) 和 [grill-with-docs](https://aihero.dev/skills-grill-with-docs) 是它的两个用户手动调用的入口，而 `grill-with-docs` 是主构建链路的起点，位于 [to-spec](https://aihero.dev/skills-to-spec) 之前。[wayfinder](https://aihero.dev/skills-wayfinder) 运行它来解决决策 ticket，[triage](https://aihero.dev/skills-triage) 用它把一份模糊的报告盘问成可操作的报告，[improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) 则在你选定一个要加深的候选项后，用它来走一遍决策树。拿不准哪个入口合适时，[ask-matt](https://aihero.dev/skills-ask-matt) 会给你指路。

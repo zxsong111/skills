@@ -2,4 +2,4 @@
 "mattpocock-skills": minor
 ---
 
-Add **`commit-push-pr`** (Engineering, model-invoked): commits the current changes to a Git convention, then pushes and opens a PR. On the trunk (`main` or `master`) it stops and offers options instead of committing; commit messages follow `type(scope): short description`; a change of more than 13 files or 3 kinds of problem gets a split suggested first; it asks before pushing; and the PR body comes from `pr`, plus a Verification section of commands that really ran. Adapted from the skill of the same name in zxsong111/claude-config, with its main/develop/release enterprise branching model removed.
+新增 **`commit-push-pr`**（Engineering；模型自动调用，model-invoked）：按 Git 约定提交当前改动，然后推送并创建 PR。在主干（`main` 或 `master`）上它会停下来给出选项，而不是直接提交；commit message 遵循 `type(scope): short description`；改动超过 13 个文件或涉及 3 类问题时，会先建议拆分；推送前会先询问；PR 正文来自 `pr`，并附带一个验证小节，列出真正运行过的命令。改编自 zxsong111/claude-config 中的同名 skill，去掉了其中 main/develop/release 的企业分支模型。

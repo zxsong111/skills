@@ -1,23 +1,23 @@
-# API / interface design
+# API / 接口设计
 
-**Applies when:** Has an external HTTP / RPC / GraphQL interface
+**适用条件：** 有对外的 HTTP / RPC / GraphQL 接口
 
-**Probe first:** Route definitions, OpenAPI / proto files, how existing endpoints handle naming and pagination
+**先探查：** 路由定义、OpenAPI / proto 文件、现有接口如何处理命名和分页
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Resource naming | Plural nouns, kebab-case paths; RPC uses verb-object | `GET /orders/{id}` |
-| Versioning | URL prefix or header; when to bump the major version | `/v1/` |
-| Pagination / filtering / sorting | Uniform parameter names and response shape | `?cursor=&limit=`, returns `next_cursor` |
-| Idempotency | Write operations support `Idempotency-Key`; PUT/DELETE are idempotent by nature | none |
-| Backward compatibility | Add only, never remove; deprecate a field for one version cycle before removing it | none |
-| Contract first | Change the OpenAPI / proto before changing the implementation | none |
+| 资源命名 | 复数名词，kebab-case 路径；RPC 用动宾结构 | `GET /orders/{id}` |
+| 版本 | URL 前缀还是 header；什么时候升主版本 | `/v1/` |
+| 分页 / 过滤 / 排序 | 统一的参数名和响应结构 | `?cursor=&limit=`，返回 `next_cursor` |
+| 幂等 | 写操作支持 `Idempotency-Key`；PUT/DELETE 天然幂等 | 无 |
+| 向后兼容 | 只增不删；字段先废弃一个版本周期再删除 | 无 |
+| 契约优先 | 先改 OpenAPI / proto，再改实现 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: with OpenAPI / proto, add linting (spectral, buf lint) and breaking-change checks (buf breaking, oasdiff) to CI
-- Layer 3: `.claude/rules/api.md`, with `paths:` scoped to the route / handler directories
+- 第 2 层：有 OpenAPI / proto 的，在 CI 里加 lint（spectral、buf lint）和破坏性变更检查（buf breaking、oasdiff）
+- 第 3 层：`.claude/rules/api.md`，`paths:` 限定在路由 / handler 目录

@@ -1,21 +1,21 @@
-# Performance and observability
+# 性能与可观测性
 
-**Applies when:** Backend services, or projects with an SLA or performance requirements
+**适用条件：** 后端服务，或有 SLA / 性能要求的项目
 
-**Probe first:** Existing logging / metrics / tracing libraries; monitoring dashboards; performance budget
+**先探查：** 已有的日志 / 指标 / 链路追踪库；监控面板；性能预算
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Critical paths | Which paths must have metrics and traces | Placing an order, payment |
-| Metric naming | Prefix and unit conventions | `order_checkout_duration_seconds` |
-| Performance budget | Concrete numbers for endpoint P95, slow query threshold, frontend LCP, and so on | P95 < 300ms |
-| Alerts | What triggers an alert, who responds | none |
+| 关键路径 | 哪些路径必须有指标和链路追踪 | 下单、支付 |
+| 指标命名 | 前缀和单位约定 | `order_checkout_duration_seconds` |
+| 性能预算 | 接口 P95、慢查询阈值、前端 LCP 等的具体数值 | P95 < 300ms |
+| 告警 | 什么情况触发告警，谁来响应 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: the measurable parts of the performance budget go into CI (lighthouse-ci, benchmarks)
-- Layer 5: goes in CLAUDE.md; projects with no performance requirements are judged not applicable
+- 第 2 层：性能预算中可度量的部分放进 CI（lighthouse-ci、基准测试）
+- 第 5 层：写进 CLAUDE.md；没有性能要求的项目判定为不适用

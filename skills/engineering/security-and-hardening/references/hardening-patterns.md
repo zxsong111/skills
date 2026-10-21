@@ -1,46 +1,46 @@
-# Hardening Patterns
+# 加固模式
 
-Code patterns and decision aids for the `security-and-hardening` skill. The skill states each rule; this file shows one concrete implementation of it. Open the section you need when you reach that code. It is not meant to be read top to bottom.
+`security-and-hardening` skill 的代码模式和决策辅助。skill 负责陈述每条规则；本文件给出它的一种具体实现。写到那部分代码时再打开你需要的章节。本文件不需要从头读到尾。
 
-Shared checklists (threat modeling, pre-commit checks, security headers, CORS, the package-manager matrix, install-script gate, and the OWASP quick-reference tables) live in [security-checklist.md](security-checklist.md).
+共用的清单（威胁建模、提交前检查、安全响应头、CORS、包管理器矩阵、安装脚本闸门，以及 OWASP 速查表）在 [security-checklist.md](security-checklist.md) 里。
 
-## OWASP Top 10 Prevention Patterns
+## OWASP Top 10 防范模式
 
-These are prevention patterns, not a ranking. For the 2021 ordering, see the quick-reference table in [security-checklist.md](security-checklist.md#owasp-top-10-quick-reference).
+这些是防范模式，不是排名。2021 版的排序见 [security-checklist.md](security-checklist.md#owasp-top-10-quick-reference) 中的速查表。
 
 ### Injection
 
 ```typescript
-// BAD: SQL injection via string concatenation
+// 错误：字符串拼接导致 SQL 注入
 const query = `SELECT * FROM users WHERE id = '${userId}'`;
 
-// GOOD: Parameterized query
+// 正确：参数化查询
 const user = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
 
-// GOOD: ORM with parameterized input
+// 正确：ORM 配合参数化输入
 const user = await prisma.user.findUnique({ where: { id: userId } });
 ```
 
 ### Broken Authentication
 
 ```typescript
-// Password hashing
+// 密码哈希
 import { hash, compare } from 'bcrypt';
 
 const SALT_ROUNDS = 12;
 const hashedPassword = await hash(plaintext, SALT_ROUNDS);
 const isValid = await compare(plaintext, hashedPassword);
 
-// Session management
+// 会话管理
 app.use(session({
-  secret: process.env.SESSION_SECRET,  // From environment, not code
+  secret: process.env.SESSION_SECRET,  // 来自环境变量，不写在代码里
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,     // Not accessible via JavaScript
-    secure: true,       // HTTPS only
-    sameSite: 'lax',    // CSRF protection
-    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+    httpOnly: true,     // JavaScript 无法访问
+    secure: true,       // 仅限 HTTPS
+    sameSite: 'lax',    // CSRF 防护
+    maxAge: 24 * 60 * 60 * 1000,  // 24 小时
   },
 }));
 ```
@@ -48,13 +48,13 @@ app.use(session({
 ### Cross-Site Scripting (XSS)
 
 ```typescript
-// BAD: Rendering user input as HTML
+// 错误：把用户输入当作 HTML 渲染
 element.innerHTML = userInput;
 
-// GOOD: Use framework auto-escaping (React does this by default)
+// 正确：使用框架的自动转义（React 默认就这样做）
 return <div>{userInput}</div>;
 
-// If you MUST render HTML, sanitize first
+// 如果必须渲染 HTML，先清理
 import DOMPurify from 'dompurify';
 const clean = DOMPurify.sanitize(userInput);
 ```
@@ -62,18 +62,18 @@ const clean = DOMPurify.sanitize(userInput);
 ### Broken Access Control
 
 ```typescript
-// Always check authorization, not just authentication
+// 始终检查授权，而不仅仅是认证
 app.patch('/api/tasks/:id', authenticate, async (req, res) => {
   const task = await taskService.findById(req.params.id);
 
-  // Check that the authenticated user owns this resource
+  // 检查已认证用户是否拥有这个资源
   if (task.ownerId !== req.user.id) {
     return res.status(403).json({
       error: { code: 'FORBIDDEN', message: 'Not authorized to modify this task' }
     });
   }
 
-  // Proceed with update
+  // 继续执行更新
   const updated = await taskService.update(req.params.id, req.body);
   return res.json(updated);
 });
@@ -82,22 +82,22 @@ app.patch('/api/tasks/:id', authenticate, async (req, res) => {
 ### Security Misconfiguration
 
 ```typescript
-// Security headers (use helmet for Express)
+// 安全响应头（Express 用 helmet）
 import helmet from 'helmet';
 app.use(helmet());
 
-// Content Security Policy
+// 内容安全策略（CSP）
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
     scriptSrc: ["'self'"],
-    styleSrc: ["'self'", "'unsafe-inline'"],  // Tighten if possible
+    styleSrc: ["'self'", "'unsafe-inline'"],  // 能收紧就收紧
     imgSrc: ["'self'", 'data:', 'https:'],
     connectSrc: ["'self'"],
   },
 }));
 
-// CORS: restrict to known origins
+// CORS：限定为已知的 origin
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
   credentials: true,
@@ -107,26 +107,26 @@ app.use(cors({
 ### Sensitive Data Exposure
 
 ```typescript
-// Never return sensitive fields in API responses
+// 绝不在 API 响应中返回敏感字段
 function sanitizeUser(user: UserRecord): PublicUser {
   const { passwordHash, resetToken, ...publicFields } = user;
   return publicFields;
 }
 
-// Use environment variables for secrets
+// 密钥使用环境变量
 const API_KEY = process.env.STRIPE_API_KEY;
 if (!API_KEY) throw new Error('STRIPE_API_KEY not configured');
 ```
 
 ### Server-Side Request Forgery (SSRF)
 
-Any time the server fetches a URL the user influenced (webhooks, "import from URL", image proxies, link previews), an attacker can aim it at internal services (cloud metadata, `localhost`, private IPs).
+只要服务端会请求一个受用户影响的 URL（webhook、「从 URL 导入」、图片代理、链接预览），攻击者就能把它指向内部服务（云元数据、`localhost`、私有 IP）。
 
 ```typescript
-// BAD: fetch whatever the user gives you
+// 错误：用户给什么就请求什么
 await fetch(req.body.webhookUrl);
 
-// GOOD: allowlist scheme + host, reject if ANY resolved IP is private, forbid redirects
+// 正确：scheme + host 白名单；只要有任何一个解析出的 IP 是私有地址就拒绝；禁止重定向
 import { lookup } from 'node:dns/promises';
 import ipaddr from 'ipaddr.js';
 
@@ -136,7 +136,7 @@ async function assertSafeUrl(raw: string): Promise<URL> {
   const url = new URL(raw);
   if (url.protocol !== 'https:') throw new Error('https only');
   if (!ALLOWED_HOSTS.has(url.hostname)) throw new Error('host not allowed');
-  // Resolve ALL records; a single private/reserved address fails the check.
+  // 解析全部记录；只要有一个私有/保留地址，检查就不通过。
   const addrs = await lookup(url.hostname, { all: true });
   if (addrs.some((a) => ipaddr.parse(a.address).range() !== 'unicast')) {
     throw new Error('private/reserved IP');
@@ -147,11 +147,11 @@ async function assertSafeUrl(raw: string): Promise<URL> {
 await fetch(await assertSafeUrl(req.body.webhookUrl), { redirect: 'error' });
 ```
 
-The `range() !== 'unicast'` check covers loopback, link-local `169.254.169.254` (cloud metadata, the #1 SSRF target), private, and unique-local ranges across IPv4 and IPv6.
+`range() !== 'unicast'` 这个检查覆盖了 IPv4 和 IPv6 中的 loopback、link-local `169.254.169.254`（云元数据，头号 SSRF 目标）、私有地址和 unique-local 范围。
 
-**Caveat: this still has a TOCTOU gap.** `fetch` resolves DNS again after the check, so an attacker using a short-TTL record can rebind to an internal IP between validation and connection. For high-risk surfaces, resolve once and connect to the pinned IP, or put a filtering agent in front (`request-filtering-agent` / `ssrf-req-filter`).
+**注意：这里仍然存在 TOCTOU 漏洞。** `fetch` 在检查之后会再解析一次 DNS，所以攻击者可以利用短 TTL 的记录，在校验和建立连接之间把域名重绑定到内部 IP。对高风险的入口，只解析一次并连接到固定的 IP，或者在前面加一个过滤代理（`request-filtering-agent` / `ssrf-req-filter`）。
 
-## Input Validation Patterns
+## 输入校验模式
 
 ### Schema Validation at Boundaries
 
@@ -165,7 +165,7 @@ const CreateTaskSchema = z.object({
   dueDate: z.string().datetime().optional(),
 });
 
-// Validate at the route handler
+// 在路由处理器中校验
 app.post('/api/tasks', async (req, res) => {
   const result = CreateTaskSchema.safeParse(req.body);
   if (!result.success) {
@@ -177,7 +177,7 @@ app.post('/api/tasks', async (req, res) => {
       },
     });
   }
-  // result.data is now typed and validated
+  // result.data 现在已带类型并通过校验
   const task = await taskService.create(result.data);
   return res.status(201).json(task);
 });
@@ -186,7 +186,7 @@ app.post('/api/tasks', async (req, res) => {
 ### File Upload Safety
 
 ```typescript
-// Restrict file types and sizes
+// 限制文件类型和大小
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -197,66 +197,66 @@ function validateUpload(file: UploadedFile) {
   if (file.size > MAX_SIZE) {
     throw new ValidationError('File too large (max 5MB)');
   }
-  // Don't trust the file extension, check magic bytes if critical
+  // 不要相信文件扩展名，关键场景下检查 magic bytes
 }
 ```
 
 ### Destructive Operations on Derived Paths
 
-A delete, move, or overwrite is only as safe as the value that names its target. Reading that value from the kernel, a job payload, or a sibling service proves where it *arrived from*, not who *wrote* it: another process's command line is as attacker-controlled as a form field. A shape check ("absolute path, at least one directory deep") proves well-formedness and gets mistaken for authorization. That is how a cleanup routine deletes the root instead of the leaf.
+删除、移动或覆盖操作的安全程度，取决于指明其目标的那个值。从内核、任务载荷或兄弟服务读到这个值，只能证明它*从哪里来*，不能证明是谁*写下*了它：另一个进程的命令行和表单字段一样受攻击者控制。形状检查（「绝对路径，至少有一层目录」）只能证明格式正确，却常被误当成授权。清理例程就是这样删掉了根目录而不是叶子目录。
 
-Before a destructive call, require all three: the resolved target sits under an **allowlisted root** (compare after resolving symlinks, never on the raw string); it is at least one level **below** that root, so a root is never itself the target; and it carries **evidence that it is yours**, read *before* the operation and before any teardown that removes it, because otherwise "absent" and "not mine" are indistinguishable. On refusal, log the rejected target and stop: a cleanup that falls back to a broader default path is the failure this guards against. Worked example in [security-checklist.md](security-checklist.md#destructive-path-operations).
+执行破坏性调用之前，三项缺一不可：解析后的目标位于一个**白名单根目录**之下（在解析 symlink 之后比较，绝不对原始字符串比较）；它至少比该根目录**低一级**，因此根目录本身永远不会成为目标；并且它带有**属于你的证据**，这个证据要在操作之前、在任何会删除它的拆除步骤之前读取，否则「不存在」和「不是我的」就无法区分。拒绝时，记录被拒绝的目标并停止：一个回退到范围更大的默认路径的清理例程，正是这个检查要防范的故障。完整示例见 [security-checklist.md](security-checklist.md#destructive-path-operations)。
 
-Two limits, because the check reads stronger than it is. A marker inside the tree is self-attestation (anything that can write there can write the marker), so the expected owner has to come from authenticated state, and the marker needs integrity protection (restrictive ownership, or a MAC) before it counts as authorization. And resolving a path and then operating on the *name* is a check/use race wherever an untrusted process can swap an ancestor: on a shared volume, hold the target by descriptor and use no-follow, beneath-the-root operations, or make sure the hierarchy cannot change for the duration.
+有两个局限，因为这个检查读起来比实际更强。目录树内的标记文件是自我证明（任何能往里写东西的人都能写这个标记），所以预期的所有者必须来自经过认证的状态，而且标记文件需要完整性保护（严格的文件归属，或 MAC），才能算作授权。另外，先解析路径、再按*名字*操作，在任何不可信进程能替换某个上级目录的地方都存在检查与使用之间的竞态：在共享卷上，要通过文件描述符持有目标，使用 no-follow、限定在根目录之下的操作，或者确保目录层级在操作期间不会改变。
 
 ## Dependency Audit Triage
 
-Package-manager audits report known advisories; they do not prove a package is trustworthy or that vulnerable code is reachable. Use this decision tree:
+包管理器的审计报告的是已知的安全公告；它们既不能证明一个包值得信任，也不能证明有漏洞的代码是可达的。按这棵决策树处理：
 
 ```
-The native package-manager audit reports a vulnerability
-├── Severity: critical or high
-│   ├── Is the vulnerable code reachable in runtime, build, test, or deployment paths?
-│   │   ├── YES --> Fix immediately (update, patch, or replace the dependency)
-│   │   └── NO (confirmed unused across those paths) --> Fix soon, but not a blocker
-│   └── Is a fix available?
-│       ├── YES --> Update to the patched version
-│       └── NO --> Check for workarounds, consider replacing the dependency, or add to allowlist with a review date
-├── Severity: moderate
-│   ├── Reachable in production? --> Fix in the next release cycle
-│   └── Dev-only? --> Fix when convenient, track in backlog
-└── Severity: low
-    └── Track and fix during regular dependency updates
+包管理器自带的审计报告了一个漏洞
+├── 严重程度：critical 或 high
+│   ├── 有漏洞的代码在运行时、构建、测试或部署路径中可达吗？
+│   │   ├── 是 --> 立即修复（升级、打补丁或替换该依赖）
+│   │   └── 否（已确认在这些路径中都没有用到）--> 尽快修复，但不阻塞
+│   └── 有修复版本吗？
+│       ├── 有 --> 升级到已修补的版本
+│       └── 没有 --> 寻找变通方案，考虑替换该依赖，或加入白名单并设定复查日期
+├── 严重程度：moderate
+│   ├── 在生产环境中可达？--> 在下一个发布周期修复
+│   └── 仅开发依赖？--> 方便时修复，记入 backlog 跟踪
+└── 严重程度：low
+    └── 跟踪，在常规依赖更新时修复
 ```
 
-**Key questions:**
-- Is the vulnerable function actually called in your code path?
-- Is the dependency a runtime dependency or dev-only?
-- Is the vulnerability exploitable given your deployment context (e.g., a server-side vulnerability in a client-only app)?
+**关键问题：**
+- 有漏洞的函数真的在你的代码路径中被调用了吗？
+- 这个依赖是运行时依赖还是仅开发依赖？
+- 结合你的部署环境，这个漏洞可被利用吗（例如，一个只在客户端运行的应用里出现了服务端漏洞）？
 
-When you defer a fix, document the reason and set a review date.
+推迟修复时，写明理由并设定复查日期。
 
 ## Rate Limiting
 
 ```typescript
 import rateLimit from 'express-rate-limit';
 
-// General API rate limit
+// 常规 API 限流
 app.use('/api/', rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,                   // 100 requests per window
+  windowMs: 15 * 60 * 1000, // 15 分钟
+  max: 100,                   // 每个窗口 100 次请求
   standardHeaders: true,
   legacyHeaders: false,
 }));
 
-// Stricter limit for auth endpoints
+// 认证接口用更严格的限制
 app.use('/api/auth/', rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,  // 10 attempts per 15 minutes
+  max: 10,  // 每 15 分钟 10 次尝试
 }));
 ```
 
-**Count in a shared store once there is more than one process.** `express-rate-limit` keeps its counters in process memory by default. Behind a load balancer each instance holds its own count, so the effective limit is `max × instances`; on serverless or edge runtimes a fresh invocation starts from zero, so the auth limit above may never fire. Pass a shared `store` (Redis via `rate-limit-redis`), or use an HTTP-based limiter that works where a long-lived TCP connection does not (for example `@upstash/ratelimit`):
+**一旦有不止一个进程，就在共享存储里计数。** `express-rate-limit` 默认把计数器放在进程内存里。在负载均衡器后面，每个实例各自计数，于是实际限额变成 `max × instances`；在 serverless 或 edge 运行时上，每次新的调用都从零开始，所以上面的认证限流可能永远不会触发。传入一个共享的 `store`（通过 `rate-limit-redis` 使用 Redis），或者使用一个基于 HTTP 的限流器，它在无法维持长连接 TCP 的环境中也能工作（例如 `@upstash/ratelimit`）：
 
 ```typescript
 import { Ratelimit } from '@upstash/ratelimit';
@@ -264,7 +264,7 @@ import { Redis } from '@upstash/redis';
 
 const authLimiter = new Ratelimit({
   redis: Redis.fromEnv(),                       // UPSTASH_REDIS_REST_URL + _TOKEN
-  limiter: Ratelimit.slidingWindow(10, '15 m'), // 10 attempts per 15 minutes, across all instances
+  limiter: Ratelimit.slidingWindow(10, '15 m'), // 每 15 分钟 10 次尝试，跨所有实例
 });
 const { success } = await authLimiter.limit(`login:${req.ip}`);
 if (!success) return res.status(429).end();
@@ -273,12 +273,12 @@ if (!success) return res.status(429).end();
 ## Secrets Management
 
 ```
-.env files:
-  ├── .env.example  → Committed (template with placeholder values)
-  ├── .env          → NOT committed (contains real secrets)
-  └── .env.local    → NOT committed (local overrides)
+.env 文件：
+  ├── .env.example  → 提交（带占位值的模板）
+  ├── .env          → 不提交（包含真实密钥）
+  └── .env.local    → 不提交（本地覆盖配置）
 
-.gitignore must include:
+.gitignore 必须包含：
   .env
   .env.local
   .env.*.local
@@ -286,38 +286,38 @@ if (!success) return res.status(429).end();
   *.key
 ```
 
-**Always check before committing:**
+**提交前务必检查：**
 ```bash
-# Check for accidentally staged secrets
+# 检查是否不小心暂存了密钥
 git diff --cached | grep -i "password\|secret\|api_key\|token"
 ```
 
-**If a secret is ever committed, rotate it.** Deleting the line or rewriting history is not enough. Assume it's compromised the moment it reaches a remote. Revoke and reissue the key first, then purge it from history.
+**只要密钥曾被提交过，就轮换它。** 删掉那一行或改写历史都不够。从它到达远端的那一刻起，就假定它已经泄露。先吊销并重新签发密钥，再从历史中清除它。
 
 ## Data Classification
 
-Classify personal data as you add fields, so export and deletion requests can find it later:
+新增字段时就对个人数据分类，这样导出和删除请求以后才能找到它：
 
-| Class | Examples | Handling |
+| 类别 | 例子 | 处理方式 |
 |---|---|---|
-| **Non-personal** | Aggregates, anonymized counts | Normal handling |
-| **Personal (PII)** | Name, email, IP, device/user IDs | Minimize, access-control, include in export/delete |
-| **Sensitive** | Health, finance, location, biometrics, gov IDs, anything about minors | Extra basis to collect, stricter access, often encryption + audit logging |
+| **非个人** | 聚合数据、匿名化计数 | 常规处理 |
+| **个人（PII）** | 姓名、邮箱、IP、设备/用户 ID | 最小化、访问控制、纳入导出/删除范围 |
+| **敏感** | 健康、财务、位置、生物特征、政府证件号、任何涉及未成年人的数据 | 收集需要额外的依据、更严格的访问控制，通常还要加密 + 审计日志 |
 
 ## LLM Output Handling
 
 ```typescript
-// BAD: trusting model output as a command or as markup
+// 错误：把模型输出当作命令或标记来信任
 const sql = await llm.generate(`Write SQL for: ${userQuestion}`);
-await db.query(sql);                                   // arbitrary query execution
-container.innerHTML = await llm.reply(userMessage);   // stored XSS, via the model
+await db.query(sql);                                   // 任意查询执行
+container.innerHTML = await llm.reply(userMessage);   // 经由模型的存储型 XSS
 
-// GOOD: model output is data, so parse defensively, then validate, then encode
+// 正确：模型输出是数据，所以先防御式解析，再校验，再编码
 let intent;
 try {
   intent = CommandSchema.parse(JSON.parse(await llm.replyJson(userMessage)));
 } catch {
-  throw new ValidationError('unexpected model output'); // JSON.parse or schema failed
+  throw new ValidationError('unexpected model output'); // JSON.parse 或 schema 校验失败
 }
 await runAllowlistedAction(intent.action, intent.params);
 container.textContent = await llm.reply(userMessage);

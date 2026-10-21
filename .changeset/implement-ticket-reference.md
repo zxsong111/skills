@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`implement` fetches a passed ticket reference from the issue tracker and states its title before starting, asking when the reference is ambiguous (#700).
+`implement` 会从 issue tracker 获取传入的 ticket 引用，并在开始前说出它的标题；引用有歧义时会先询问（#700）。

@@ -1,31 +1,31 @@
-Skills are organized into bucket folders under `skills/`:
+skill 按分类目录（bucket）组织在 `skills/` 下：
 
-- `engineering/`: daily code work
-- `productivity/`: daily non-code workflow tools
-- `misc/`: kept around but rarely used, not promoted
-- `in-progress/`: beta: public on purpose, feedback wanted, not shipped in the plugin
-- `deprecated/`: no longer used
+- `engineering/`：日常写代码用
+- `productivity/`：日常非代码工作流工具
+- `misc/`：保留但很少用，不推广
+- `in-progress/`：beta：有意公开，欢迎反馈，不随 plugin 发布
+- `deprecated/`：不再使用
 
-Every skill in `engineering/` or `productivity/` (the **promoted** buckets) must have a reference in the top-level `README.md` and an entry in `.claude-plugin/plugin.json`'s `skills` array (the Claude Code plugin ships exactly the promoted set). Skills in `misc/`, `in-progress/`, and `deprecated/` must not appear in either.
+`engineering/` 或 `productivity/`（即**推广的**分类目录）里的每个 skill，都必须在顶层 `README.md` 中有引用，并在 `.claude-plugin/plugin.json` 的 `skills` 数组里有一项（Claude Code plugin 发布的正好就是推广的那一组）。`misc/`、`in-progress/` 和 `deprecated/` 里的 skill 两处都不能出现。
 
-Install commands are copied verbatim from [.agents/install-block.md](./.agents/install-block.md). `.claude-plugin/marketplace.json` is the repo's own marketplace. Every agent except Claude Code installs from it to get automatic updates, and Claude Code uses `claude-plugins-official`. Run `claude plugin validate . --strict` after touching either manifest. [ADR 0002](./.agents/adr/0002-ship-as-a-claude-code-plugin.md) records why.
+安装命令从 [.agents/install-block.md](./.agents/install-block.md) 原样复制。`.claude-plugin/marketplace.json` 是本仓库自己的 marketplace。除 Claude Code 外，所有 agent 都从它安装以获得自动更新，Claude Code 则使用 `claude-plugins-official`。改动这两个清单中的任何一个之后，运行 `claude plugin validate . --strict`。原因记录在 [ADR 0002](./.agents/adr/0002-ship-as-a-claude-code-plugin.md) 里。
 
-Each skill entry in the top-level `README.md` must link the skill name to its `SKILL.md`.
+顶层 `README.md` 里的每个 skill 条目，都必须把 skill 名链接到它的 `SKILL.md`。
 
-Each bucket folder has a `README.md` that lists every skill in the bucket with a one-line description, with the skill name linked to its `SKILL.md`. The promoted buckets' `README.md`s and the top-level `README.md` group entries into **User-invoked** and **Model-invoked**; non-promoted bucket `README.md`s (`misc/`, `in-progress/`) use a flat list.
+每个分类目录都有一个 `README.md`，列出该目录里的每个 skill，并附一行描述，skill 名链接到它的 `SKILL.md`。推广分类目录的 `README.md` 和顶层 `README.md` 把条目分成**用户手动调用**（User-invoked）和**模型自动调用**（Model-invoked）两组；非推广分类目录的 `README.md`（`misc/`、`in-progress/`）用平铺列表。
 
-Skills in `engineering/` and `productivity/` also have a human-facing docs page at `docs/<bucket>/<skill-name>.md` (the docs tree mirrors those two bucket folders under `skills/`). The published URL is `https://aihero.dev/skills-<skill-name>` regardless of bucket: the docs path is repo organisation only. When you add, rename, or change the behaviour of a skill in `engineering/` or `productivity/`, create or re-sync its docs page following [.agents/writing-docs.md](./.agents/writing-docs.md). A finished page carries four sections: **What it does**, **When to reach for it**, **Common questions**, and **It's working if**. `writing-docs.md` holds the template, the section order, and where to hunt for the questions. Skills in the non-promoted buckets (`misc/`, `in-progress/`, `deprecated/`) get **no** docs page. The one exception is a promoted skill removed outright: its page stays, marked archived (see `writing-docs.md`).
+`engineering/` 和 `productivity/` 里的 skill 还有一个写给人看的文档页，位于 `docs/<bucket>/<skill-name>.md`（docs 目录树镜像 `skills/` 下的这两个分类目录）。不管属于哪个分类目录，发布的 URL 都是 `https://aihero.dev/skills-<skill-name>`：docs 路径只是仓库内部的组织方式。当你新增、重命名 `engineering/` 或 `productivity/` 里的 skill，或改变它的行为时，按照 [.agents/writing-docs.md](./.agents/writing-docs.md) 创建或重新同步它的文档页。一个完成的文档页包含四个部分：**它做什么**、**什么时候用**、**常见问题**和**起作用的标志**。`writing-docs.md` 里有模板、各部分的顺序，以及去哪里找问题。非推广分类目录（`misc/`、`in-progress/`、`deprecated/`）里的 skill **没有**文档页。唯一的例外是被彻底删除的推广 skill：它的文档页保留，并标记为已归档（见 `writing-docs.md`）。
 
-Every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`, reachable only by the human) or model-invoked (model- or user-reachable). See [.agents/invocation.md](./.agents/invocation.md).
+每个 `SKILL.md` 要么是用户手动调用的（`disable-model-invocation: true`，外加 `agents/openai.yaml` 里的 `policy.allow_implicit_invocation: false`，只有人能触发），要么是模型自动调用的（模型或用户都能触发）。见 [.agents/invocation.md](./.agents/invocation.md)。
 
-[`ask-matt`](./skills/engineering/ask-matt/SKILL.md) is the router that maps every user-reachable skill and how they relate. The same trigger that re-syncs a docs page applies to it: whenever you add, rename, remove, or change how a user-reachable skill fits the flows, re-read `ask-matt`'s `SKILL.md` and update it so the map stays accurate: a new skill it never mentions, or a stale one it still routes to, is a router that lies.
+[`ask-matt`](./skills/engineering/ask-matt/SKILL.md) 是路由器，它描绘了每个用户可触发的 skill 以及它们之间的关系。触发文档页重新同步的那些情况同样适用于它：每当你新增、重命名、删除一个用户可触发的 skill，或者改变它在各流程中的位置时，重新读一遍 `ask-matt` 的 `SKILL.md` 并更新它，让这张地图保持准确：一个它从未提到的新 skill，或者一个它仍在路由过去的过时 skill，都会让这个路由器说谎。
 
-To (re)link every skill outside `deprecated/` and `misc/` into the local harness skill directories (`~/.claude/skills`, `~/.agents/skills`), run `scripts/link-skills.sh`. Each entry is a symlink into this repo, so a `git pull` keeps installed skills current; re-run the script after adding, removing, or renaming a skill.
+要把 `deprecated/` 和 `misc/` 之外的每个 skill（重新）链接到本地 harness 的 skill 目录（`~/.claude/skills`、`~/.agents/skills`），运行 `scripts/link-skills.sh`。每一项都是指向本仓库的符号链接，所以 `git pull` 就能让已安装的 skill 保持最新；新增、删除或重命名 skill 之后，重新运行这个脚本。
 
-No em-dashes anywhere in this repo's prose (`SKILL.md` files, docs, `README.md`, `CHANGELOG.md`, ADRs, changesets, code comments). Where a sentence reaches for one, rewrite it instead with a comma, colon, period, parentheses, or a conjunction, whichever the sentence actually wants; never do a blind character substitution.
+本仓库的所有文字（`SKILL.md` 文件、文档、`README.md`、`CHANGELOG.md`、ADR、changeset、代码注释）里都不使用破折号类标点：英文的长破折号和短破折号、中文的破折号，一律不用。当一个句子想用破折号时，改写这个句子，按句子真正需要的，换成逗号、冒号、句号、括号或连词；绝不做机械的字符替换。
 
 ## Agent skills
 
 ### Triage labels
 
-Canonical names, unchanged. See `docs/agents/triage-labels.md`. Issues are judged against [`SCOPE.md`](./SCOPE.md).
+使用标准名称，不做改动。见 `docs/agents/triage-labels.md`。issue 依据 [`SCOPE.md`](./SCOPE.md) 来判断。

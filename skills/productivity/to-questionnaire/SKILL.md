@@ -1,54 +1,55 @@
 ---
 name: to-questionnaire
-description: Turn a decision you can't fully answer into a questionnaire for someone else to fill in.
+description: >
+  把一个你没法完全回答的决策，变成一份交给别人填写的问卷。
 disable-model-invocation: true
 ---
 
-Turn something the user can't answer alone into a **questionnaire**: a Markdown document they hand to one person to fill in async, or fill out together over a meeting. The recipient holds knowledge the user lacks; the questionnaire pulls it out of them.
+把用户一个人回答不了的事情变成一份**问卷**：一份 Markdown 文档，用户把它交给某一个人异步填写，或者在会议上一起填。接收者掌握用户缺少的知识；问卷就是把这些知识从对方那里引出来。
 
-**Grill the send, not the subject.** Interview the user only about the _send_, which they can always answer: who it goes to, and what they need back. The questions in the document then target the **gap** between what the recipient knows and what the user needs.
+**盘问「发送」，而不是盘问「主题」。**只就_发送_这件事盘问用户，这是用户总能回答的：发给谁，以及需要拿回什么。文档里的问题再去瞄准接收者所知与用户所需之间的**缺口**。
 
 
-1. **Who is it going to?** Ask, in one exchange, the recipient's role, expertise, and relationship to the user. This fixes the questionnaire's tone and how much context it must carry. Done when you know who the recipient is and what they know that the user doesn't.
+1. **发给谁？**在一次来回中问清接收者的角色、专长以及与用户的关系。这决定了问卷的语气，以及需要附带多少上下文。当你知道接收者是谁、以及对方知道哪些用户不知道的东西时，这一步完成。
 
-2. **What do you need back?** Ask, in one exchange, the specific decisions or facts the user can't resolve alone and needs from this person. Done when you have a concrete list of what the user must walk away able to do or decide.
+2. **需要拿回什么？**在一次来回中问清用户自己解决不了、需要从这个人那里得到的具体决策或事实。当你有了一份具体清单，写明用户拿到答案后必须能做什么或决定什么时，这一步完成。
 
-3. **Write the questionnaire.** Draft questions aimed at the gap from steps 1–2, following the Document structure below. Write it to `to-questionnaire-<slug>.md` in the current directory (slug from the topic) and report the path. Done when the file exists and every item the user named in step 2 is covered by a question.
+3. **写问卷。**按照下面的「文档结构」，起草瞄准第 1、2 步所找出缺口的问题。写到当前目录下的 `to-questionnaire-<slug>.md`（slug 取自主题），并报告路径。当文件已存在、且用户在第 2 步提到的每一项都有问题覆盖时，这一步完成。
 
-## Document structure
+## 文档结构
 
-Frame the document as a **discovery questionnaire**: the user lacks context, the recipient holds it. Order questions most-important-first, since async means you may only get one pass, and group them under `##` headings by theme once there are more than a handful. Write it using the template below.
+把文档定位成一份**探索性问卷(discovery questionnaire)**：用户缺少上下文，接收者掌握它。问题按重要性从高到低排列，因为异步填写可能只有一次机会；问题一多（超过寥寥几个），就按主题分到 `##` 标题下。按下面的模板来写。
 
 <questionnaire-template>
 
-# <Questionnaire title>
+# <问卷标题>
 
-**Purpose:** why this questionnaire exists and the decision riding on it.
+**目的：**这份问卷为什么存在，以及取决于它的那个决策。
 
-**From:** <the user>, **To:** <the recipient>, **How your answers will be used:** <where they go>
+**发件人：**<用户>，**收件人：**<接收者>，**你的回答将如何使用：**<回答的去向>
 
-## Context
+## 背景
 
-One paragraph orienting a recipient who wasn't in the user's head. Enough to answer well, not a page.
+一段话，给不在用户脑子里的接收者交代清楚情况。够对方答好就行，不要写成一整页。
 
-## How to answer
+## 如何作答
 
-Deadline and rough effort. Partial answers and "I don't know" are useful: flag anything you're unsure of rather than skipping it.
+截止时间和大致工作量。部分回答和「我不知道」也有用：拿不准的地方请标出来，而不是跳过。
 
-## <Theme heading>
+## <主题标题>
 
-One `##` section per theme. Under each, its questions, most-important-first. Every question is one idea, never compound, with an answer stub directly beneath, and a one-line _why this matters_ only where the question could be misread or invite a throwaway answer.
+每个主题一个 `##` 小节。每个小节下放它的问题，按重要性从高到低排列。每个问题只问一件事，绝不合并，答案占位紧跟在问题下方；只有当问题可能被误解、或容易招来敷衍的回答时，才加一行_为什么重要_。
 
 <question-example>
-### What load is the system expected to handle at launch?
+### 系统上线时预计要承受多大的负载？
 
-_Why this matters: it decides whether we provision for burst traffic now or defer it._
+_为什么重要：这决定了我们是现在就为突发流量预留资源，还是往后推。_
 
 >
 </question-example>
 
-## Anything else?
+## 还有别的吗？
 
-A closing catch-all: anything we didn't ask that we should know?
+收尾的兜底问题：有没有我们没问到、但应该知道的事？
 
 </questionnaire-template>

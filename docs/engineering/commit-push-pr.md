@@ -1,45 +1,45 @@
-## What it does
+## 它做什么
 
-`commit-push-pr` runs the commit, push and open-a-PR sequence to a fixed convention. It reads the diff, writes a commit message in `type(scope): short description` form, stops after the commit to ask whether to push, and on a yes pushes and opens the PR. What sets it apart from other ways of committing is that **the branch guard comes before everything else**. When the current branch is the repo's trunk (`main`, `master`, or whichever branch this repo actually uses as its trunk), it neither commits nor opens a branch for you. It lays out where things stand and what the options are, and waits for you to decide.
+`commit-push-pr` 按固定的约定走完 commit、push、开 PR 这一套流程。它读取 diff，按 `type(scope): short description` 的格式写 commit message，commit 之后停下来问你要不要 push，你同意后再 push 并开 PR。它和其他 commit 方式的区别在于：**branch 守卫排在一切之前**。当前 branch 是仓库主干（`main`、`master`，或者这个仓库实际用作主干的任何 branch）时，它既不 commit，也不替你开 branch。它把现状和可选项摆出来，等你决定。
 
-It does not decide the shape of the PR body. It calls [pr](https://aihero.dev/skills-pr) for the summary and the before/after evidence, and adds only a **Verification** table of commands that really ran. If no command ran at all, it writes "Unverified: none" rather than inventing a table where every row says "pass".
+它不决定 PR 正文的结构。它调用 [pr](https://aihero.dev/skills-pr) 来写摘要和改动前后的证据，自己只追加一张**验证**表，列出真正运行过的命令。如果一条命令都没跑，它就写「未验证：无」，而不是编一张每行都写着「通过」的表。
 
-## When to reach for it
+## 什么时候用
 
-Type `/commit-push-pr`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits: when you say "commit", "push it" or "open a PR".
+输入 `/commit-push-pr`，或者在任务匹配时由 [agent](https://www.aihero.dev/ai-coding-dictionary/agent) 自动调用：比如你说「commit」「push 一下」或「开个 PR」。
 
-| Situation | What it does |
+| 情况 | 它怎么做 |
 | --- | --- |
-| On a feature branch, with changes in the working tree | Reads the diff, writes the message, commits, then stops to ask whether to push |
-| On the trunk | Stops and offers two options, "open a feature branch" or "commit to the trunk anyway", and leaves git untouched this turn |
-| The repo has no commits yet | Lets the first commit through (the trunk is where it belongs) and reminds you at the end to settle a branch strategy |
-| More than 13 files or 3 kinds of change | Suggests a split first and waits for your call |
-| Nothing to commit | Says there are no changes to commit, and stops |
+| 在功能 branch 上，工作区有改动 | 读取 diff，写 message，commit，然后停下问要不要 push |
+| 在主干上 | 停下并给出两个选项：「开一个功能 branch」或「照样 commit 到主干」，本轮不动 git |
+| 仓库还没有任何 commit | 放行第一个 commit（它本就该在主干上），并在最后提醒你确定 branch 策略 |
+| 超过 13 个文件或 3 类改动 | 先建议拆分，等你拍板 |
+| 没有可 commit 的内容 | 告诉你没有改动可提交，然后停下 |
 
-It handles only the act of committing. Commits made during implementation are [implement](https://aihero.dev/skills-implement)'s own job, and the rules for writing a PR body live in [pr](https://aihero.dev/skills-pr).
+它只管 commit 这个动作本身。实现过程中的 commit 是 [implement](https://aihero.dev/skills-implement) 自己的事，PR 正文的写法规则在 [pr](https://aihero.dev/skills-pr) 里。
 
-## The guard stops instead of routing around
+## 守卫是停下，而不是绕过去
 
-When the guard fires, the skill explicitly does not run commands like `git checkout -b`. The reason is in the skill itself: a branch name and base the agent picked on its own are ones you would have to fix afterwards. A personal repo can commit straight to the trunk as well. Choose that once, and it gets written under Project conventions in the project's `CLAUDE.md`, so the skill stops asking.
+守卫触发时，这个 skill 明确不会执行 `git checkout -b` 之类的命令。理由就写在 skill 里：agent 自己挑的 branch 名和基点，事后都得你来改。个人仓库也可以直接 commit 到主干。选定一次，它就会被写进项目 `CLAUDE.md` 的项目约定下面，之后 skill 就不再问了。
 
-## Common questions
+## 常见问题
 
-**It stops on the trunk every time in my solo repo, and that gets old.**
-Add one line under Project conventions in the project's `CLAUDE.md`, such as "this repo commits straight to main", and the skill follows it. The guard goes by the project's conventions, not by the branch name.
+**在我的个人仓库里，每次在主干上它都要停下，很烦。**
+在项目 `CLAUDE.md` 的项目约定下加一行，比如「this repo commits straight to main」，skill 就会照做。守卫依据的是项目约定，而不是 branch 名。
 
-**Will it push without my say-so?**
-No. After the commit it stops, shows you the message, and asks outright whether to push. Pushing a shared branch is visible to other people, so it asks every time.
+**它会不经我同意就 push 吗？**
+不会。commit 之后它会停下，给你看 message，直接问你要不要 push。push 共享 branch 是别人能看到的，所以它每次都问。
 
-**The original version scanned for secrets before committing. Where did that go?**
-The original relied on a hook script in its plugin to scan the staging area. This repo has no hooks yet, so this version runs a single grep over `git diff --cached`. The full step comes back once hooks arrive.
+**最初的版本会在 commit 前扫描密钥，这一步去哪了？**
+最初的版本依赖其 plugin 里的一个 hook 脚本来扫描暂存区。这个仓库还没有 hook，所以这个版本只对 `git diff --cached` 跑一次 grep。等 hook 到位后，完整的步骤会回来。
 
-## It's working if
+## 起作用的标志
 
-- Saying "commit" on the trunk gets you two options, not a commit.
-- The first line of the commit message is `type(scope): short description` with no trailing period, and the message ends with a `Co-Authored-By` line.
-- The PR body has a Verification table, and every row matches a command you saw run.
-- You were asked once before the push.
+- 在主干上说「commit」，得到的是两个选项，而不是一个 commit。
+- commit message 第一行是 `type(scope): short description`，末尾没有句号，message 以一行 `Co-Authored-By` 结尾。
+- PR 正文里有一张验证表，每一行都对应一条你亲眼看到运行过的命令。
+- push 之前问过你一次。
 
-## Where it fits
+## 在体系中的位置
 
-`commit-push-pr` is a **chain step** at the close of the main flow: after [code-review](https://aihero.dev/skills-code-review) passes and before the PR goes up. Its neighbours are [pr](https://aihero.dev/skills-pr), because it calls `pr` to write the body, and [receiving-code-review](https://github.com/zxsong111/skills/blob/main/skills/engineering/receiving-code-review/SKILL.md), because that takes over once review comments come back on the PR. [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`commit-push-pr` 是主流程收尾处的**链路中的一步**：在 [code-review](https://aihero.dev/skills-code-review) 通过之后、PR 推上去之前。它的邻居是 [pr](https://aihero.dev/skills-pr)，因为它调用 `pr` 来写正文；还有 [receiving-code-review](https://github.com/zxsong111/skills/blob/main/skills/engineering/receiving-code-review/SKILL.md)，因为 PR 上的评审意见回来之后由它接手。整套 skill 的地图在 [ask-matt](https://aihero.dev/skills-ask-matt) 里。

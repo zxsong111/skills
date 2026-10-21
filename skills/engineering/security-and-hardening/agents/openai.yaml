@@ -1,3 +1,3 @@
 interface:
   display_name: "Security and hardening"
-  short_description: "Security checklist: auth, payments, PII, uploads, webhooks"
+  short_description: "安全清单：认证、支付、PII、上传、webhook"

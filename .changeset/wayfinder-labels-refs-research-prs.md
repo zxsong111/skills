@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`wayfinder` no longer labels maps or tickets `ready-for-agent` (#518), writes cross-references only with real issue ids (#507), opens no PR from research branches (#576), and resolves each ticket as the type its label names (#625). Thanks @jcwayne, @baob, @rynz and @sponge-b0b.
+`wayfinder` 不再给地图或 ticket 打上 `ready-for-agent` 标签（#518），只用真实的 issue id 写交叉引用（#507），不再从调研分支创建 PR（#576），并按每个 ticket 的标签所指明的类型来处理它（#625）。感谢 @jcwayne、@baob、@rynz 和 @sponge-b0b。

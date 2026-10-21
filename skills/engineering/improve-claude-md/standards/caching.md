@@ -1,20 +1,20 @@
-# Caching
+# 缓存
 
-**Applies when:** Uses Redis / Memcached / in-memory cache / CDN
+**适用条件：** 使用 Redis / Memcached / 内存缓存 / CDN
 
-**Probe first:** How the cache client is used, existing key format and TTLs
+**先探查：** 缓存客户端的用法、现有的 key 格式和 TTL
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Key naming | `<service>:<entity>:<id>:<version>` | `order:summary:123:v2` |
-| TTL | A TTL for each kind of data; nothing without an expiry | none |
-| Invalidation | After a write, delete the cache or update it; spell out the order | none |
-| Penetration / breakdown | Cache empty results, rebuild under a mutex | none |
+| Key 命名 | `<service>:<entity>:<id>:<version>` | `order:summary:123:v2` |
+| TTL | 每类数据各有 TTL；不允许没有过期时间的缓存 | 无 |
+| 失效 | 写入后是删缓存还是更新缓存；写清顺序 | 无 |
+| 穿透 / 击穿 | 缓存空结果，加互斥锁重建 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 3: `.claude/rules/caching.md`, with `paths:` scoped to cache-related modules
+- 第 3 层：`.claude/rules/caching.md`，`paths:` 限定在缓存相关模块

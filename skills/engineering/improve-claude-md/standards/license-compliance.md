@@ -1,20 +1,20 @@
-# License compliance
+# 许可证合规
 
-**Applies when:** Closed-source commercial projects, or ones that vendor third-party code
+**适用条件：** 闭源商业项目，或 vendor 了第三方代码的项目
 
-**Probe first:** Dependency license scan results; vendor directories in the repo
+**先探查：** 依赖许可证扫描结果；仓库中的 vendor 目录
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Allowed | MIT, BSD, Apache-2.0, and the like | none |
-| Banned / needs approval | GPL, AGPL, SSPL, and the like | none |
-| Vendored code | Copied-in third-party code keeps its original LICENSE and source commit | none |
+| 允许 | MIT、BSD、Apache-2.0 等 | 无 |
+| 禁止 / 需审批 | GPL、AGPL、SSPL 等 | 无 |
+| vendor 代码 | 拷贝进来的第三方代码保留原始 LICENSE 和来源 commit | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: license scanning goes into CI (license-checker, pip-licenses)
-- Layer 5: goes in CLAUDE.md; the agent rules say "check the license before adding a dependency"
+- 第 2 层：许可证扫描放进 CI（license-checker、pip-licenses）
+- 第 5 层：写进 CLAUDE.md；agent 规则写明「加依赖之前先检查许可证」

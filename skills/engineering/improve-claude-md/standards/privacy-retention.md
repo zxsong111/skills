@@ -1,22 +1,22 @@
-# Privacy and data retention
+# 隐私与数据保留
 
-**Applies when:** Handles personal data (names, phone numbers, emails, addresses, payment info)
+**适用条件：** 处理个人数据（姓名、电话、邮箱、地址、支付信息）
 
-**Probe first:** PII fields in the data model; whether PII shows up in logs and analytics events
+**先探查：** 数据模型中的 PII 字段；日志和埋点事件中是否出现 PII
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| PII inventory | Which fields are PII, and where they are marked | none |
-| Minimization | Collect only data with a clear purpose | none |
-| Retention period | How long each kind of data is kept, and how it is deleted when it expires | Order PII is anonymized after 3 years |
-| Masking | Masking rules for PII in logs, analytics events, and error reports | Keep only the last 4 digits of phone numbers |
-| Deletion requests | How user deletion / export requests are handled | none |
+| PII 清单 | 哪些字段是 PII，在哪里标注 | 无 |
+| 最小化 | 只收集有明确用途的数据 | 无 |
+| 保留期限 | 每类数据保留多久，到期后如何删除 | 订单 PII 在 3 年后匿名化 |
+| 脱敏 | 日志、埋点事件和错误报告中 PII 的脱敏规则 | 电话号码只保留后 4 位 |
+| 删除请求 | 如何处理用户的删除 / 导出请求 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 3: `.claude/rules/privacy.md`, with `paths:` scoped to the user / order models and logging modules
-- Deeper compliance questions (GDPR, CCPA) go through `security-and-hardening`
+- 第 3 层：`.claude/rules/privacy.md`，`paths:` 限定在用户 / 订单模型和日志模块
+- 更深的合规问题（GDPR、CCPA）走 `security-and-hardening`

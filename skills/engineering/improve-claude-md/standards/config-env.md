@@ -1,22 +1,22 @@
-# Config and environments
+# 配置与环境
 
-**Applies when:** Projects with multiple environments or environment variables
+**适用条件：** 有多套环境或环境变量的项目
 
-**Probe first:** Config files and loading code, existing environment variable names, `.env.example`
+**先探查：** 配置文件和加载代码、现有的环境变量名、`.env.example`
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Variable naming | UPPER_SNAKE, prefixed by service | `ORDER_DB_URL` |
-| Config layering | Defaults → env file → environment variables; state the precedence | none |
-| Required-value check | Validate required config at startup and fail immediately if anything is missing | none |
-| Feature flags | Naming, off by default, how long after launch they get cleaned up | `ff_new_checkout` |
-| Example file | Update `.env.example` with every variable added | none |
+| 变量命名 | UPPER_SNAKE，以服务名为前缀 | `ORDER_DB_URL` |
+| 配置分层 | 默认值 → env 文件 → 环境变量；写明优先级 | 无 |
+| 必填校验 | 启动时校验必填配置，缺任何一项立即失败 | 无 |
+| 功能开关 | 命名、默认关闭、上线后多久清理 | `ff_new_checkout` |
+| 示例文件 | 每新增一个变量都更新 `.env.example` | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 5: goes in CLAUDE.md "Project conventions"
-- Companion: with no `.env.example`, generate one from the variables the code reads (variable names and descriptions only, no real values)
+- 第 5 层：写进 CLAUDE.md「项目约定」
+- 配套：没有 `.env.example` 时，根据代码读取的变量生成一份（只写变量名和说明，不写真实值）

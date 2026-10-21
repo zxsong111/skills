@@ -1,22 +1,22 @@
 # CI/CD
 
-**Applies when:** Has a CI pipeline or deployment process
+**适用条件：** 有 CI 流水线或部署流程
 
-**Probe first:** The steps `.github/workflows/` / `.gitlab-ci.yml` actually run; how deployment works
+**先探查：** `.github/workflows/` / `.gitlab-ci.yml` 实际运行的步骤；部署方式
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Required checks | Which CI jobs must be green before merging | lint, type, test |
-| Branch ↔ environment | Which branch deploys to which environment | `develop` → DEV, `main` → PRO |
-| Deployment approval | Who approves production deployments | none |
-| Rollback | Rollback command / steps | none |
-| Local equivalent | How to run each CI step locally | `make ci` |
+| 必过检查 | 合并前哪些 CI job 必须是绿的 | lint、type、test |
+| 分支 ↔ 环境 | 哪个分支部署到哪个环境 | `develop` → DEV，`main` → PRO |
+| 部署审批 | 生产部署由谁审批 | 无 |
+| 回滚 | 回滚命令 / 步骤 | 无 |
+| 本地等价命令 | 每个 CI 步骤在本地怎么跑 | `make ci` |
 
-## Where it lands
+## 落点
 
-- Layer 2: make the must-pass jobs required checks in branch protection
-- Layer 5: write the local equivalents of the CI steps back into CLAUDE.md "Verification commands" and "Quality gates"
+- 第 2 层：在分支保护中把必过 job 设为 required checks
+- 第 5 层：把 CI 步骤的本地等价命令写回 CLAUDE.md「验证命令」和「质量门禁」

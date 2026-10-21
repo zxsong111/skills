@@ -1,21 +1,21 @@
-# Monorepo boundaries
+# Monorepo 边界
 
-**Applies when:** Several packages / services in one repo (workspaces, `packages/`, `apps/`)
+**适用条件：** 一个仓库里有多个包 / 服务（workspaces、`packages/`、`apps/`）
 
-**Probe first:** Workspace config, the dependency graph between packages
+**先探查：** workspace 配置、包之间的依赖图
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Cross-package dependencies | Which packages may depend on which | `apps/*` may depend on `packages/*`, never the reverse |
-| Shared code | Where shared code lives; never import across packages by relative path | none |
-| Per-package conventions | Each package's own stack and commands | none |
-| Blast radius | Which downstream packages' tests to run when a shared package changes | none |
+| 跨包依赖 | 哪些包可以依赖哪些包 | `apps/*` 可以依赖 `packages/*`，反之绝不可以 |
+| 共享代码 | 共享代码放在哪；绝不通过相对路径跨包导入 | 无 |
+| 各包约定 | 每个包自己的技术栈和命令 | 无 |
+| 影响范围(blast radius) | 共享包改动时要跑哪些下游包的测试 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: dependency boundaries go in tooling (nx enforce-module-boundaries, dependency-cruiser)
-- Layer 4: one subdirectory `CLAUDE.md` per package, covering only that package's own commands and conventions
+- 第 2 层：依赖边界交给工具（nx enforce-module-boundaries、dependency-cruiser）
+- 第 4 层：每个包一个子目录 `CLAUDE.md`，只写该包自己的命令和约定

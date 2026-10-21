@@ -1,25 +1,25 @@
-# Error handling and logging
+# 错误处理与日志
 
-**Applies when:** Any service / app that runs
+**适用条件：** 任何要运行的服务 / 应用
 
-**Probe first:** Sample how errors are thrown, wrapped, and returned; the logging library and existing fields
+**先探查：** 抽样看错误如何抛出、包装和返回；日志库和现有字段
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Error categories | Which type each of business errors / validation errors / external dependency errors / program bugs uses | `DomainError`, `ValidationError` |
-| Throw or return | When to throw an exception, when to return an error value | Catch at the boundary layer, throw in the domain layer |
-| Error response format | The uniform shape of external errors and the encoding rule for error codes | `{code: "ORDER_NOT_FOUND", message}` |
-| No swallowed exceptions | `except: pass` / empty catch is always banned; if something truly must be ignored, state why | none |
-| Log levels | ERROR needs a human, WARN self-heals, INFO is a business event, DEBUG is for troubleshooting | none |
-| Log fields | Always include request_id / trace_id / the business key | none |
-| Never log | Secrets, passwords, tokens, full card numbers, PII | none |
+| 错误分类 | 业务错误 / 校验错误 / 外部依赖错误 / 程序 bug 各用什么类型 | `DomainError`、`ValidationError` |
+| 抛出还是返回 | 什么时候抛异常，什么时候返回错误值 | 在边界层捕获，在领域层抛出 |
+| 错误响应格式 | 对外错误的统一结构和错误码的编码规则 | `{code: "ORDER_NOT_FOUND", message}` |
+| 不吞异常 | `except: pass` / 空 catch 一律禁止；确实需要忽略的，写明原因 | 无 |
+| 日志级别 | ERROR 需要人介入，WARN 能自愈，INFO 是业务事件，DEBUG 用于排查 | 无 |
+| 日志字段 | 始终带上 request_id / trace_id / 业务主键 | 无 |
+| 绝不记录 | 密钥、密码、token、完整卡号、PII | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: empty catches and `print` debug output go to the linter (ruff `BLE`/`T20`, eslint `no-empty`)
-- Layer 3: the external error format goes in `.claude/rules/errors.md`, with `paths:` scoped to the interface layer
-- Layer 5: error categories and what each log level means go in CLAUDE.md
+- 第 2 层：空 catch 和 `print` 调试输出交给 linter（ruff `BLE`/`T20`、eslint `no-empty`）
+- 第 3 层：对外错误格式写进 `.claude/rules/errors.md`，`paths:` 限定在接口层
+- 第 5 层：错误分类和各日志级别的含义写进 CLAUDE.md

@@ -1,3 +1,3 @@
 interface:
   display_name: "Improve CLAUDE.md"
-  short_description: "Audit CLAUDE.md / AGENTS.md and write dev conventions"
+  short_description: "审计 CLAUDE.md / AGENTS.md，编写开发规范"

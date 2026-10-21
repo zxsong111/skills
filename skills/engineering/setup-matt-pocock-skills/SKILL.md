@@ -1,118 +1,119 @@
 ---
 name: setup-matt-pocock-skills
-description: "Configure this repo for the engineering skills: set up its issue tracker, triage label vocabulary, and domain doc layout. Run once before first use of the other engineering skills."
+description: >
+  为 engineering 类 skill 配置这个 repo：设置它的 issue tracker、分诊标签词汇表和领域文档布局。在首次使用其他 engineering skill 之前运行一次。
 disable-model-invocation: true
 ---
 
 # Setup Matt Pocock's Skills
 
-Scaffold the per-repo configuration that the engineering skills assume:
+搭建 engineering 类 skill 所假定的、每个 repo 各自的配置：
 
-- **Issue tracker**: where issues live (GitHub by default; local markdown is also supported out of the box)
-- **Triage labels**: the strings used for the five canonical triage roles
-- **Domain docs**: where `GLOSSARY.md` and ADRs live, and the consumer rules for reading them
+- **Issue tracker**：issue 存放在哪里（默认是 GitHub；本地 markdown 也开箱即用）
+- **分诊标签**：五个规范分诊(triage)角色所使用的字符串
+- **领域文档**：`GLOSSARY.md` 和 ADR 存放在哪里，以及读取它们的使用规则
 
-This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
+这是一个由 prompt 驱动的 skill，而不是确定性的脚本。先探索，展示你的发现，和用户确认，然后再写入。
 
-## Process
+## 流程
 
-### 1. Explore
+### 1. 探索
 
-Look at the current repo to understand its starting state. Read whatever exists; don't assume:
+查看当前 repo，了解它的初始状态。有什么就读什么；不要假设：
 
-- `git remote -v` and `.git/config`: is this a GitHub repo? Which one?
-- `AGENTS.md` and `CLAUDE.md` at the repo root: does either exist? Is there already an `## Agent skills` section in either?
-- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root
-- `docs/adr/` and any `src/*/docs/adr/` directories
-- `docs/agents/`: does this skill's prior output already exist?
-- `.scratch/`: a sign that a local-markdown issue tracker convention is already in use
-- Is the `triage` skill installed? (a `triage` skill folder alongside this one, or `triage` in your available skills.) This decides whether Section B runs at all.
-- Monorepo signals: a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. These are present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
+- `git remote -v` 和 `.git/config`：这是 GitHub repo 吗？是哪一个？
+- repo 根目录下的 `AGENTS.md` 和 `CLAUDE.md`：两者有没有存在的？其中有没有已经包含 `## Agent skills` 一节的？
+- repo 根目录下的 `GLOSSARY.md` 和 `GLOSSARY-MAP.md`
+- `docs/adr/` 以及任何 `src/*/docs/adr/` 目录
+- `docs/agents/`：这个 skill 之前的产出是否已经存在？
+- `.scratch/`：这表明本地 markdown 形式的 issue tracker 约定已经在用了
+- `triage` skill 装了吗？（与本 skill 并列的 `triage` skill 文件夹，或者你可用的 skill 里有 `triage`。）这决定了 B 部分是否需要执行。
+- monorepo 信号：`pnpm-workspace.yaml`、`package.json` 里的 `workspaces` 字段，或者一个内容充实、各自带有 `src/` 的 `packages/*`。只有真正大型的多包 repo 才会有这些；没有它们就意味着单上下文，几乎所有 repo 都是这样。
 
-### 2. Present findings and ask
+### 2. 展示发现并提问
 
-Summarise what's present and what's missing. Then take the sections in order. One section, one answer, then the next.
+总结哪些已存在、哪些缺失。然后按顺序过各个部分。一个部分，一个回答，再下一个。
 
-Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when `triage` isn't installed, Section C when there's no monorepo).
+每个部分都以推荐答案开头，让用户一个字就能接受。只有当选择真的有分支时才给一行说明；如果探索已经有了定论，就整个跳过这一部分（`triage` 没装时跳过 B 部分，没有 monorepo 时跳过 C 部分）。
 
-**Section A: Issue tracker.**
+**A 部分：Issue tracker。**
 
-> Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, and `to-spec` read from and write to it. They need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
+> 说明：「issue tracker」是这个 repo 存放 issue 的地方。`to-tickets`、`triage`、`to-spec` 等 skill 会从中读取、向其写入。它们需要知道是该调用 `gh issue create`、在 `.scratch/` 下写一个 markdown 文件，还是遵循你描述的其他某种工作流。选你为这个 repo 实际跟踪工作的地方。
 
-Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote` points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise (or if the user prefers), offer:
+默认立场：这些 skill 是为 GitHub 设计的。如果有 `git remote` 指向 GitHub，就推荐 GitHub。如果有 `git remote` 指向 GitLab（`gitlab.com` 或自托管的主机），就推荐 GitLab。否则（或者用户另有偏好），提供这些选项：
 
-- **GitHub**: issues live in the repo's GitHub Issues (uses the `gh` CLI)
-- **GitLab**: issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
-- **Local markdown**: issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
-- **Other** (Jira, Linear, etc.): ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
+- **GitHub**：issue 存放在 repo 的 GitHub Issues 中（使用 `gh` CLI）
+- **GitLab**：issue 存放在 repo 的 GitLab Issues 中（使用 [`glab`](https://gitlab.com/gitlab-org/cli) CLI）
+- **本地 markdown**：issue 以文件形式存放在这个 repo 的 `.scratch/<feature>/` 下（适合个人项目或没有远程仓库的 repo）
+- **其他**（Jira、Linear 等）：请用户用一段话描述工作流；skill 会把它原样记录为自由格式的文字
 
-Record the choice in `docs/agents/issue-tracker.md`. The GitHub and GitLab templates carry a "PRs as a request surface" flag, defaulted **off**. Leave it off and don't raise it: a user who wants external PRs in the triage queue can flip the flag in the file later.
+把选择记录在 `docs/agents/issue-tracker.md` 中。GitHub 和 GitLab 模板带有一个 "PRs as a request surface" 标志，默认**关闭**。保持关闭，也不要提起它：想把外部 PR 纳入分诊队列的用户以后可以在文件里自己切换这个标志。
 
-**Section B: Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you), since an uninstalled skill needs no labels.
+**B 部分：分诊标签词汇表。** 如果 `triage` skill 没有安装（探索已经告诉你了），就整个跳过这一部分，因为没安装的 skill 不需要标签。
 
-If it is installed, ask exactly one question:
+如果已安装，只问一个问题：
 
-> Do you want to keep the default triage labels? (recommended: **yes**)
+> 要保留默认的分诊标签吗？（推荐：**是**）
 
-The defaults are the five canonical roles, each label string equal to its name: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, write them as-is. Only if the user says no, usually because their tracker already uses other names (e.g. `bug:triage` for `needs-triage`), collect the overrides so `triage` applies existing labels instead of creating duplicates.
+默认值就是五个规范角色，每个标签字符串都等于它的名字：`needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。回答**是**时，原样写入。只有当用户说不（通常是因为他们的 tracker 已经在用别的名字，例如用 `bug:triage` 表示 `needs-triage`）时，才收集这些覆盖值，让 `triage` 使用已有的标签而不是创建重复的标签。
 
-**Section C: Domain docs.** Default to **single-context** (one `GLOSSARY.md` + `docs/adr/` at the repo root). This fits almost every repo; write it without asking.
+**C 部分：领域文档。** 默认是**单上下文**（repo 根目录下一个 `GLOSSARY.md` + `docs/adr/`）。这适合几乎所有 repo；不用问，直接写。
 
-Offer **multi-context** (a root `GLOSSARY-MAP.md` pointing to per-context `GLOSSARY.md` files) only when exploration found monorepo signals. Then confirm which layout they want.
+只有当探索发现了 monorepo 信号时，才提供**多上下文**选项（根目录的 `GLOSSARY-MAP.md` 指向各个上下文的 `GLOSSARY.md` 文件）。然后确认他们想要哪种布局。
 
-### 3. Confirm and edit
+### 3. 确认并编辑
 
-Show the user a draft of:
+给用户看以下内容的草稿：
 
-- The `## Agent skills` block to add to whichever of `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)
-- The contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed)
+- 要加到 `CLAUDE.md` / `AGENTS.md` 中被编辑的那一个里的 `## Agent skills` 块（选择规则见第 4 步）
+- `docs/agents/issue-tracker.md`、`docs/agents/domain.md` 和 `docs/agents/triage-labels.md` 的内容（最后一个仅在安装了 `triage` 时才有）
 
-Let them edit before writing.
+写入之前让他们先编辑。
 
-### 4. Write
+### 4. 写入
 
-**Pick the file to edit:**
+**选择要编辑的文件：**
 
-- If `CLAUDE.md` exists, edit it.
-- Else if `AGENTS.md` exists, edit it.
-- If neither exists, ask the user which one to create; don't pick for them.
+- 如果 `CLAUDE.md` 存在，编辑它。
+- 否则如果 `AGENTS.md` 存在，编辑它。
+- 如果两者都不存在，问用户要创建哪一个；不要替他们选。
 
-Never create `AGENTS.md` when `CLAUDE.md` already exists (or vice versa); always edit the one that's already there.
+当 `CLAUDE.md` 已经存在时，绝不要创建 `AGENTS.md`（反之亦然）；始终编辑已经存在的那个。
 
-If an `## Agent skills` block already exists in the chosen file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to the surrounding sections.
+如果所选文件中已经有一个 `## Agent skills` 块，就原地更新它的内容，而不是再追加一个重复的。不要覆盖用户对周围各节的修改。
 
-The block:
+这个块：
 
 ```markdown
 ## Agent skills
 
 ### Issue tracker
 
-[one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.
+[一句话概述 issue 在哪里跟踪]。见 `docs/agents/issue-tracker.md`。
 
 ### Triage labels
 
-[one-line summary of the label vocabulary]. See `docs/agents/triage-labels.md`.
+[一句话概述标签词汇表]。见 `docs/agents/triage-labels.md`。
 
 ### Domain docs
 
-[one-line summary of layout: "single-context" or "multi-context"]. See `docs/agents/domain.md`.
+[一句话概述布局："single-context" 或 "multi-context"]。见 `docs/agents/domain.md`。
 ```
 
-Include the `### Triage labels` sub-block, and write `docs/agents/triage-labels.md`, only when `triage` is installed and Section B ran. When it isn't, both are omitted.
+只有当安装了 `triage` 且执行了 B 部分时，才包含 `### Triage labels` 子块并写入 `docs/agents/triage-labels.md`。否则两者都省略。
 
-When Section B ran on GitHub or GitLab, create each configured label the tracker lacks (`gh label create` / `glab label create`).
+当 B 部分在 GitHub 或 GitLab 上执行时，为 tracker 中缺少的每个已配置标签创建标签（`gh label create` / `glab label create`）。
 
-Then write the docs files using the seed templates in this skill folder as a starting point:
+然后以本 skill 文件夹中的种子模板为起点写入文档文件：
 
-- [issue-tracker-github.md](./issue-tracker-github.md): GitHub issue tracker
-- [issue-tracker-gitlab.md](./issue-tracker-gitlab.md): GitLab issue tracker
-- [issue-tracker-local.md](./issue-tracker-local.md): local-markdown issue tracker
-- [triage-labels.md](./triage-labels.md): label mapping (only if `triage` is installed)
-- [domain.md](./domain.md): domain doc consumer rules + layout
+- [issue-tracker-github.md](./issue-tracker-github.md)：GitHub issue tracker
+- [issue-tracker-gitlab.md](./issue-tracker-gitlab.md)：GitLab issue tracker
+- [issue-tracker-local.md](./issue-tracker-local.md)：本地 markdown issue tracker
+- [triage-labels.md](./triage-labels.md)：标签映射（仅在安装了 `triage` 时）
+- [domain.md](./domain.md)：领域文档的使用规则 + 布局
 
-For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
+对于「其他」类 issue tracker，根据用户的描述从零写出 `docs/agents/issue-tracker.md`。
 
-### 5. Done
+### 5. 完成
 
-Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later; re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
+告诉用户设置已完成，以及哪些 engineering skill 现在会读取这些文件。提一下他们以后可以直接编辑 `docs/agents/*.md`；只有想切换 issue tracker 或从头再来时，才需要重新运行这个 skill。

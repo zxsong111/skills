@@ -1,8 +1,8 @@
-# HTML Report Format
+# HTML 报告格式
 
-The architectural review is rendered as a single self-contained HTML file in the OS temp directory. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two: don't lean on Mermaid for everything, it'll start to look generic.
+架构评审渲染为操作系统临时目录中的一个自包含 HTML 文件。Tailwind 和 Mermaid 都从 CDN 引入。Mermaid 能可靠地处理图状的示意图；手搭的 div 和内联 SVG 负责更有编辑感的图示（体量图、剖面图）。两者混着用：不要什么都靠 Mermaid，否则看起来会千篇一律。
 
-## Scaffold
+## 脚手架
 
 ```html
 <!doctype html>
@@ -16,8 +16,8 @@ The architectural review is rendered as a single self-contained HTML file in the
       mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
     </script>
     <style>
-      /* small custom layer for things Tailwind doesn't cover cleanly:
-         dashed seam lines, hand-drawn-feeling arrow heads, etc. */
+      /* 一小层自定义样式，用于 Tailwind 覆盖不干净的东西：
+         虚线接缝、带手绘感的箭头等。 */
       .seam { stroke-dasharray: 4 4; }
       .leak { stroke: #dc2626; }
       .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
@@ -33,34 +33,34 @@ The architectural review is rendered as a single self-contained HTML file in the
 </html>
 ```
 
-## Header
+## 页头
 
-Repo name, date, and a compact legend: solid box = module, dashed line = seam, red arrow = leakage, thick dark box = deep module. No introduction paragraph. Straight into the candidates.
+仓库名、日期，以及一个紧凑的图例：实线框 = 模块（module），虚线 = 接缝（seam），红色箭头 = 泄漏，粗边深色框 = 深模块（deep module）。不要引言段落。直接进入候选。
 
-## Candidate card
+## 候选卡片
 
-The diagrams carry the weight. Prose is sparse, plain, and uses the glossary terms (from the `/codebase-design` skill) without ceremony.
+图示扛大梁。文字要少而平实，直接使用（来自 `/codebase-design` skill 的）术语表术语，不必客套。
 
-Each candidate is one `<article>`:
+每个候选是一个 `<article>`：
 
-- **Title**: short, names the deepening (e.g. "Collapse the Order intake pipeline").
-- **Badge row**: recommendation strength (`Strong` = emerald, `Worth exploring` = amber, `Speculative` = slate), plus a tag for the dependency category (`in-process`, `local-substitutable`, `ports & adapters`, `mock`).
-- **Files**: monospaced list, `font-mono text-sm`.
-- **Before / After diagram**: the centrepiece. Two columns, side by side. See patterns below.
-- **Problem**: one sentence. What hurts.
-- **Solution**: one sentence. What changes.
-- **Wins**: bullets, ≤6 words each. e.g. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow wrappers".
-- **ADR callout** (if applicable): one line in an amber-tinted box.
+- **标题**：简短，点明这次加深（例如「收拢 Order 接收流水线」）。
+- **徽章行**：推荐强度（`Strong` = emerald，`Worth exploring` = amber，`Speculative` = slate），外加一个依赖类别标签（`in-process`、`local-substitutable`、`ports & adapters`、`mock`）。
+- **文件**：等宽字体列表，`font-mono text-sm`。
+- **前后对比图**：核心部分。两栏，并排。模式见下文。
+- **问题**：一句话。哪里疼。
+- **方案**：一句话。改什么。
+- **收获**：要点列表，每条 ≤6 个词。例如「测试只打一个接口」「定价逻辑不再泄漏」「删掉 4 个浅包装层」。
+- **ADR 提示框**（如适用）：琥珀色底框里的一行字。
 
-No paragraphs of explanation. If the diagram needs a paragraph to be understood, redraw the diagram.
+不要写成段的解释。如果图示需要一段话才能看懂，就重画图示。
 
-## Diagram patterns
+## 图示模式
 
-Pick the pattern that fits the candidate. Mix them. Don't make every diagram look the same. Variety is part of the point.
+挑选适合该候选的模式。混着用。不要让每张图看起来都一样。多样性本身就是目的的一部分。
 
-### Mermaid graph (the workhorse for dependencies / call flow)
+### Mermaid 图（依赖 / 调用流程的主力）
 
-Use a Mermaid `flowchart` or `graph` when the point is "X calls Y calls Z, and look at the mess." Wrap it in a Tailwind-styled card so it doesn't feel parachuted in. Style with classDef to colour leakage edges red and the deep module dark. Sequence diagrams work well for "before: 6 round-trips; after: 1."
+当要表达的是「X 调 Y，Y 调 Z，看看这一团乱」时，用 Mermaid 的 `flowchart` 或 `graph`。把它包在一张 Tailwind 样式的卡片里，免得显得是空降来的。用 classDef 把泄漏的边染成红色、把深模块染成深色。时序图很适合表达「之前：6 次往返；之后：1 次」。
 
 ```html
 <div class="rounded-lg border border-slate-200 bg-white p-4">
@@ -75,49 +75,49 @@ Use a Mermaid `flowchart` or `graph` when the point is "X calls Y calls Z, and l
 </div>
 ```
 
-### Hand-built boxes-and-arrows (when Mermaid's layout fights you)
+### 手搭的方框加箭头（当 Mermaid 的布局跟你作对时）
 
-Modules as `<div>`s with borders and labels. Arrows as inline SVG `<line>` or `<path>` elements positioned absolutely over a relative container. Reach for this when you want the "after" diagram to feel like one thick-bordered deep module with greyed-out internals, since Mermaid won't render that with the right weight.
+模块用带边框和标签的 `<div>` 表示。箭头用内联 SVG 的 `<line>` 或 `<path>` 元素，绝对定位在一个相对定位的容器之上。当你想让「之后」的图看起来像一个粗边框的深模块、内部细节呈灰色时，就用这种方式，因为 Mermaid 渲染不出那种恰到好处的分量感。
 
-### Cross-section (good for layered shallowness)
+### 剖面图（适合层层叠叠的浅）
 
-Stack horizontal bands (`h-12 border-l-4`) to show layers a call passes through. Before: 6 thin layers each doing nothing. After: 1 thick band labelled with the consolidated responsibility.
+堆叠水平色带（`h-12 border-l-4`），展示一次调用穿过的各层。之前：6 个薄层，每层什么都不做。之后：1 条粗色带，标注合并后的职责。
 
-### Mass diagram (good for "interface as wide as implementation")
+### 体量图（适合「接口和实现一样宽」）
 
-Two rectangles per module: one for interface surface area, one for implementation. Before: interface rectangle is nearly as tall as the implementation rectangle (shallow). After: interface rectangle is short, implementation rectangle is tall (deep).
+每个模块两个矩形：一个代表接口表面积，一个代表实现。之前：接口矩形几乎和实现矩形一样高（浅）。之后：接口矩形很矮，实现矩形很高（深）。
 
-### Call-graph collapse
+### 调用图收拢
 
-Before: a tree of function calls rendered as nested boxes. After: the same tree collapsed into one box, with the now-internal calls shown faded inside it.
+之前：一棵函数调用树，渲染成嵌套的方框。之后：同一棵树收拢成一个方框，现在已成为内部调用的部分以淡化的样式显示在框内。
 
-## Style guidance
+## 样式指引
 
-- Lean editorial, not corporate-dashboard. Generous whitespace. Serif optional for headings (`font-serif` works well with stone/slate).
-- Colour sparingly: one accent (emerald or indigo) plus red for leakage and amber for warnings.
-- Keep diagrams ~320px tall so before/after sits comfortably side by side without scrolling.
-- Use `text-xs uppercase tracking-wider` for module labels inside diagrams, so they read as schematic, not as UI.
-- The only scripts are the Tailwind CDN and the Mermaid ESM import. The report is otherwise static: no app code, no interactivity beyond Mermaid's own rendering.
+- 偏向编辑风格，而不是企业仪表盘风格。留白宽松。标题可选用衬线字体（`font-serif` 和 stone/slate 搭配效果很好）。
+- 克制用色：一个强调色（emerald 或 indigo），外加红色表示泄漏、琥珀色表示警告。
+- 图示高度保持在约 320px，让前后对比图舒服地并排，无需滚动。
+- 图示里的模块标签用 `text-xs uppercase tracking-wider`，让它们读起来像示意图，而不是 UI。
+- 仅有的脚本是 Tailwind CDN 和 Mermaid 的 ESM 导入。除此之外报告是静态的：没有应用代码，除了 Mermaid 自身的渲染之外没有交互。
 
-## Top recommendation section
+## 首要推荐部分
 
-One larger card. Candidate name, one sentence on why, anchor link to its card. That's it.
+一张更大的卡片。候选名称、一句话说明原因、一个指向其卡片的锚点链接。就这些。
 
-## Tone
+## 语气
 
-Plain English, concise, but the architectural nouns and verbs come straight from the `/codebase-design` skill. Concision is not an excuse to drift.
+语言平实、简洁，但架构上的名词和动词直接取自 `/codebase-design` skill。简洁不是跑偏的借口。
 
-**Use exactly:** module, interface, implementation, depth, deep, shallow, seam, adapter, leverage, locality.
+**严格使用：** 模块（module）、接口（interface）、实现（implementation）、深度（depth）、深（deep）、浅（shallow）、接缝（seam）、适配器（adapter）、杠杆（leverage）、局部性（locality）。
 
-**Never substitute:** component, service, unit (for module) · API, signature (for interface) · boundary (for seam) · layer, wrapper (for module, when you mean module).
+**绝不替换成：** 组件、服务、单元（component、service、unit，用来指模块时）· API、签名（signature，用来指接口时）· 边界（boundary，用来指接缝时）· 层、包装层（layer、wrapper，用来指模块、而你的意思就是模块时）。
 
-**Phrasings that fit the style:**
+**符合这种风格的措辞：**
 
-- "Order intake module is shallow: interface nearly matches the implementation."
-- "Pricing leaks across the seam."
-- "Deepen: one interface, one place to test."
-- "Two adapters justify the seam: HTTP in prod, in-memory in tests."
+- 「Order 接收模块是浅的：接口几乎和实现一样。」
+- 「定价逻辑跨接缝泄漏。」
+- 「加深：一个接口，一个测试点。」
+- 「两个适配器让这条接缝站得住：生产环境用 HTTP，测试中用内存实现。」
 
-**Wins bullets** name the gain in glossary terms: *"locality: bugs concentrate in one module"*, *"leverage: one interface, N call sites"*, *"interface shrinks; implementation absorbs the wrappers"*. Don't write *"easier to maintain"* or *"cleaner code"*, because those terms aren't in the glossary and don't earn their place.
+**收获要点**用术语表的术语点明收益：*「局部性：bug 集中在一个模块里」*、*「杠杆：一个接口，N 个调用点」*、*「接口缩小；实现吸收了那些包装层」*。不要写*「更易维护」*或*「代码更干净」*，因为这些说法不在术语表里，也不配占这个位置。
 
-No hedging, no throat-clearing, no "it's worth noting that…". If a sentence could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a term isn't in the `/codebase-design` glossary, reach for one that is before inventing a new one.
+不要含糊其辞，不要清嗓子式的铺垫，不要「值得注意的是……」。一句话能变成要点，就把它变成要点。一个要点能删，就删掉。如果某个术语不在 `/codebase-design` 的术语表里，先去找一个在表里的，再考虑发明新词。

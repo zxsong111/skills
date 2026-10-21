@@ -1,81 +1,81 @@
-## What it does
+## 它做什么
 
-`to-spec` turns the conversation you have just had into a **[spec](https://www.aihero.dev/ai-coding-dictionary/spec)**, and publishes it to your issue tracker as a single issue.
+`to-spec` 把你刚刚进行的对话变成一份 **[spec](https://www.aihero.dev/ai-coding-dictionary/spec)**，并作为单个 issue 发布到你的 issue tracker。
 
-It does not interview you. When you reach for it, the deciding is already done. So it synthesises what is known (from the thread, the codebase, your `GLOSSARY.md` and ADRs) and does not start a new round of questions. The spec records decisions you already made. It is not a place to make new ones.
+它不会再访谈你。当你用到它时，决定已经做完了。所以它综合已知的内容（来自对话、代码库、你的 `GLOSSARY.md` 和 ADR），不会开启新一轮问题。spec 记录的是你已经做出的决定，不是做新决定的地方。
 
-## When to reach for it
+## 什么时候用
 
-You invoke this by typing `/to-spec`; the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own.
+输入 `/to-spec` 调用它，[agent](https://www.aihero.dev/ai-coding-dictionary/agent) 不会自己去用它。
 
-Reach for it when the build is too big for one agent [session](https://www.aihero.dev/ai-coding-dictionary/session) and must be split across several. That is the whole trigger:
+当构建大到一个 agent [会话](https://www.aihero.dev/ai-coding-dictionary/session)装不下、必须拆到几个会话里时用它。触发条件就这一条：
 
-| Where you are | What to run |
+| 你在哪个阶段 | 运行什么 |
 | --- | --- |
-| You haven't decided anything yet | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) first |
-| Decided, and the work fits one [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) | [implement](https://aihero.dev/skills-implement): skip the spec |
-| Decided, and the work spans several sessions | `/to-spec`, then [to-tickets](https://aihero.dev/skills-to-tickets) |
-| A [wayfinder](https://aihero.dev/skills-wayfinder) map has cleared | `/to-spec #<map_issue>` |
+| 还什么都没决定 | 先用 [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
+| 已经决定，工作量一个[上下文窗口](https://www.aihero.dev/ai-coding-dictionary/context-window)装得下 | [implement](https://aihero.dev/skills-implement)：跳过 spec |
+| 已经决定，工作要跨好几个会话 | `/to-spec`，然后 [to-tickets](https://aihero.dev/skills-to-tickets) |
+| 一张 [wayfinder](https://aihero.dev/skills-wayfinder) 地图已经清空迷雾 | `/to-spec #<map_issue>` |
 
-## Prerequisites
+## 前置条件
 
-`to-spec` publishes the spec as an issue, so [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) must first configure a tracker and the triage-label vocabulary for this repo. Either kind of tracker works: a real tracker like GitHub, or local markdown files under `.scratch/`, which work with no extra setup.
+`to-spec` 把 spec 作为 issue 发布，所以必须先由 [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) 为这个仓库配置好 tracker 和分诊(triage)标签词汇。两种 tracker 都可以：像 GitHub 这样的真正 tracker，或者 `.scratch/` 下的本地 markdown 文件，后者不需要额外设置。
 
-## The spec is a decision record
+## spec 是一份决策记录
 
-The spec exists because context windows end. You settled many things while [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling): the shape of the solution, the choices you argued through, and what you deliberately refused. All of that is in one conversation that you are about to clear. The spec keeps it.
+spec 之所以存在，是因为上下文窗口会结束。你在[盘问](https://www.aihero.dev/ai-coding-dictionary/grilling)时定下了很多事：解决方案的形状，你逐一争论过的选择，以及你有意拒绝的东西。这些都在一段你马上就要清空的对话里。spec 把它们保留下来。
 
-So the spec does not validate or decide anything. It records what you decided, in your project's own vocabulary, so a fresh session can pick up the work without you explaining it again. If the spec states something you never said, that is a defect.
+所以 spec 不验证也不决定任何事。它用你项目自己的词汇记录你决定了什么，让一个新会话无需你再解释一遍就能接手工作。如果 spec 里写了你从没说过的东西，那就是缺陷。
 
-## Seams before prose
+## 先接缝，后文字
 
-Before it writes anything, `to-spec` sketches the **seams** where the feature will be tested, and checks them with you. It prefers existing seams to new ones, and picks the highest seam it can. The ideal number of seams for a change is one.
+在写任何东西之前，`to-spec` 会勾勒出功能将被测试的那些**接缝**(seam)，并和你确认。它优先使用已有的接缝而不是新的，并尽量挑最高层的接缝。一次改动理想的接缝数量是一个。
 
-Other skills use those agreed seams later. [tdd](https://aihero.dev/skills-tdd) works only at seams you agreed in advance. [code-review](https://aihero.dev/skills-code-review) reviews the diff against the spec, so a seam nobody agreed to shows up as a review finding. Both connections go through this document. That is why you should take the seam conversation seriously here, and not leave it for implementation.
+其他 skill 之后会用到这些商定好的接缝。[tdd](https://aihero.dev/skills-tdd) 只在你事先同意的接缝上工作。[code-review](https://aihero.dev/skills-code-review) 对照 spec 审查 diff，所以一个没人同意过的接缝会作为 review 发现冒出来。这两条联系都经过这份文档。这就是为什么你应该在这里认真对待关于接缝的讨论，而不是把它留到实现阶段。
 
-## Common questions
+## 常见问题
 
-**Where did `/to-prd` go?**
-It is this skill, renamed in v1.1. "Spec" is now the one term used throughout, and the old `to-prd` slug no longer works, so reinstall under the new name. The old vocabulary is replaced by the pair *spec* and *tickets*. The spec is the destination and the decisions that fix it. The [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) are the steps that get there. If you change direction, delete the unfinished tickets and keep the spec.
+**`/to-prd` 去哪了？**
+就是这个 skill，在 v1.1 改了名。现在全程统一用「spec」这一个术语，旧的 `to-prd` slug 不再可用，所以请用新名字重新安装。旧的词汇被 *spec* 和 *ticket* 这一对替代了。spec 是目的地以及确定它的那些决定。[ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) 是抵达那里的步骤。如果你改变了方向，就删掉未完成的 ticket，保留 spec。
 
-**Why does the spec get the `ready-for-agent` label? I don't want an agent implementing off it.**
-The label means "no further triage needed": the document is complete enough for an agent to work from. It marks an input, not a work order. But [AFK](https://www.aihero.dev/ai-coding-dictionary/afk) agents that poll for `ready-for-agent` cannot see that difference. They will try to build the whole spec in one run instead of picking up the ticket slices. This is the most-reported problem with the skill. Until it changes, exclude the parent spec explicitly in your AFK agent's prompt, or remove the label after `/to-tickets` has run.
+**为什么 spec 会被打上 `ready-for-agent` 标签？我不想让 agent 照着它直接实现。**
+这个标签的意思是「不需要进一步分诊」：文档已经完整到 agent 可以据此工作。它标记的是一份输入，而不是一张工单。但是轮询 `ready-for-agent` 的 [AFK](https://www.aihero.dev/ai-coding-dictionary/afk) agent 看不出这个区别。它们会试图在一次运行里构建整份 spec，而不是去领 ticket 切片。这是这个 skill 被报告最多的问题。在它改变之前，请在你的 AFK agent 的 prompt 里明确排除父级 spec，或者在 `/to-tickets` 运行之后去掉这个标签。
 
-**Why not go straight from grilling to `/to-tickets` and skip the spec?**
-Often you should. The spec is worth its step only on multi-session work. Its value is that the tickets are disposable and the spec is not. Each ticket is sized for one fresh context window and then gets deleted or closed, while the spec stays as the one place that records the reasoning behind them. On a single-session change, that gives you nothing, and you pay for an extra synthesis step where the [model](https://www.aihero.dev/ai-coding-dictionary/model) can drift. Go from grilling to `/implement`.
+**为什么不从盘问直接走到 `/to-tickets`，跳过 spec？**
+很多时候你确实应该这样。spec 只在跨多个会话的工作上才值得这一步。它的价值在于 ticket 是用完即弃的，而 spec 不是。每个 ticket 的大小都按一个全新的上下文窗口来切，用完就删掉或关闭，而 spec 作为记录它们背后理由的唯一地方保留下来。在单会话的改动上，这什么也给不了你，你还要为一个额外的综合步骤买单，而[模型](https://www.aihero.dev/ai-coding-dictionary/model)在这一步可能会跑偏。直接从盘问走到 `/implement`。
 
-**I just finished a wayfinder map. What do I feed it?**
-Give it the main map issue, `/to-spec #<map_issue>`, not the individual decision tickets. [wayfinder](https://aihero.dev/skills-wayfinder) produces decisions spread across a map, not deliverables. `to-spec` collapses them into one document you can build from. If you loop the map straight into `/implement`, you lose that step.
+**我刚完成一张 wayfinder 地图。该喂给它什么？**
+给它主地图 issue，`/to-spec #<map_issue>`，而不是那些单独的决策 ticket。[wayfinder](https://aihero.dev/skills-wayfinder) 产出的是分散在一张地图上的决定，而不是交付物。`to-spec` 把它们收拢成一份你可以据此构建的文档。如果你把地图直接接到 `/implement`，就丢掉了这一步。
 
-**Is the spec for me to review, or is it just for the agent?**
-Mostly for the agent, and it reads that way: complete, dense, and full of references. Read the seams and the out-of-scope section. In those two places, a wrong decision is cheapest to catch now and most expensive to find later. People do complain about reading the whole thing, and there is no summary mode. But if the spec surprises you, the grilling was too shallow; the spec is not too long.
+**spec 是给我审阅的，还是只给 agent 看的？**
+主要给 agent 看，读起来也是这个样子：完整、密集、满是引用。读一读接缝和超出范围那两节。在这两个地方，错误的决定现在发现代价最小，以后才发现代价最大。确实有人抱怨要读完整份文档，而且没有摘要模式。但如果 spec 让你感到意外，那是盘问太浅了，而不是 spec 太长。
 
-**Do I keep the spec frozen once tickets start, or let the agent rewrite it?**
-Nothing keeps it in sync. In practice it is a snapshot of what you knew at that moment, and it goes out of date the first time implementation teaches you something. Treat it as disposable after the work ships. Your `GLOSSARY.md` and ADRs are the files meant to last. If you learn something during implementation that should last, put it there, not in an edited spec.
+**ticket 开始之后，我是把 spec 冻结，还是让 agent 改写它？**
+没有任何东西让它保持同步。实际上它是你那一刻所知内容的一张快照，实现第一次让你学到新东西时它就过时了。工作上线后就把它当作可丢弃的。你的 `GLOSSARY.md` 和 ADR 才是要长期保留的文件。如果你在实现过程中学到了应该长期保留的东西，就写到那里，而不是去改 spec。
 
-**My work is a refactor or a module boundary, not a feature. Does the template fit?**
-Less well, and this is a known limitation. The template relies heavily on user stories, which do not fit architectural work. You end up writing stories nobody asked for around decisions that are really about interfaces and invariants. Use the implementation-decisions and testing-decisions sections instead. Record the lasting architectural decisions as ADRs through [grill-with-docs](https://aihero.dev/skills-grill-with-docs), not in the spec.
+**我的工作是一次重构或一个模块边界，不是一个功能。这个模板合适吗？**
+不太合适，这是一个已知的局限。模板非常依赖用户故事，而用户故事不适合架构类工作。你最终会围绕着那些其实关于接口和不变量的决定，写出一堆没人要的故事。改用实现决策和测试决策那两节。把长期的架构决策通过 [grill-with-docs](https://aihero.dev/skills-grill-with-docs) 记录为 ADR，而不是写进 spec。
 
-**Will it check the tracker for related work, or cite the ADRs it's respecting?**
-No to both. It reads and follows the ADRs for the area it touches, but it does not link them. It also does not search the tracker for overlapping issues before it writes, so a spec can duplicate work that someone already filed, and nothing warns you. If the area is busy, search the tracker yourself first.
+**它会检查 tracker 里的相关工作，或者引用它所遵循的 ADR 吗？**
+两个都不会。它会读取并遵循所涉及领域的 ADR，但不会链接它们。它在写之前也不会在 tracker 里搜索重叠的 issue，所以一份 spec 可能和别人已经提交的工作重复，而且没有任何东西提醒你。如果这个领域很热闹，先自己搜一下 tracker。
 
-**`/to-tickets` couldn't read my spec: it kept truncating.**
-A tracker issue may not return a very large spec in full, and there is no local copy to use instead. To fix this, do not [clear](https://www.aihero.dev/ai-coding-dictionary/clearing) or [compact](https://www.aihero.dev/ai-coding-dictionary/compaction) between `/to-spec` and `/to-tickets`. Run them in the same window, and `/to-tickets` never has to fetch the spec again.
+**`/to-tickets` 读不了我的 spec：内容一直被截断。**
+tracker 的 issue 可能无法完整返回一份很大的 spec，而且也没有本地副本可以替代。要解决这个问题，不要在 `/to-spec` 和 `/to-tickets` 之间[清空](https://www.aihero.dev/ai-coding-dictionary/clearing)或[压缩](https://www.aihero.dev/ai-coding-dictionary/compaction)上下文。在同一个窗口里运行它们，`/to-tickets` 就根本不需要再去抓取 spec。
 
-## It's working if
+## 起作用的标志
 
-- It starts writing instead of asking you a new round of questions.
-- It shows you the seams before it writes, and proposes as few as it can.
-- It uses your project's nouns, not generic product-management boilerplate.
-- You remember making every decision in it. It invented nothing to fill a section.
-- The out-of-scope section lists real things. The things you refused are usually the most useful lines on the page.
+- 它直接开始写，而不是再问你新一轮问题。
+- 它在写之前先给你看接缝，并且提出的接缝尽可能少。
+- 它用的是你项目里的名词，而不是泛泛的产品管理套话。
+- 里面的每个决定你都记得是自己做的。它没有为了填满某一节而编造任何东西。
+- 超出范围那一节列的是真实的东西。你拒绝过的那些，通常是整页里最有用的几行。
 
-## Where it fits
+## 在体系中的位置
 
-`to-spec` is a step in the main build chain, but only on the multi-session branch of it:
+`to-spec` 是主构建链路中的一步，但只在其中跨多会话的那个分支上：
 
 ```txt
 grill-with-docs → to-spec → to-tickets → implement → code-review → retro
 ```
 
-Upstream, [grill-with-docs](https://aihero.dev/skills-grill-with-docs) makes the decisions that this skill only records, and a finished [wayfinder](https://aihero.dev/skills-wayfinder) map joins the chain here. Downstream, [to-tickets](https://aihero.dev/skills-to-tickets) cuts the spec into tracer-bullet tickets for [implement](https://aihero.dev/skills-implement) to build. When you're unsure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+在上游，[grill-with-docs](https://aihero.dev/skills-grill-with-docs) 做出决定，而这个 skill 只负责记录；一张完成的 [wayfinder](https://aihero.dev/skills-wayfinder) 地图也在这里汇入链路。在下游，[to-tickets](https://aihero.dev/skills-to-tickets) 把 spec 切成曳光弹(tracer bullet)式的 ticket，交给 [implement](https://aihero.dev/skills-implement) 去构建。当你不确定哪个 skill 或流程合适时，[ask-matt](https://aihero.dev/skills-ask-matt) 会为你指路。

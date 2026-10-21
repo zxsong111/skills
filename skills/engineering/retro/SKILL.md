@@ -1,44 +1,45 @@
 ---
 name: retro
-description: "Conduct a retrospective on a coding session."
+description: >
+  对一次编码会话做复盘。
 disable-model-invocation: true
 ---
 
-The user has asked for a **retrospective**. You are suggesting improvements to the coding agent's **environment** to improve future runs.
+用户要求做一次**复盘(retrospective)**。你要为编码 agent 的**环境(environment)**提出改进建议，让以后的运行更顺。
 
-## Steps
+## 步骤
 
-1. Call the Skill tool with `writing-for-agents` for the writing style guide.
+1. 调用 Skill 工具，参数为 `writing-for-agents`，获取写作风格指南。
 
-2. Read the primary sources for the session the user specifies. This may mean searching through session logs on this machine. If the user doesn't specify a session, default to the current one.
+2. 阅读用户指定会话的一手资料(primary source)。这可能意味着要在这台机器上搜索会话日志。如果用户没有指定会话，默认就是当前会话。
 
-3. Look for candidates for improvement in these categories.
+3. 在以下类别中寻找可改进的候选项。
 
-- **Navigation**: how easy was it for the agent to find the right files? Are there hidden dependencies between files? Would a **navigation pointer** make it easier? _Use when_ the session took a long time to find a piece of information.
-- **Automated checks**: are there automated checks that could catch errors the agent made? Linting, typing, tests, filesystem linters? Read the repo's own check command first (its `package.json`/build-tool `lint`/`check` scripts, its CI workflow), so a check that already exists but sits unwired or silently broken is the finding, not a reinvention. A repo with no **guardrail** (no pre-commit hook and no CI job running its lint/typecheck/test command) is itself a finding: an un-linted repo is a standing missed opportunity, not a neutral default. _Use when_ the agent made a mistake an automated check could have caught, or the repo has no guardrail at all.
-- **Coding standards**: should the **reviewer agent** be given a new rule to enforce? Should an existing rule be removed or clarified? Classify the violation first: a **mechanical** one (a fixed syntactic pattern, a banned API, an import shape, a file-location rule) gets a deterministic check, full stop: a custom rule in the repo's own linter, a new pre-commit hook, or a new CI job, whichever the repo's language and existing guardrail make cheapest. Default to building the check over writing the rule. Reserve `CODING_STANDARDS.md` for genuine **judgement calls** (cross-file consistency, "matches the surrounding style," anything no guardrail could ever substitute for). _Use when_ the reviewer agent failed to catch a mistake.
-- **Global AGENTS.md**: are there any steering instructions that should be moved to coding standards (or automated checks) instead? _Use when_ the AGENTS.md file is particularly large - in the repo OR the user's global scope.
-- **Tool economy**: did the agent make expensive tool calls that could be streamlined? Is there any custom tooling (CLI's, MCP's) that is particularly token-inefficient? _Use when_ the agent made an expensive tool call.
-- **No-ops**: look for instructions in steering files that don't modify the agent's behavior. _Use when_ the steering files are large and unwieldy.
-- **Information access**: look for opportunities to increase the agent's access to information. Teeing dev server logs, readonly access to third-party services. _Use when_ a crucial piece of information was not available to the agent.
+- **导航**：agent 找到正确的文件有多容易？文件之间有没有隐藏的依赖？加一个**导航指针(navigation pointer)**会不会更容易？_适用于_会话花了很长时间才找到某条信息的情况。
+- **自动检查**：有没有自动检查能抓住 agent 犯的错？lint、类型检查、测试、文件系统 linter？先读 repo 自己的检查命令（它的 `package.json`/构建工具里的 `lint`/`check` 脚本、它的 CI 工作流），这样如果某个检查已经存在但没接上或者悄悄坏掉了，这本身就是发现，而不是重新发明一遍。一个没有任何**防护栏(guardrail)**的 repo（没有 pre-commit hook，也没有跑它的 lint/typecheck/test 命令的 CI 任务）本身就是一个发现：没有 lint 的 repo 是一个持续存在的错失机会，而不是中性的默认状态。_适用于_ agent 犯了一个本可以被自动检查抓住的错误，或者 repo 完全没有防护栏的情况。
+- **编码规范**：是否应该给**审查 agent(reviewer agent)** 一条新的规则去执行？是否应该删除或澄清某条现有规则？先给违规分类：**机械性的(mechanical)**违规（固定的语法模式、被禁用的 API、import 的形式、文件位置规则）就做成确定性的检查，没有二话：在 repo 自己的 linter 里加一条自定义规则、加一个新的 pre-commit hook，或者加一个新的 CI 任务，看 repo 的语言和现有防护栏哪种最便宜。默认是构建检查，而不是写规则。`CODING_STANDARDS.md` 只留给真正的**判断性的(judgement call)**问题（跨文件的一致性、「符合周边代码的风格」、任何防护栏都永远替代不了的东西）。_适用于_审查 agent 没能抓住某个错误的情况。
+- **全局 AGENTS.md**：有没有哪些引导指令应该移到编码规范（或自动检查）里？_适用于_ AGENTS.md 文件特别大的情况，不论是在 repo 里还是在用户的全局范围里。
+- **工具经济性**：agent 有没有做了本可以精简的昂贵工具调用？有没有哪个自定义工具（CLI、MCP）特别浪费 token？_适用于_ agent 做了一次昂贵的工具调用的情况。
+- **空操作**：在引导文件里寻找那些根本不会改变 agent 行为的指令。_适用于_引导文件又大又难以驾驭的情况。
+- **信息获取**：寻找能增加 agent 获取信息途径的机会。用 tee 把 dev server 日志另存一份、给第三方服务的只读权限。_适用于_某条关键信息 agent 拿不到的情况。
 
-4. Present these candidates to the user, in order of severity.
+4. 按严重程度排序，把这些候选项展示给用户。
 
-## Reference
+## 参考
 
-### Implementation vs Review
+### 实现与审查
 
-Remember that all work goes through two stages: implementation and review. The implementation agent has the most **context pressure**. They are responsible for exploration, writing code, and debugging failures.
+记住，所有工作都要经过两个阶段：实现和审查。实现 agent 承受的**上下文压力**最大。它负责探索、写代码和调试失败。
 
-The review agent has the least context pressure - it receives a diff, so no exploration needed. It often does not need to write code or debug.
+审查 agent 承受的上下文压力最小：它拿到的是一个 diff，所以不需要探索。它通常也不需要写代码或调试。
 
-This means that the review agent should be responsible for imposing coding standards, not the implementation agent.
+这意味着应该由审查 agent 而不是实现 agent 来负责落实编码规范。
 
-### Files
+### 文件
 
-You have access to several files in the repo:
+你可以使用 repo 中的几类文件：
 
-- `CLAUDE.md`/`AGENTS.md`: these files are pushed to the context window of any agent working in this repo. They should be used incredibly sparingly, usually only for **navigation pointers** to other files.
-- `CODING_STANDARDS.md`: this file is read during review, not implementation. Add **navigation pointers** to docs folders if the standards file gets more than 1,000 lines long.
-- Docs: use docs as references files, pointed to by other files. Look for existing docs before writing new ones.
-- Skills: use skills for docs (since their description goes into the agent's context window), or for user-invoked commands. Follow the advice in the `writing-for-agents` skill.
+- `CLAUDE.md`/`AGENTS.md`：这些文件会被推送到在这个 repo 里工作的任何 agent 的上下文窗口(context window)中。应该极其节制地使用它们，通常只用来放指向其他文件的**导航指针**。
+- `CODING_STANDARDS.md`：这个文件在审查时读取，而不是在实现时。如果规范文件超过 1,000 行，就加上指向 docs 文件夹的**导航指针**。
+- Docs：把 docs 当作参考文件，由其他文件指向它们。写新文档之前先找找已有的。
+- Skills：用 skill 来承载文档（因为它们的 description 会进入 agent 的上下文窗口），或者用作用户手动调用(user-invoked)的命令。遵循 `writing-for-agents` skill 里的建议。

@@ -1,61 +1,62 @@
 ---
 name: resume-handoff
-description: Pick up an unfinished task from a previous session. Finds the handoff document written by /handoff, checks the working state against it, and continues from its Next step. Takes no arguments.
+description: >
+  接手上一个会话没做完的任务。找到 /handoff 写的交接文档，对照它检查当前工作状态，然后从它的「下一步」继续。不接受参数。
 disable-model-invocation: true
 ---
 
-# Session handoff (read side)
+# 会话交接（读取端）
 
-The user typed only the skill name. **Do not ask where the document is; find it yourself.**
+用户只输入了 skill 名。**不要问文档在哪儿，自己去找。**
 
-## 1. Find the handoff document
+## 1. 找到交接文档
 
-Search in this order and stop at the first hit:
+按以下顺序查找，找到第一个就停：
 
 ```bash
 root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 tmp=${TMPDIR:-/tmp}
 found=$({
-  # (1) current repo root  (2) other worktrees of the same repo (the previous session may have been in another worktree)
+  # (1) 当前仓库根目录  (2) 同一仓库的其他 worktree（上一个会话可能在另一个 worktree 里）
   ls -1 "$root/tasks/handoff.md" 2>/dev/null
   git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' |
     while read -r w; do ls -1 "$w/tasks/handoff.md" 2>/dev/null; done
-  # (3) handoff documents from the last 7 days in the system temp dir (where /handoff writes by default)
+  # (3) 系统临时目录里最近 7 天的交接文档（/handoff 默认写到这里）
   find "$tmp" -maxdepth 2 -iname '*handoff*.md' -mtime -7 2>/dev/null
 } | sort -u)
-# Newest first; prints nothing if none were found (works on macOS and Linux)
+# 最新的排在最前；一个都没找到时什么也不输出（macOS 和 Linux 都适用）
 [ -n "$found" ] && printf '%s\n' "$found" | tr '\n' '\0' | xargs -0 ls -t
 ```
 
-- **One found** → use it
-- **Several found** → use the first (newest) one, and tell the user the paths of the others and the time each one records in its Time field
-- **None found** → check the issue tracker for a half-finished ticket: for a local tracker, files under `.scratch/*/issues/*.md` whose `Status:` is not done; for a real tracker, issues assigned to you with an in-progress status.
-  If there are any → list them, let the user pick one, read it and continue; if there are none → tell the user "no handoff document found, and no ticket in progress", ask for a path, then stop. **Do not invent a progress report**
+- **找到一个** → 就用它
+- **找到多个** → 用第一个（最新的），并告诉用户其他文档的路径，以及每份文档「时间」字段里记录的时间
+- **一个都没找到** → 去 issue tracker 里找做了一半的 ticket：本地 tracker 就看 `.scratch/*/issues/*.md` 下 `Status:` 不是 done 的文件；真正的 tracker 就看分配给你、状态为进行中的 issue。
+  如果有 → 列出来让用户挑一个，读完后继续；如果没有 → 告诉用户「没有找到交接文档，也没有进行中的 ticket」，请用户给出路径，然后停下。**不要编造进度报告**
 
-If the handoff document is in another worktree or another directory, do all further work in **that directory**, and tell the user first.
+如果交接文档在另一个 worktree 或另一个目录里，之后的所有工作都在**那个目录**里做，并且先告诉用户。
 
-## 2. Check the working state
+## 2. 检查工作状态
 
-Read the whole handoff, then compare:
+读完整份交接文档，然后对比：
 
 ```bash
-git -C <repo root containing the handoff> branch --show-current
-git -C <repo root containing the handoff> status --short
+git -C <包含交接文档的仓库根目录> branch --show-current
+git -C <包含交接文档的仓库根目录> status --short
 ```
 
-- The branch differs from what the handoff records, files under "Files in progress" have already been committed or are gone, or there are changes the handoff never mentions
-  → the handoff may be stale; **stop**, tell the user the differences, and get them cleared up before continuing
-- The Time in the document is long ago → confirm first as well
-- Claims the handoff states as fact without evidence ("X is already done", "Y doesn't exist") → treat them as still to be verified, do not take them on trust
+- branch 和交接文档记录的不一致、「改动中的文件」下列出的文件已经 commit 了或已经不在了，或者存在交接文档完全没提到的改动
+  → 交接文档可能已经过时；**停下**，把差异告诉用户，等弄清楚之后再继续
+- 文档里的「时间」已经是很久以前 → 同样先确认
+- 交接文档当作事实陈述、但没有证据的说法（「X 已经做完了」「Y 不存在」）→ 视为仍待验证，不要直接相信
 
-## 3. Continue
+## 3. 继续
 
-1. In two or three lines, restate for the user: the Goal, the Current state, and the step that comes next
-2. "Pending user decisions" is not "none" → ask first
-3. Start from "Next step". Do not retry approaches listed under "Ruled out" unless you have new evidence
-4. The handoff has a "suggested skills" section → call the skills it names
-5. If the state changes materially while you work and the session grows long again → remind the user to run `/handoff` again
+1. 用两三行向用户复述：「目标」、「当前状态」，以及接下来要做的那一步
+2. 「待用户决定」不是「无」→ 先问
+3. 从「下一步」开始。不要重试「已排除」里列出的做法，除非你有新的证据
+4. 交接文档里有「建议调用的 skill」小节 → 调用它列出的 skill
+5. 如果工作过程中状态发生了实质变化，会话又变长了 → 提醒用户再跑一次 `/handoff`
 
-## 4. Wrap up
+## 4. 收尾
 
-Once the task is done and you have evidence from running the verification commands, **delete the handoff document** (`tasks/handoff.md` in the repo, or the copy in the temp directory), so the next `/resume-handoff` doesn't pick up a handoff that is already finished.
+任务完成、并且跑过验证命令拿到证据之后，**删除交接文档**（仓库里的 `tasks/handoff.md`，或临时目录里的那份），免得下一次 `/resume-handoff` 又捡起一份已经完成的交接。

@@ -1,216 +1,220 @@
 ---
 name: security-and-hardening
-description: Harden code against vulnerabilities. Use when a change touches authentication / authorization, session management, payments, personal data (PII, GDPR, CCPA), file uploads, webhooks / callbacks, or endpoints that accept untrusted external data; when auditing dependency vulnerabilities, triaging audit results, or assessing the supply-chain risk of a new dependency; and when the user asks for a security review against the OWASP Top Ten.
+description: >
+  加固代码，防范漏洞。当改动涉及认证 / 授权、会话管理、支付、个人数据（PII、GDPR、CCPA）、文件上传、
+  webhook / 回调，或接收不可信外部数据的接口时使用；审计依赖漏洞、分诊审计结果、评估新依赖的供应链风险时使用；
+  用户要求对照 OWASP Top Ten 做安全审查时也使用。触发短语：「安全审查」「加固一下」「查一下依赖漏洞」
+  「这个接口安全吗」「security review」「harden this」「OWASP」。
 ---
 
-# Security and Hardening
+# 安全与加固
 
-## Overview
+## 概述
 
-Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase, it's a constraint on every line of code that touches user data, authentication, or external systems.
+面向 Web 应用的安全优先开发实践。把每一个外部输入都当作敌意输入，把每一个密钥都当作不可外泄之物，把每一次授权检查都当作必须执行。安全不是一个阶段，而是对每一行触及用户数据、认证或外部系统的代码的约束。
 
-## When to Use
+## 何时使用
 
-- Building anything that accepts user input
-- Implementing authentication or authorization
-- Storing or transmitting sensitive data
-- Integrating with external APIs or services
-- Adding file uploads, webhooks, or callbacks
-- Handling payment or PII data
+- 构建任何接收用户输入的功能
+- 实现认证或授权
+- 存储或传输敏感数据
+- 集成外部 API 或服务
+- 新增文件上传、webhook 或回调
+- 处理支付或 PII 数据
 
-## Process: Threat Model First
+## 流程：先做威胁建模
 
-Controls bolted on without a threat model are guesses. Before hardening, spend five minutes thinking like an attacker:
+没有威胁模型就硬加上去的控制措施只是猜测。加固之前，先花五分钟像攻击者一样思考：
 
-1. **Map the trust boundaries.** Where does untrusted data cross into your system? HTTP requests, form fields, file uploads, webhooks, third-party APIs, message queues, and **LLM output**, plus the local values that look internal because the OS handed them to you (another process's command line or environment, filenames on a shared volume, a path in a job payload). Trust follows who *wrote* a value, not which channel delivered it. Every boundary is attack surface.
-2. **Name the assets.** What's worth stealing or breaking? Credentials, PII, payment data, admin actions, money movement.
-3. **Run STRIDE over each boundary** (a quick lens, not a ceremony):
+1. **画出信任边界。** 不可信数据从哪里进入你的系统？HTTP 请求、表单字段、文件上传、webhook、第三方 API、消息队列，以及 **LLM 输出**；还有那些因为是操作系统交给你的、所以看起来像内部数据的本地值（另一个进程的命令行或环境变量、共享卷上的文件名、任务载荷中的路径）。信任取决于是谁*写下*了这个值，而不是它经由哪个渠道送达。每一条边界都是攻击面。
+2. **列出资产。** 什么值得偷、什么值得破坏？凭据、PII、支付数据、管理员操作、资金流转。
+3. **对每条边界过一遍 STRIDE**（一个快速的视角，不是一套仪式）：
 
-| Threat | Ask | Typical mitigation |
+| 威胁 | 问自己 | 典型缓解措施 |
 |---|---|---|
-| **S**poofing | Can someone impersonate a user/service? | Authentication, signature verification |
-| **T**ampering | Can data be altered in transit or at rest? | Integrity checks, parameterized queries, HTTPS |
-| **R**epudiation | Can an action be denied later? | Audit logging of security events |
-| **I**nformation disclosure | Can data leak? | Encryption, field allowlists, generic errors |
-| **D**enial of service | Can it be overwhelmed? | Rate limiting, input size caps, timeouts |
-| **E**levation of privilege | Can a user gain rights they shouldn't? | Authorization checks, least privilege |
+| **S**poofing（伪装） | 有人能冒充某个用户 / 服务吗？ | 认证、签名校验 |
+| **T**ampering（篡改） | 数据在传输或存储时能被改动吗？ | 完整性校验、参数化查询、HTTPS |
+| **R**epudiation（抵赖） | 某个操作事后能被否认吗？ | 对安全事件做审计日志 |
+| **I**nformation disclosure（信息泄露） | 数据会泄露吗？ | 加密、字段白名单、通用错误信息 |
+| **D**enial of service（拒绝服务） | 它会被压垮吗？ | 限流、输入大小上限、超时 |
+| **E**levation of privilege（权限提升） | 用户能获得本不该有的权限吗？ | 授权检查、最小权限 |
 
-4. **Write abuse cases next to use cases.** For each feature, ask "how would I misuse this?" Then make that your first test.
+4. **在用例旁边写下滥用用例。** 对每个功能都问一句「我会怎么滥用它？」，然后把它写成你的第一个测试。
 
-If you can't name the trust boundaries for a feature, you're not ready to secure it. This is OWASP **A04: Insecure Design**: most breaches begin in design, not code.
+如果说不出一个功能的信任边界，你就还没准备好去保护它。这就是 OWASP **A04: Insecure Design**：大多数安全事件始于设计，而不是代码。
 
-## The Three-Tier Boundary System
+## 三级边界体系
 
-### Always Do (No Exceptions)
+### 始终要做（没有例外）
 
-- **Validate all external input** at the system boundary (API routes, form handlers)
-- **Parameterize all database queries**: never concatenate user input into SQL
-- **Encode output** to prevent XSS (use framework auto-escaping, don't bypass it)
-- **Use HTTPS** for all external communication
-- **Hash passwords** with bcrypt/scrypt/argon2 (never store plaintext)
-- **Set security headers** (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- **Use httpOnly, secure, sameSite cookies** for sessions
-- **Run the detected package manager's native audit** against the committed lockfile before every release
+- 在系统边界（API 路由、表单处理器）**校验所有外部输入**
+- **所有数据库查询都参数化**：绝不把用户输入拼接进 SQL
+- **对输出编码**以防 XSS（使用框架的自动转义，不要绕过它）
+- 所有外部通信**使用 HTTPS**
+- 用 bcrypt/scrypt/argon2 **哈希密码**（绝不存明文）
+- **设置安全响应头**（CSP、HSTS、X-Frame-Options、X-Content-Type-Options）
+- 会话**使用 httpOnly、secure、sameSite 的 cookie**
+- 每次发布前，用检测到的包管理器自带的审计命令**对已提交的 lockfile 做审计**
 
-### Ask First (Requires Human Approval)
+### 先问再做（需要人工批准）
 
-- Adding new authentication flows or changing auth logic
-- Storing new categories of sensitive data (PII, payment info)
-- Adding new external service integrations
-- Changing CORS configuration
-- Adding file upload handlers
-- Modifying rate limiting or throttling
-- Granting elevated permissions or roles
+- 新增认证流程或修改认证逻辑
+- 存储新类别的敏感数据（PII、支付信息）
+- 新增外部服务集成
+- 修改 CORS 配置
+- 新增文件上传处理器
+- 修改限流或节流设置
+- 授予更高的权限或角色
 
-### Never Do
+### 绝不要做
 
-- **Never commit secrets** to version control (API keys, passwords, tokens)
-- **Never log sensitive data** (passwords, tokens, full credit card numbers)
-- **Never trust client-side validation** as a security boundary
-- **Never disable security headers** for convenience
-- **Never use `eval()` or `innerHTML`** with user-provided data
-- **Never store sessions in client-accessible storage** (localStorage for auth tokens)
-- **Never expose stack traces** or internal error details to users
+- **绝不把密钥提交**到版本控制（API key、密码、token）
+- **绝不记录敏感数据**（密码、token、完整信用卡号）
+- **绝不把客户端校验**当作安全边界
+- **绝不为了方便禁用安全响应头**
+- **绝不对用户提供的数据使用 `eval()` 或 `innerHTML`**
+- **绝不把会话存放在客户端可访问的存储里**（用 localStorage 存认证 token）
+- **绝不向用户暴露堆栈信息**或内部错误细节
 
-## Hardening Controls
+## 加固控制措施
 
-The rules below are the workflow; a concrete implementation of each lives in [references/hardening-patterns.md](references/hardening-patterns.md). Open the section you need when you reach that code, not before.
+下面的规则是工作流程；每条规则的具体实现见 [references/hardening-patterns.md](references/hardening-patterns.md)。写到那部分代码时再打开对应章节，不要提前读。
 
-### Injection, XSS, and access control
+### 注入、XSS 与访问控制
 
-- Parameterize every query. Never build SQL, NoSQL, or shell commands from input strings.
-- Encode output through the framework's auto-escaping. If raw HTML is unavoidable, sanitize with an allowlist sanitizer first.
-- Check **authorization** on every request, not just authentication: the authenticated user must own, or be permitted on, the specific resource (A01, IDOR).
+- 每个查询都参数化。绝不用输入字符串拼出 SQL、NoSQL 或 shell 命令。
+- 通过框架的自动转义对输出编码。如果确实无法避免原始 HTML，先用白名单型的 sanitizer 清理。
+- 每个请求都检查**授权**，而不仅仅是认证：已认证用户必须拥有该具体资源，或对它有权限（A01，IDOR）。
 
-Patterns: [Injection](references/hardening-patterns.md#injection), [XSS](references/hardening-patterns.md#cross-site-scripting-xss), [Access control](references/hardening-patterns.md#broken-access-control).
+模式：[注入](references/hardening-patterns.md#injection)、[XSS](references/hardening-patterns.md#cross-site-scripting-xss)、[访问控制](references/hardening-patterns.md#broken-access-control)。
 
-### Authentication and sessions
+### 认证与会话
 
-- Hash passwords with bcrypt (≥12 rounds), scrypt, or argon2. The session secret comes from the environment, never from code.
-- Session cookies are `httpOnly`, `secure`, and `sameSite: 'lax'` or `'strict'` (the CSRF defense; `'none'` sends the cookie on cross-site requests), with a bounded `maxAge`.
+- 用 bcrypt（≥12 轮）、scrypt 或 argon2 哈希密码。会话密钥来自环境变量，绝不写在代码里。
+- 会话 cookie 设为 `httpOnly`、`secure`，以及 `sameSite: 'lax'` 或 `'strict'`（这是 CSRF 防御；`'none'` 会在跨站请求中带上 cookie），并设置有上限的 `maxAge`。
 
-Pattern: [Authentication](references/hardening-patterns.md#broken-authentication).
+模式：[认证](references/hardening-patterns.md#broken-authentication)。
 
-### Headers, CORS, and responses
+### 响应头、CORS 与响应体
 
-- Security headers on every response (helmet or the framework equivalent); CSP starts from `default-src 'self'` and is tightened, not loosened.
-- CORS restricted to an explicit origin list from configuration. Never `*` with credentials.
-- Strip sensitive fields (`passwordHash`, reset tokens) before any response. Error bodies are generic; internals go to server logs only.
+- 每个响应都带安全响应头（helmet 或框架中的等价物）；CSP 从 `default-src 'self'` 起步，只收紧，不放宽。
+- CORS 限定为来自配置的明确 origin 列表。带凭据时绝不用 `*`。
+- 任何响应之前都剔除敏感字段（`passwordHash`、重置 token）。错误响应体保持通用；内部细节只进服务端日志。
 
-Patterns: [Misconfiguration](references/hardening-patterns.md#security-misconfiguration), [Sensitive data exposure](references/hardening-patterns.md#sensitive-data-exposure).
+模式：[错误配置](references/hardening-patterns.md#security-misconfiguration)、[敏感数据暴露](references/hardening-patterns.md#sensitive-data-exposure)。
 
-### Input validation and uploads
+### 输入校验与上传
 
-- Validate at the boundary with a schema: allowlisted shape, lengths, enums, formats. Reject with 422 and structured details; downstream code uses only the parsed, typed value.
-- Uploads: allowlist MIME types, cap size, verify content (magic bytes) when it matters. The extension proves nothing.
+- 在边界用 schema 校验：白名单式的结构、长度、枚举、格式。校验失败返回 422 和结构化的详情；下游代码只使用解析后、带类型的值。
+- 上传：MIME 类型用白名单，限制大小，必要时校验内容（magic bytes）。扩展名证明不了任何事。
 
-Patterns: [Schema validation](references/hardening-patterns.md#schema-validation-at-boundaries), [File upload](references/hardening-patterns.md#file-upload-safety).
+模式：[Schema 校验](references/hardening-patterns.md#schema-validation-at-boundaries)、[文件上传](references/hardening-patterns.md#file-upload-safety)。
 
-### Server-side fetches (SSRF)
+### 服务端请求（SSRF）
 
-Any URL the user influences (webhooks, import-from-URL, image proxies, link previews) can be aimed at internal services. Allowlist scheme and host, resolve **all** DNS records and reject any private or reserved address (loopback, link-local `169.254.169.254`, private, unique-local, for IPv4 and IPv6), and forbid redirects. That check still has a DNS-rebinding TOCTOU gap: for high-risk surfaces, pin the resolved IP or put a filtering agent in front.
+任何受用户影响的 URL（webhook、从 URL 导入、图片代理、链接预览）都可能被指向内部服务。对 scheme 和 host 做白名单，解析**全部** DNS 记录，拒绝任何私有或保留地址（loopback、link-local `169.254.169.254`、私有地址、unique-local，IPv4 和 IPv6 都要覆盖），并禁止重定向。这个检查仍然存在 DNS 重绑定的 TOCTOU 漏洞：对高风险的入口，固定解析出的 IP，或者在前面加一个过滤代理。
 
-Pattern: [SSRF](references/hardening-patterns.md#server-side-request-forgery-ssrf).
+模式：[SSRF](references/hardening-patterns.md#server-side-request-forgery-ssrf)。
 
-### Destructive operations on derived paths
+### 对派生路径的破坏性操作
 
-A delete, move, or overwrite is only as safe as the value naming its target, and trust follows who *wrote* that value, not which channel delivered it: another process's command line is as attacker-controlled as a form field. A shape check proves well-formedness, not authorization. Before the call, require all three: the resolved target (symlinks resolved) sits under an **allowlisted root**; it is at least one level **below** that root; and it carries **ownership evidence read before the operation**. On refusal, log the rejected target and stop; never fall back to a broader default path.
+删除、移动或覆盖操作的安全程度，取决于指明其目标的那个值；而信任取决于是谁*写下*了这个值，不是它经由哪个渠道送达：另一个进程的命令行和表单字段一样受攻击者控制。形状检查只能证明格式正确，不能证明有权操作。调用之前，三项缺一不可：解析后的目标（已解析 symlink）位于一个**白名单根目录**之下；它至少比该根目录**低一级**；并且它带有**在操作之前读取的归属证据**。拒绝时，记录被拒绝的目标并停止；绝不回退到一个范围更大的默认路径。
 
-Why the check is weaker than it reads (marker self-attestation, check/use races): [Destructive paths](references/hardening-patterns.md#destructive-operations-on-derived-paths). Worked code: [references/security-checklist.md](references/security-checklist.md).
+为什么这个检查实际上比读起来弱（标记文件是自我证明、检查与使用之间存在竞态）：[破坏性路径](references/hardening-patterns.md#destructive-operations-on-derived-paths)。完整代码：[references/security-checklist.md](references/security-checklist.md)。
 
-### Rate limiting
+### 限流
 
-Limit the API generally and auth endpoints strictly (about 10 attempts per 15 minutes). Once more than one process serves traffic, in-memory counters silently become `max × instances`, or never fire on serverless: back the limiter with a shared store.
+对 API 做常规限流，对认证接口做严格限流（大约每 15 分钟 10 次尝试）。一旦有不止一个进程在处理流量，内存中的计数器就会悄悄变成 `max × instances`，在 serverless 上则根本不会触发：用共享存储来支撑限流器。
 
-Pattern: [Rate limiting](references/hardening-patterns.md#rate-limiting).
+模式：[限流](references/hardening-patterns.md#rate-limiting)。
 
-### Secrets
+### 密钥
 
-Secrets come from the environment. `.env.example` is committed with placeholders; real `.env*` files and key material are gitignored; grep the staged diff before committing. **A secret that reaches a remote is compromised the moment it lands: rotate it first, then purge history.**
+密钥来自环境变量。`.env.example` 带占位值提交；真实的 `.env*` 文件和密钥材料加入 gitignore；commit 之前 grep 一遍暂存区的 diff。**密钥一旦到达远端，就在落地那一刻泄露了：先轮换，再清理历史。**
 
-Pattern: [Secrets management](references/hardening-patterns.md#secrets-management).
+模式：[密钥管理](references/hardening-patterns.md#secrets-management)。
 
-### Dependencies and supply chain
+### 依赖与供应链
 
-1. **Find the installation boundary and manager.** Use the workspace root that owns the lockfile, or an independent nested project only when it is outside that workspace. Corroborate `packageManager` (when present), the lockfile, and CI; stop on disagreement or competing lockfiles. Pin the manager version.
-2. **Block dependency scripts before first execution.** Bootstrap with scripts disabled or a documented fail-closed policy, inspect the pending script source, approve only the minimum, commit the policy, then verify with a clean frozen/immutable install. Never blanket-approve.
-3. **Run the native audit against the committed lockfile before every release.** Triage critical/high by **reachability** (runtime, build, test, deploy paths) and fix availability. Never apply forced remediation (`npm audit fix --force` or equivalent) automatically, since forced fixes may cross declared dependency ranges; preview, read changelogs, test each upgrade. Document every deferral with a reason and a review date.
-4. **Audits only match known advisories.** They do not catch a newly malicious or typosquatted package (`cross-env` vs `crossenv`). Review new dependencies, lockfile diffs, and script-policy changes together: ownership, maintenance, release age, provenance, transitive graph. Verify registry signatures where supported (`npm audit signatures`, `pnpm audit signatures`) and treat their absence as a signal to investigate, not automatic proof of compromise (A06, LLM03).
+1. **找到安装边界和包管理器。** 使用拥有 lockfile 的 workspace 根目录；只有当嵌套项目位于该 workspace 之外时，才把它当作独立项目。相互印证 `packageManager`（如果有）、lockfile 和 CI；三者不一致或存在相互竞争的 lockfile 时停下来。固定包管理器的版本。
+2. **在首次执行之前拦住依赖脚本。** 以禁用脚本的方式或按一份有文档的 fail-closed 策略完成初次安装，检查待执行脚本的源码，只批准最小必要的部分，提交该策略，然后用一次干净的 frozen/immutable 安装验证。绝不一揽子批准。
+3. **每次发布前，用包管理器自带的审计命令对已提交的 lockfile 做审计。** 按**可达性**（运行时、构建、测试、部署路径）和是否有修复版本来分诊(triage) critical/high。绝不自动执行强制修复（`npm audit fix --force` 或等价命令），因为强制修复可能越过声明的依赖版本范围；先预览，读 changelog，逐个测试每次升级。每次推迟修复都要写明理由和复查日期。
+4. **审计只能匹配已知的安全公告。** 它们抓不到新出现的恶意包或仿冒包（`cross-env` 与 `crossenv`）。把新依赖、lockfile diff 和脚本策略的变更放在一起审查：归属、维护状况、发布时长、来源证明、传递依赖图。在支持的地方校验 registry 签名（`npm audit signatures`、`pnpm audit signatures`），签名缺失是需要调查的信号，而不是被攻破的确凿证据（A06，LLM03）。
 
-Triage decision tree: [Dependency audit triage](references/hardening-patterns.md#dependency-audit-triage). Manager matrix and install-script gate: [references/security-checklist.md](references/security-checklist.md).
+分诊决策树：[依赖审计分诊](references/hardening-patterns.md#dependency-audit-triage)。包管理器矩阵和安装脚本闸门：[references/security-checklist.md](references/security-checklist.md)。
 
-### Personal data and privacy
+### 个人数据与隐私
 
-Hardening asks "can an attacker read it?" Privacy asks "should *we* hold it at all, and for how long?" The cheapest data to protect, breach, and comply over is the data you never collected; treat personal data as a liability to minimize.
+加固问的是「攻击者能读到吗？」隐私问的是「*我们*到底该不该持有它，持有多久？」最便宜的数据，无论是保护、泄露还是合规，都是你从未收集过的数据；把个人数据当作需要尽量减少的负债。
 
-- **Classify fields as you add them** (non-personal, PII, sensitive) and handle each class accordingly. You cannot protect, or honor a deletion request for, data you cannot find.
-- **Collect only against a stated purpose.** "Might be useful later" is latent breach scope, not a purpose. Keep PII out of telemetry: logs, metrics, traces and error reports are data stores too.
-- **Set retention up front, then actually delete.** Every personal-data store needs a TTL and a working deletion path, including backups, caches, search indexes, and analytics copies.
-- **Support the data-subject rights your jurisdiction requires** (GDPR, CCPA, and kin): export, correct, delete. Design the schema so a user's data is findable and erasable, not smeared irreversibly across systems.
-- **Consent gates collection and third-party sharing, and is auditable.** Sending PII to an analytics, ad, or LLM vendor is sharing; the vendor needs a data-processing agreement. Make region a configurable policy, not a hardcoded assumption.
+- **新增字段时就做分类**（非个人、PII、敏感），并按类别处理。找不到的数据，你既保护不了，也无法响应针对它的删除请求。
+- **只为明确的用途收集。** 「以后可能有用」是潜在的泄露范围，不是用途。让 PII 远离遥测数据：日志、指标、链路追踪和错误报告也都是数据存储。
+- **事先设定保留期限，然后真的去删。** 每个个人数据存储都需要 TTL 和可用的删除路径，包括备份、缓存、搜索索引和分析副本。
+- **支持你所在司法辖区要求的数据主体权利**（GDPR、CCPA 及同类法规）：导出、更正、删除。schema 的设计要让一个用户的数据可查找、可擦除，而不是不可逆地散落在各个系统里。
+- **同意是收集和向第三方共享的前提，并且可审计。** 把 PII 发送给分析、广告或 LLM 供应商就是共享；供应商需要签数据处理协议。把地区做成可配置的策略，而不是硬编码的假设。
 
-Classification table: [Data classification](references/hardening-patterns.md#data-classification). A privacy incident starts the breach-notification clock; localize the root cause first: Call the Skill tool with "diagnosing-bugs" before patching.
+分类表：[数据分类](references/hardening-patterns.md#data-classification)。隐私事件会启动泄露通知的倒计时；先定位根因：打补丁之前，调用 Skill 工具，参数为 "diagnosing-bugs"。
 
-### AI / LLM features
+### AI / LLM 功能
 
-Calling an LLM (chatbots, summarizers, agents, RAG) adds a new attack surface; map it to the [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/llm-top-10/):
+调用 LLM（聊天机器人、摘要器、agent、RAG）会带来新的攻击面；把它对照 [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/llm-top-10/)：
 
-- **Model output is untrusted input** (LLM05). Never into `eval`, SQL, a shell, `innerHTML`, or a file path; parse defensively, validate against a schema, then encode.
-- **Prompts can be hijacked** (LLM01). Untrusted text in the context (a user message, a fetched page, a PDF) can carry instructions. The system prompt is not a security boundary; enforce permissions in code.
-- **Keep secrets, other tenants' data, and the full system prompt out of the context window** (LLM02, LLM07); scope tool permissions, validate every tool argument, and confirm destructive actions (LLM06); cap tokens, request rate, and recursion depth (LLM10); partition RAG embeddings per tenant and validate documents before indexing (LLM08).
+- **模型输出是不可信输入**（LLM05）。绝不送进 `eval`、SQL、shell、`innerHTML` 或文件路径；防御式解析，按 schema 校验，再编码。
+- **prompt 可能被劫持**（LLM01）。上下文中的不可信文本（用户消息、抓取的网页、PDF）可能携带指令。system prompt 不是安全边界；在代码里强制执行权限。
+- **让密钥、其他租户的数据和完整的 system prompt 远离上下文窗口**（LLM02、LLM07）；限定工具权限，校验每一个工具参数，破坏性操作要确认（LLM06）；限制 token、请求速率和递归深度（LLM10）；RAG 的 embedding 按租户隔离，文档在建索引之前先校验（LLM08）。
 
-Pattern: [LLM output handling](references/hardening-patterns.md#llm-output-handling).
+模式：[LLM 输出处理](references/hardening-patterns.md#llm-output-handling)。
 
-## Review Checklist
+## 审查清单
 
-Before sign-off, walk [references/security-checklist.md](references/security-checklist.md): it covers authentication, authorization, input, data protection and privacy, headers and CORS, dependencies and supply chain, AI/LLM, and error handling, plus the OWASP quick-reference tables.
+签字确认之前，过一遍 [references/security-checklist.md](references/security-checklist.md)：它涵盖认证、授权、输入、数据保护与隐私、响应头与 CORS、依赖与供应链、AI/LLM 和错误处理，外加 OWASP 速查表。
 
-## Common Rationalizations
+## 常见的自我开脱
 
-| Rationalization | Reality |
+| 借口 | 实际情况 |
 |---|---|
-| "This is an internal tool, security doesn't matter" | Internal tools get compromised. Attackers target the weakest link. |
-| "We'll add security later" | Security retrofitting is 10x harder than building it in. Add it now. |
-| "No one would try to exploit this" | Automated scanners will find it. Security by obscurity is not security. |
-| "The framework handles security" | Frameworks provide tools, not guarantees. You still need to use them correctly. |
-| "It's just a prototype" | Prototypes become production. Security habits from day one. |
-| "Threat modeling is overkill here" | Five minutes of "how would I attack this?" prevents the design flaws no control can patch later. |
-| "It's just LLM output, it's only text" | That "text" can be a SQL statement, a script tag, or a shell command. Treat it like any untrusted input. |
-| "The audit passed, so the dependency is safe" | Audits match known advisories. They do not detect a newly malicious package or make unreviewed install scripts safe to execute. |
-| "Collect it now, we might need it later" | Data you don't hold can't be breached, subpoenaed, or mis-deleted. "Might need it" is breach scope, not a purpose. |
-| "We'll handle deletion requests manually" | Manual erasure misses backups, caches, and analytics copies. If the schema can't find a user's data, you can't honor the request, so design for it. |
-| "Compliance is legal's problem, not ours" | Export, deletion, retention, and consent are schema and code. Legal can't bolt them on after you've smeared PII across ten systems. |
+| 「这是内部工具，安全无所谓」 | 内部工具也会被攻破。攻击者专挑最薄弱的环节。 |
+| 「安全以后再加」 | 事后补安全比一开始就做进去难 10 倍。现在就加。 |
+| 「没人会去利用这个」 | 自动化扫描器会找到它。靠隐蔽来保证安全不是安全。 |
+| 「框架会处理安全」 | 框架提供的是工具，不是保证。你仍然需要正确地使用它们。 |
+| 「这只是个原型」 | 原型会变成生产代码。安全习惯从第一天开始。 |
+| 「这里做威胁建模太小题大做了」 | 花五分钟想想「我会怎么攻击它？」，就能避免事后任何控制措施都补不上的设计缺陷。 |
+| 「这只是 LLM 输出，就是一段文本」 | 这段「文本」可能是一条 SQL 语句、一个 script 标签或一条 shell 命令。像对待任何不可信输入一样对待它。 |
+| 「审计通过了，所以这个依赖是安全的」 | 审计只匹配已知的安全公告。它们检测不到新出现的恶意包，也不能让未经审查的安装脚本变得可以安全执行。 |
+| 「先收集了再说，以后可能用得上」 | 你没持有的数据不会被泄露、被传唤，也不会被误删。「可能用得上」是泄露范围，不是用途。 |
+| 「删除请求我们手动处理」 | 手动擦除会漏掉备份、缓存和分析副本。如果 schema 找不到一个用户的数据，你就无法响应请求，所以要为此做设计。 |
+| 「合规是法务的事，不是我们的」 | 导出、删除、保留期限和同意都是 schema 和代码。等你把 PII 散落到十个系统里之后，法务没法再把它们补上。 |
 
-## Red Flags
+## 危险信号
 
-- User input passed directly to database queries, shell commands, or HTML rendering
-- A delete, move, or overwrite whose target comes from a payload, a config value, or another process's command line, guarded only by a shape check on the path
-- Secrets in source code or commit history
-- API endpoints without authentication or authorization checks
-- Missing CORS configuration or wildcard (`*`) origins
-- No rate limiting on authentication endpoints, or an in-memory limiter in front of more than one instance
-- Stack traces or internal errors exposed to users
-- Dependencies with known critical vulnerabilities, competing lockfiles at one installation boundary, non-reproducible installs, or blanket-approved scripts
-- Server fetches user-supplied URLs without an allowlist (SSRF)
-- LLM/model output passed into a query, the DOM, a shell, or `eval`
-- Secrets, PII, or the full system prompt placed inside an LLM context window
-- Personal data collected with no stated purpose, retention limit, or deletion path
-- PII sent to analytics/ad/LLM vendors with no consent or data-processing agreement
-- "Delete my account" that only flips a flag while the personal data lingers in stores and backups
+- 用户输入直接传给数据库查询、shell 命令或 HTML 渲染
+- 删除、移动或覆盖操作的目标来自载荷、配置值或另一个进程的命令行，而唯一的防护只是对路径做形状检查
+- 源代码或 commit 历史中有密钥
+- API 接口没有认证或授权检查
+- 缺少 CORS 配置，或使用通配符（`*`）origin
+- 认证接口没有限流，或在多个实例前面使用内存限流器
+- 向用户暴露堆栈信息或内部错误
+- 依赖存在已知的 critical 漏洞、同一安装边界下有相互竞争的 lockfile、安装不可复现，或脚本被一揽子批准
+- 服务端在没有白名单的情况下请求用户提供的 URL（SSRF）
+- LLM/模型输出被传入查询、DOM、shell 或 `eval`
+- 密钥、PII 或完整的 system prompt 被放进 LLM 的上下文窗口
+- 收集个人数据却没有明确用途、保留期限或删除路径
+- 在没有同意或数据处理协议的情况下把 PII 发给分析/广告/LLM 供应商
+- 「删除我的账户」只是翻转一个标记位，而个人数据仍然残留在各个存储和备份中
 
-## Verification
+## 验证
 
-After implementing security-relevant code:
+实现与安全相关的代码之后：
 
-- [ ] The native audit has no unmitigated reachable critical/high findings; CI preserves the authoritative lockfile and blocks unreviewed dependency scripts
-- [ ] No secrets in source code or git history
-- [ ] All user input validated at system boundaries
-- [ ] Destructive filesystem operations resolve symlinks, then verify allowlisted root, minimum depth, and ownership before running
-- [ ] Authentication and authorization checked on every protected endpoint
-- [ ] Security headers present in response (check with browser DevTools)
-- [ ] Error responses don't expose internal details
-- [ ] Rate limiting active on auth endpoints, backed by a shared store when more than one instance serves traffic
-- [ ] Server-side URL fetches validated against an allowlist (no SSRF)
-- [ ] LLM/model output validated and encoded before use (if AI features present)
-- [ ] Personal data is classified, minimized to a stated purpose, and has a retention limit
-- [ ] Deletion and export requests work end-to-end (including backups, caches, and analytics copies)
+- [ ] 包管理器自带的审计没有未缓解的、可达的 critical/high 发现；CI 保留权威 lockfile，并拦住未经审查的依赖脚本
+- [ ] 源代码和 git 历史中没有密钥
+- [ ] 所有用户输入都在系统边界处校验
+- [ ] 破坏性的文件系统操作先解析 symlink，再在执行前校验白名单根目录、最小深度和归属
+- [ ] 每个受保护接口都检查了认证和授权
+- [ ] 响应中带有安全响应头（用浏览器 DevTools 检查）
+- [ ] 错误响应不暴露内部细节
+- [ ] 认证接口启用了限流，并且在多个实例处理流量时由共享存储支撑
+- [ ] 服务端 URL 请求经过白名单校验（无 SSRF）
+- [ ] LLM/模型输出在使用前经过校验和编码（如果有 AI 功能）
+- [ ] 个人数据已分类、按明确用途做了最小化，并设有保留期限
+- [ ] 删除和导出请求端到端可用（包括备份、缓存和分析副本）

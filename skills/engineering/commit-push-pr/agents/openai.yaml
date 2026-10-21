@@ -1,3 +1,3 @@
 interface:
   display_name: "Commit, push, PR"
-  short_description: "Commit, push, open a PR; stops first on the trunk"
+  short_description: "Commit、push、开 PR；在主干上会先停下"

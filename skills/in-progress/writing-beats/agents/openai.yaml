@@ -1,5 +1,5 @@
 interface:
   display_name: "Writing Beats"
-  short_description: "Assemble raw material into beats"
+  short_description: "把素材组织成节拍"
 policy:
   allow_implicit_invocation: false

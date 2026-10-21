@@ -1,21 +1,21 @@
-# Code review
+# 代码审查
 
-**Applies when:** Repos with multiple contributors or required review
+**适用条件：** 有多名贡献者或要求审查的仓库
 
-**Probe first:** The hosting platform's branch protection and required review count; existing CODEOWNERS
+**先探查：** 托管平台的分支保护和要求的审查人数；已有的 CODEOWNERS
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Review checklist | Correctness → security → tests → readability → scope (any unrelated changes smuggled in?) | none |
-| What blocks | Which problems must be fixed before merging (missing tests, security issues, broken compatibility) | none |
-| Merge rights | How many approvals, who can merge | 1 approval + green CI |
-| Responding to review | Verify before changing; disagreement needs a technical reason | none |
+| 审查清单 | 正确性 → 安全 → 测试 → 可读性 → 范围（有没有夹带无关改动？） | 无 |
+| 什么会阻断 | 哪些问题必须在合并前修掉（缺测试、安全问题、破坏兼容性） | 无 |
+| 合并权限 | 需要几个批准、谁能合并 | 1 个批准 + CI 全绿 |
+| 回应审查意见 | 先核实再修改；有异议要给出技术理由 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 2: set the required review count and required CI checks in branch protection
-- Layer 5: the checklist and blocking items go in CLAUDE.md; judgement-call rules go in `CODING_STANDARDS.md` for `code-review` to check; incoming feedback goes through `receiving-code-review`
+- 第 2 层：在分支保护中设置要求的审查人数和必过的 CI 检查
+- 第 5 层：清单和阻断项写进 CLAUDE.md；判断性规则写进 `CODING_STANDARDS.md` 供 `code-review` 检查；收到的反馈走 `receiving-code-review`

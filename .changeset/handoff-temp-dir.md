@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`handoff` now names where the OS temp directory is (`$TMPDIR`, else `/tmp`; `%TEMP%` on Windows), so agents stop guessing (#272).
+`handoff` 现在会写明操作系统临时目录在哪里（`$TMPDIR`，否则 `/tmp`；Windows 上为 `%TEMP%`），agent 不用再去猜（#272）。

@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`tdd` now gives each proposed seam a one-line note on what it catches and what it misses, so choosing between seams is no longer a guess (#607).
+`tdd` 现在会为每个提议的接缝（seam）附上一句说明，写明它能捕获什么、会漏掉什么，让在接缝之间做选择不再靠猜（#607）。

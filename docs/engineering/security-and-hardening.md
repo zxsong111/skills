@@ -1,49 +1,49 @@
-## What it does
+## 它做什么
 
-`security-and-hardening` is a security hardening checklist that fires on the change in front of it. When a change touches authentication, sessions, payments, personal data, file uploads, webhooks, untrusted external input or new dependencies, it first has you **map the trust boundaries** (where untrusted data enters the system, which assets are worth stealing, and a STRIDE pass over each boundary), then hardens item by item against OWASP. Its stance is that if you cannot name a feature's trust boundaries, you are not ready to protect it.
+`security-and-hardening` 是一份针对眼前改动触发的安全加固检查清单。当一个改动涉及认证、会话、支付、个人数据、文件上传、webhook、不可信的外部输入或新依赖时，它会先让你**画出信任边界**（不可信数据从哪里进入系统，哪些资产值得被偷，并对每条边界做一遍 STRIDE 分析），然后对照 OWASP 逐项加固。它的立场是：如果你说不出一个功能的信任边界在哪里，你就还没准备好去保护它。
 
-It splits its rules into three tiers:
+它把规则分成三档：
 
-- **Always do**: parameterized queries, output encoding, HTTPS, password hashing, security headers, dependency audits.
-- **Ask first**: new auth flows, new categories of sensitive data, CORS, uploads, privilege escalation.
-- **Never do**: commit secrets, log sensitive data, trust client-side validation, pass LLM output straight into eval or SQL.
+- **总是要做**：参数化查询、输出编码、HTTPS、密码哈希、安全响应头、依赖审计。
+- **先问再做**：新的认证流程、新类别的敏感数据、CORS、上传、权限提升。
+- **绝对不做**：commit 密钥、在日志里记录敏感数据、信任客户端校验、把 LLM 输出直接传给 eval 或 SQL。
 
-## When to reach for it
+## 什么时候用
 
-Type `/security-and-hardening`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits: when a change touches one of the areas above. The rest of the time it stays out of the [context window](https://www.aihero.dev/ai-coding-dictionary/context-window).
+输入 `/security-and-hardening`，或者在任务匹配时由 [agent](https://www.aihero.dev/ai-coding-dictionary/agent) 自动调用：也就是改动涉及上面某个领域的时候。其余时间它不会占用[上下文窗口](https://www.aihero.dev/ai-coding-dictionary/context-window)。
 
-| Situation | What it gives you |
+| 情况 | 它给你什么 |
 | --- | --- |
-| Adding login, changing permissions or sessions | Password hashing, cookie attributes, the rule that every request checks authorization |
-| Accepting forms, uploads, webhooks or user-supplied URLs | Schema validation at the boundary, magic-byte checks, a DNS-resolution check against SSRF |
-| Adding a dependency, running an audit | A package-manager matrix, gating of install scripts, triage by reachability |
-| Handling PII | Field classification, minimal collection, retention periods, a deletion path |
-| Wiring in an LLM | Model output treated as untrusted input, prompt injection, tenant isolation |
+| 添加登录，修改权限或会话 | 密码哈希、cookie 属性、「每个请求都要检查授权」这条规则 |
+| 接收表单、上传、webhook 或用户提供的 URL | 在边界处做 schema 校验、magic-byte 检查、防 SSRF 的 DNS 解析检查 |
+| 添加依赖，运行审计 | 一张包管理器对照表、对安装脚本的把关、按可达性做分诊 |
+| 处理 PII | 字段分级、最少收集、保留期限、删除路径 |
+| 接入 LLM | 把模型输出当作不可信输入、prompt 注入、租户隔离 |
 
-Concrete code patterns live in `references/hardening-patterns.md` in the skill directory, and the skill opens the matching section when it reaches that code. Before sign-off it walks through `references/security-checklist.md`.
+具体的代码模式放在 skill 目录下的 `references/hardening-patterns.md` 里，skill 碰到相应代码时会打开对应的小节。签收之前，它会逐项走一遍 `references/security-checklist.md`。
 
-## The excuses it is waiting for
+## 它在等的那些借口
 
-The skill carries a table of rationalizations: internal tools don't need security, the prototype can add it later, the framework handles it, the audit passed so the dependencies are fine, collect the data now in case it's useful later. Each one is paired with the reality. The table exists to be read at the exact moment you want to skip a step.
+这个 skill 带着一张自我合理化借口的表：内部工具不需要安全，原型可以以后再加，框架会处理的，审计通过了所以依赖没问题，先把数据收集起来以防以后有用。每一条都配上了实际情况。这张表的存在，就是为了在你想跳过某一步的那一刻被读到。
 
-## Common questions
+## 常见问题
 
-**Does it change code itself?**
-Yes, within the scope you have authorized. For changes in the ask-first tier (new auth flows, new sensitive data, CORS, uploads, privilege escalation) it stops and asks first.
+**它会自己改代码吗？**
+会，在你授权的范围内。对于「先问再做」那一档的改动（新的认证流程、新的敏感数据、CORS、上传、权限提升），它会停下来先问。
 
-**How does it relate to `code-review`?**
-This skill is for implementation; [code-review](https://aihero.dev/skills-code-review) reviews afterwards. Write the project's security baseline into `CODING_STANDARDS.md`, and both read the same rules.
+**它和 `code-review` 是什么关系？**
+这个 skill 用于实现阶段；[code-review](https://aihero.dev/skills-code-review) 在之后做审查。把项目的安全基线写进 `CODING_STANDARDS.md`，两者就读的是同一套规则。
 
-**My project has no web interface.**
-Then most sections don't apply, and the skill won't fire. The sections on handling secrets, destructive operations on the file system, and paths passed in by external processes apply to any program.
+**我的项目没有 Web 界面。**
+那大部分小节都不适用，这个 skill 也不会触发。关于处理密钥、对文件系统的破坏性操作、以及由外部进程传入的路径的那几节，适用于任何程序。
 
-## It's working if
+## 起作用的标志
 
-- When you add an endpoint that takes external input, the reply lists the trust boundaries and assets before any code.
-- No password, token or `.env` content shows up in any diff.
-- Code for uploads, SSRF and rate limiting follows the patterns the skill supplies, not something improvised on the spot.
-- When a new dependency comes in, the audit result and the handling of its install scripts are reported explicitly.
+- 当你添加一个接收外部输入的端点时，回复会在写任何代码之前先列出信任边界和资产。
+- 任何 diff 里都不会出现密码、token 或 `.env` 的内容。
+- 上传、SSRF 和限流相关的代码遵循 skill 提供的模式，而不是临场即兴发挥。
+- 引入新依赖时，审计结果和对其安装脚本的处理方式会被明确报告出来。
 
-## Where it fits
+## 在体系中的位置
 
-`security-and-hardening` is a **reach-for-it-anytime standalone**, not a step on the main chain. It gets pulled in when code driven by [tdd](https://aihero.dev/skills-tdd) during implementation reaches a security-sensitive area. When a security incident needs its root cause found first, use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs). [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`security-and-hardening` 是一个**随时可用的独立工具**，不是主链路上的一步。当实现阶段由 [tdd](https://aihero.dev/skills-tdd) 驱动的代码进入安全敏感区域时，它会被拉进来。当一个安全事件需要先找出根因时，请用 [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs)。[ask-matt](https://aihero.dev/skills-ask-matt) 有整套 skill 的地图。

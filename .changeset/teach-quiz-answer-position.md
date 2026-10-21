@@ -2,4 +2,4 @@
 "mattpocock-skills": patch
 ---
 
-`teach` quizzes vary which position holds the correct answer (#611).
+`teach` 的测验会变换正确答案所在的位置（#611）。

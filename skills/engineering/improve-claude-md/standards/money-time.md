@@ -1,23 +1,23 @@
-# Money / time / time zones
+# 金额 / 时间 / 时区
 
-**Applies when:** Involves money, prices, taxes, reports, or times across time zones (POS, payments, e-commerce, SaaS billing)
+**适用条件：** 涉及金额、价格、税、报表或跨时区时间（POS、支付、电商、SaaS 计费）
 
-**Probe first:** Sample the money type (float / Decimal / integer cents) and time storage (naive / aware / UTC)
+**先探查：** 抽样看金额类型（float / Decimal / 整数分）和时间存储方式（naive / aware / UTC）
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Money type | Decimal or integer minor currency units, **never float** | `amount_cents: int` |
-| Rounding | Rounding mode and timing defined in exactly one place | `ROUND_HALF_UP`, round only at settlement |
-| Currency | Every amount carries its currency; amounts in different currencies are never added directly | none |
-| Time storage | Always UTC, timezone-aware; never naive datetimes | none |
-| Time display | The display layer converts to the store's / user's time zone | none |
-| Business day | Definition of the "business day" for stores open past midnight | The day rolls over at 4 a.m. |
+| 金额类型 | Decimal 或以最小货币单位计的整数，**绝不用 float** | `amount_cents: int` |
+| 舍入 | 舍入模式和时机只在一个地方定义 | `ROUND_HALF_UP`，只在结算时舍入 |
+| 币种 | 每个金额都带币种；不同币种的金额绝不直接相加 | 无 |
+| 时间存储 | 一律 UTC，带时区信息；绝不用 naive datetime | 无 |
+| 时间展示 | 由展示层转换为门店 / 用户所在时区 | 无 |
+| 营业日 | 营业到凌晨的门店如何定义「营业日」 | 凌晨 4 点换日 |
 
-## Where it lands
+## 落点
 
-- Layer 2: what can be checked goes in tooling (e.g. custom lints banning `datetime.utcnow()` or float money fields)
-- Layer 3: `.claude/rules/money-time.md`, with `paths:` scoped to the pricing / order / reporting modules
+- 第 2 层：能检查的交给工具（例如自定义 lint 禁止 `datetime.utcnow()` 或 float 类型的金额字段）
+- 第 3 层：`.claude/rules/money-time.md`，`paths:` 限定在定价 / 订单 / 报表模块

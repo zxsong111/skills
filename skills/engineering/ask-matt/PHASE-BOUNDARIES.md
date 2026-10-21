@@ -1,55 +1,55 @@
-# Phase boundaries
+# 阶段边界
 
-A **phase** is a chunk of work inside a session: the grilling, the implementation, the QA. The definition is fuzzy on purpose: a phase ends when you think *"ok, we're done with that"*.
+**阶段(phase)** 是会话中的一块工作：盘问(grilling)、实现、QA。这个定义是有意模糊的：当你心想*「好，这块做完了」*时，一个阶段就结束了。
 
-The **phase boundary** is the gap between two phases, and it is the only place this decision belongs. Mid-phase there is no decision to make: continue, or split the work that's left into subagents. Compacting mid-phase makes the agent lose the thread.
+**阶段边界(phase boundary)** 是两个阶段之间的间隙，而这是这个决定唯一该做的地方。阶段中途没有决定要做：继续，或者把剩下的工作拆给子 agent。在阶段中途 compact 会让 agent 丢掉思路。
 
-## The five options
+## 五个选项
 
-| Option       | What it does                                                    |
+| 选项         | 它做什么                                                        |
 | ------------ | --------------------------------------------------------------- |
-| **Continue** | Stay in the session. No context switch at all.                    |
-| **`/clear`** | Empty the context window and start from nothing.                  |
-| **`/handoff`** | Write a portable markdown file and seed a session anywhere with it. |
-| **Subagent** | Send the task to its own context window and get a report back.     |
-| **`/compact`** | Compress this context and seed a fresh session with the summary.  |
+| **继续**     | 留在当前会话里。完全不切换上下文。                              |
+| **`/clear`** | 清空上下文窗口(context window)，从零开始。                      |
+| **`/handoff`** | 写一个可移植的 markdown 文件，用它在任何地方为一个会话打底。  |
+| **子 agent** | 把任务发到它自己的上下文窗口里，拿回一份报告。                  |
+| **`/compact`** | 压缩当前上下文，用摘要为一个新会话打底。                      |
 
-## The tree
+## 决策树
 
-Work top to bottom at the boundary. The first **yes** wins.
+在边界上从上往下走。第一个回答**是**的胜出。
 
-**1. Can you continue in this session?** Two things make the answer yes: the next phase needs this phase as a **primary source**, or you have enough [smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone) left (~150k tokens) for the next phase to fit. Grilling → implementation is the standard yes: the implementation wants the reasoning verbatim, not a summary of it. Continue costs nothing and loses nothing, so rule it out before anything else.
+**1. 你能在这个会话里继续吗？** 有两种情况会让答案为是：下一个阶段需要把这个阶段当作**一手资料(primary source)**，或者你还剩足够的[智能区间(smart zone)](https://www.aihero.dev/ai-coding-dictionary/smart-zone)（约 150k token）装得下下一个阶段。盘问 → 实现是标准的「是」：实现需要原封不动的推理过程，而不是它的摘要。继续不花任何成本，也不损失任何东西，所以要先排除它，再考虑其他选项。
 
-**2. Is the context irrelevant to what comes next?** Is everything in this session (the exploration, the decisions, the dead ends) disposable? If so, **`/clear`**. It is the cheapest move on the board: it takes no time and hands back the whole window. `/clear` also isn't terminal: the old session stays resumable.
+**2. 当前上下文与接下来的事无关吗？** 这个会话里的一切（探索、决策、走过的死胡同）都可以丢弃吗？如果是，就 **`/clear`**。这是棋盘上最便宜的一步：不花时间，还把整个窗口还给你。`/clear` 也不是终点：旧会话仍然可以恢复。
 
-The cost of getting this wrong is one-way. Clear a *relevant* context and you lose the **why** behind what you built, and no amount of reading the diff back gets it returned.
+判断错的代价是单向的。清掉一个*相关的*上下文，你就会丢失所构建内容背后的**为什么**，再怎么回头读 diff 也找不回来。
 
-**3. Do you need to hand off?** `/handoff` is narrow. You need it only when you are:
+**3. 你需要交接吗？** `/handoff` 的用途很窄。只有在以下情况下你才需要它：
 
-- swapping to a **new harness** (Claude → Codex),
-- moving to a **new directory** or repo,
-- sending the work to a **colleague**,
-- or forking a side task you found **mid-phase** without derailing what you're doing.
+- 换到一个**新的 harness**（Claude → Codex），
+- 移到一个**新的目录**或 repo，
+- 把工作交给一个**同事**，
+- 或者在不打乱手头工作的前提下，分出一个你在**阶段中途**发现的旁支任务。
 
-That list is the whole clause. What `/handoff` buys is **portability**: a file that travels. If nothing is travelling, you don't need it.
+这份清单就是全部条件。`/handoff` 换来的是**可移植性**：一个能带着走的文件。如果没有什么需要带走，你就不需要它。
 
-**4. Can the task be done AFK?** Is it scoped tightly enough to run with you away from the keyboard, no steering? Then send it to a **subagent** and leave this session untouched. Automated review is the standard case: the agent reads the diff and reports, and you aren't needed while it does.
+**4. 这个任务能 AFK 完成吗？** 它的范围是否收得足够紧，可以在你离开键盘、无需引导的情况下运行？那就把它发给一个**子 agent**，这个会话保持不动。自动化审查是标准情况：agent 读 diff 并报告，在它工作时不需要你。
 
-**5. Otherwise, `/compact`.** Relevant context, same harness, same directory, and you need to stay in the loop: this is where the tree lands, and it lands here often. Pass it an instruction (`/compact we're going to QA this area`) so the summary keeps what the next phase needs.
+**5. 否则，`/compact`。** 上下文相关、同一个 harness、同一个目录，而且你需要留在回路中：这就是决策树落脚的地方，而且经常落在这里。给它一条指令（`/compact we're going to QA this area`），让摘要保留下一个阶段需要的东西。
 
-`/compact` is the **default, not the first reach**. It sits at the bottom because the four questions above it are all cheaper or more precise. The failure mode when people start here is a fresh session that is confidently wrong about a decision the summary flattened.
+`/compact` 是**默认选项，而不是第一个伸手去拿的**。它排在最底部，是因为它上面的四个问题都更便宜或更精确。人们一开始就用它时，失败模式是一个新会话对某个被摘要压扁的决策自信地出错。
 
-## Primary and secondary sources
+## 一手资料与二手资料
 
-Every move except **Continue** turns a **primary source** into a **secondary source**: the session as it happened, replaced by a summary of it. The trade is always the same shape:
+除了**继续**之外，每一步都会把**一手资料**变成**二手资料(secondary source)**：实际发生过的会话，被它的摘要所取代。这种交换的形态总是一样的：
 
-| Source                            | Information | Noise | Room to move |
-| --------------------------------- | ----------- | ----- | ------------ |
-| Primary (Continue)                | Full        | Lots  | Little       |
-| Secondary (`/compact`, `/handoff`) | Lossy       | Less  | Lots         |
+| 来源                              | 信息   | 噪音 | 回旋余地 |
+| --------------------------------- | ------ | ---- | -------- |
+| 一手（继续）                      | 完整   | 很多 | 很少     |
+| 二手（`/compact`、`/handoff`）    | 有损   | 较少 | 很多     |
 
-This is why question 1 comes first. You only pay the lossiness when staying costs more than it saves.
+这就是为什么问题 1 排在最前面。只有当留下来的成本超过它节省的成本时，你才去承担信息损失。
 
-## These are judgement calls
+## 这些都是判断性的决定
 
-The questions are not objective: each has taste in it, and the same boundary can go two ways on two days. The value is in asking them **in order**, at the boundary rather than in the middle of the work.
+这些问题并不客观：每一个都带有个人品味，同一个边界在不同的两天可能走向两个方向。价值在于**按顺序**问它们，而且是在边界上问，而不是在工作进行到一半时问。

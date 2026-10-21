@@ -1,81 +1,81 @@
-## What it does
+## 它做什么
 
-`retro` looks back over a coding [session](https://www.aihero.dev/ai-coding-dictionary/session) and suggests improvements to the agent's **[environment](https://www.aihero.dev/ai-coding-dictionary/environment)**, so the next run goes better. It reads the session's own record (the current one by default, or one you point it at in the session logs). It finds the moments where the agent struggled, and gives you a list of candidate fixes, most severe first.
+`retro` 回顾一次编码[会话](https://www.aihero.dev/ai-coding-dictionary/session)，提出对 agent **[环境](https://www.aihero.dev/ai-coding-dictionary/environment)(environment)**的改进建议，让下一次运行更顺利。它读取会话自己的记录（默认是当前会话，也可以是你在会话日志里指定的某一个），找出 agent 吃力的那些时刻，然后给你一份候选修复清单，最严重的排在最前面。
 
-It changes the environment, not the code. Take the bug the agent shipped, the file it needed twenty [tool calls](https://www.aihero.dev/ai-coding-dictionary/tool-call) to find, or the rule the reviewer missed. `retro` does not fix any of them directly. It asks what in the repo let them happen, and proposes the check, pointer, or standard that prevents them next time. It also only proposes. Nothing changes until you pick a candidate.
+它改的是环境，不是代码。拿 agent 交付出去的 bug、它花了二十次[工具调用](https://www.aihero.dev/ai-coding-dictionary/tool-call)才找到的文件、reviewer 漏掉的规则来说，`retro` 都不会直接修。它问的是仓库里有什么让这些事得以发生，然后提出能在下次阻止它们的检查、指针或规范。它也只负责提出。在你选中某个候选之前，什么都不会改。
 
-## When to reach for it
+## 什么时候用
 
-You invoke this by typing `/retro`, and the agent won't reach for it on its own.
+输入 `/retro` 调用它，agent 不会自己去用它。
 
-Reach for it at the end of a session that was harder than it should have been. For example, the agent searched too long for something, made a mistake a tool could have caught, or needed information it could not get. A smooth session has little to teach, and the findings come from the difficult ones. If you want a verdict on the code the session produced, use [code-review](https://aihero.dev/skills-code-review) instead.
+在一次比预期更艰难的会话结束时用它。比如 agent 找某个东西找了太久，犯了一个本可以由工具发现的错误，或者需要一些它拿不到的信息。顺利的会话没什么可学的，发现都来自那些艰难的会话。如果你想对会话产出的代码下一个结论，请改用 [code-review](https://aihero.dev/skills-code-review)。
 
-## Where the findings land
+## 发现落到哪里
 
-Each candidate belongs to one category, and the category decides where the fix goes:
+每个候选属于一个类别，类别决定修复放在哪里：
 
-| What went wrong in the session | Fix it with |
+| 会话中出了什么问题 | 用什么修复 |
 | --- | --- |
-| The agent took a long time to find a file or fact | A **navigation pointer** from a file it already reads |
-| It made a mistake a tool could have caught | An **[automated check](https://www.aihero.dev/ai-coding-dictionary/automated-check)**: lint rule, type, test, pre-commit hook, CI job |
-| The reviewer missed a judgement-call mistake | A rule in `CODING_STANDARDS.md` for the reviewer agent |
-| `AGENTS.md` or `CLAUDE.md` is large | Move its steering out, into standards or checks |
-| A tool call was expensive for what it returned | Streamline the tool, or replace it |
-| A steering file is full of lines that change nothing | Delete the **no-ops** |
-| The agent needed information it couldn't reach | Widen its access: tee the dev server log to a file, give read-only access to a service |
+| agent 花了很长时间才找到一个文件或事实 | 从它本来就会读的文件里加一个**导航指针**(navigation pointer) |
+| 它犯了一个本可以由工具发现的错误 | 一个**[自动化检查](https://www.aihero.dev/ai-coding-dictionary/automated-check)**：lint 规则、类型、测试、pre-commit hook、CI job |
+| reviewer 漏掉了一个判断性的错误 | 在 `CODING_STANDARDS.md` 里为 reviewer agent 加一条规则 |
+| `AGENTS.md` 或 `CLAUDE.md` 太大 | 把其中的引导内容挪出去，放进规范或检查 |
+| 某次工具调用相对于它的返回结果代价太高 | 精简这个工具，或者换掉它 |
+| 某个引导文件里塞满了不起任何作用的行 | 删掉这些**空操作**(no-op) |
+| agent 需要一些它够不着的信息 | 扩大它的访问范围：把 dev server 日志 tee 到一个文件，给某个服务的只读权限 |
 
-The leading idea is that standards belong to the **reviewer**, not the implementer. The implementing agent has the most context pressure, because it explores, writes code, and debugs failures. The reviewing agent gets a diff and nothing else. So a new rule goes where there is room to apply it, which is review. It never goes in [AGENTS.md](https://www.aihero.dev/ai-coding-dictionary/agents-md), which loads into every session's [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) whether it is relevant or not.
+核心思想是：规范属于 **reviewer**，而不是实现者。实现的 agent 上下文压力最大，因为它要探索、写代码、调试失败。负责 review 的 agent 只拿到一个 diff，别无其他。所以新规则要放在有余地去应用它的地方，也就是 review。它永远不放进 [AGENTS.md](https://www.aihero.dev/ai-coding-dictionary/agents-md)，因为那个文件不管相关与否都会加载进每个会话的[上下文窗口](https://www.aihero.dev/ai-coding-dictionary/context-window)。
 
-Before `retro` writes any rule, it classifies the violation. A **mechanical** violation (a banned API, an import shape, a file-location rule) gets a deterministic check, because a check can fail and a sentence in a standards file can't. Only real judgement calls, which no linter can enforce, become prose. If the repo has no guardrail at all (no pre-commit hook, and no CI job that runs lint, typecheck, and tests), `retro` reports that as a finding of its own.
+在写任何规则之前，`retro` 会先给违规分类。**机械性的**违规（被禁用的 API、import 的形式、文件位置规则）用一个确定性的检查来处理，因为检查会失败，而规范文件里的一句话不会。只有真正的判断性问题，也就是没有 linter 能强制执行的那些，才写成文字。如果仓库完全没有防护栏(guardrail)（没有 pre-commit hook，也没有运行 lint、类型检查和测试的 CI job），`retro` 会把这本身作为一条发现报告出来。
 
-## Common questions
+## 常见问题
 
-**Does it write the lint rule itself, or wait for a yes? Can I wire it to run after every session?**
+**它是自己写 lint 规则，还是等我同意？能不能把它接成每次会话后自动运行？**
 
-It waits. `retro` only proposes. Nothing changes until you pick a candidate, so it edits nothing by hand and installs no hook automatically. This is deliberate. One user asked for exactly this after being "burned by auto-hooks that blocked good changes." It takes judgement to decide what deserves a permanent check, so the skill stays [human-in-the-loop](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop) and user-invoked. Some users do run it after every implementation run. But a smooth session has little to teach, so a run after every session mostly produces rules nobody needed. There is no dry-run mode. A proposed check is code like any other, so try it against the repo before you let it block merges.
+它会等。`retro` 只负责提出。在你选中某个候选之前什么都不会改，所以它不会手动改任何东西，也不会自动安装任何 hook。这是有意为之。有位用户正是在「被那些拦下了好改动的自动 hook 坑过」之后提出了这个要求。决定什么值得一个永久的检查需要判断力，所以这个 skill 保持[人在回路](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop)(human-in-the-loop)，并且由用户手动调用。确实有些用户在每次实现运行后都跑它。但顺利的会话没什么可学的，所以每次会话后都跑，产出的大多是没人需要的规则。它没有 dry-run 模式。提出的检查和其他代码一样是代码，所以在让它拦截 merge 之前，先在仓库上试一试。
 
-**Won't this pile up lint rules forever? Does it ever suggest removing one?**
+**这样 lint 规则不会无限堆积吗？它会建议删掉某条吗？**
 
-Partly, and this is its weakest spot. It can remove prose: no-ops in steering files, and steering in `AGENTS.md` or `CLAUDE.md` that belongs in standards or a check. It flags these for deletion when the files are large. It judges them against the one session it reads, so treat each one as a candidate for the deletion test, not a verdict. It does not audit the lint rules, hooks, or CI jobs it proposed last month. It sees one session, so it cannot tell you that a rule now fires too often or that the bug behind it is gone. You must still prune checks yourself. A rule that fires constantly on good code is the sign to remove it.
+部分会，而这是它最薄弱的地方。它能删掉文字：引导文件里的空操作，以及 `AGENTS.md` 或 `CLAUDE.md` 里本该放进规范或检查的引导内容。文件很大时，它会把这些标记为待删除。它是对照自己读到的那一次会话来判断的，所以把每一条都当作删除测试的候选，而不是定论。它不会审查它上个月提出的 lint 规则、hook 或 CI job。它只看得到一次会话，所以没法告诉你某条规则现在触发得太频繁，或者它背后的那个 bug 已经不存在了。检查仍然得由你自己修剪。一条在好代码上不停触发的规则，就是该删掉它的信号。
 
-**Won't it just invent generic advice to fill its categories?**
+**它会不会为了填满类别而编造泛泛的建议？**
 
-This is the strongest criticism of it. One user found that "once the job is finished, the AI tends to forget the struggles from the middle of the session and invents generic advice to satisfy the retro categories." Every candidate must come from the session's own record, so the advice is specific to that session. This has a cost as well as a benefit. It rarely invents something irrelevant, but it can give too much weight to whatever this one session was about. Discard any candidate you can't trace to a specific moment. Treat the severity order as a first draft too, because a quiet, expensive mistake can rank below a loud, cheap one.
+这是对它最有力的批评。有位用户发现，「一旦工作完成，AI 往往会忘掉会话中途的那些挣扎，然后编造泛泛的建议来满足复盘的类别」。每个候选都必须来自会话自己的记录，所以建议是针对那次会话的。这有代价也有好处。它很少编造无关的东西，但可能会过分看重这一次会话碰巧涉及的内容。追溯不到具体时刻的候选，丢掉就是。严重程度的排序也当作初稿看待，因为一个安静但代价高的错误，排名可能低于一个吵闹但代价低的错误。
 
-**My session is long. Run it now, or start fresh?**
+**我的会话很长。现在就跑，还是重新开一个？**
 
-By default it reviews the current session. That is the best case, because the struggles are still in the context window. If the session has already moved out of the [smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone), [clear](https://www.aihero.dev/ai-coding-dictionary/clearing) it, and point a fresh `/retro` at the previous session in the session logs.
+默认它回顾当前会话。这是最好的情况，因为那些挣扎还在上下文窗口里。如果会话已经走出了[智能区间](https://www.aihero.dev/ai-coding-dictionary/smart-zone)(smart zone)，就[清空](https://www.aihero.dev/ai-coding-dictionary/clearing)它，然后在一个新会话里运行 `/retro`，指向会话日志里的上一个会话。
 
-**The agent keeps making the same mistake. Should I add a line to `CLAUDE.md`?**
+**agent 一直犯同一个错误。我应该往 `CLAUDE.md` 里加一行吗？**
 
-Usually not, and `retro` pushes back on this more than anything else. A line in `CLAUDE.md` loads into every session, gives less weight to everything else in the file, and goes out of date as the code changes. If the mistake is mechanical, the fix is a check that fails. If it is a judgement call, it goes in the coding standards the reviewer reads. `AGENTS.md` and `CLAUDE.md` are for navigation pointers and little else. For the same reason, `retro` is not a [memory system](https://www.aihero.dev/ai-coding-dictionary/memory-system). It does not store what happened. It changes the environment so the mistake cannot happen again.
+通常不应该，而且 `retro` 对这件事的反对比对任何事都强烈。`CLAUDE.md` 里的一行会加载进每个会话，削弱文件里其他所有内容的分量，还会随着代码变化而过时。如果错误是机械性的，修复方法是一个会失败的检查。如果是判断性的，就放进 reviewer 读的编码规范里。`AGENTS.md` 和 `CLAUDE.md` 是用来放导航指针的，其他东西基本不放。出于同样的原因，`retro` 不是一个[记忆系统](https://www.aihero.dev/ai-coding-dictionary/memory-system)。它不存储发生过什么，而是改变环境，让这个错误不会再发生。
 
-**My setup mentions `CODING_STANDARDS.md` and I don't have one. Where does it come from?**
+**我的配置里提到了 `CODING_STANDARDS.md`，但我没有这个文件。它从哪里来？**
 
-No skill ships the file. The first time a session finds a judgement-call rule for the reviewer, `retro` proposes to create it. After you accept, [code-review](https://aihero.dev/skills-code-review) reads it. Any other standards doc you already keep, such as `CONTRIBUTING.md`, works the same way.
+没有哪个 skill 自带这个文件。当某次会话第一次发现一条给 reviewer 的判断性规则时，`retro` 会提议创建它。你接受之后，[code-review](https://aihero.dev/skills-code-review) 就会读它。你已经在维护的其他规范文档，比如 `CONTRIBUTING.md`，效果也一样。
 
-**How is it different from `improve-codebase-architecture`?**
+**它和 `improve-codebase-architecture` 有什么不同？**
 
-The input is different. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) needs only the code, and looks for structural improvements to it. `retro` needs a session history, and improves the environment the agent works in, not the code. You use both; neither replaces the other.
+输入不同。[improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) 只需要代码，寻找的是代码结构上的改进。`retro` 需要一段会话历史，改进的是 agent 工作所在的环境，而不是代码。两个都要用，谁也替代不了谁。
 
-## It's working if
+## 起作用的标志
 
-- Every candidate points back to a specific moment in the session, not a generic best practice.
-- Repeat mistakes turn into failing checks, and your `AGENTS.md` gets shorter over time, not longer.
-- If a check already existed but was not connected, the finding is to connect it, not a proposal to build a new one.
-- The next session on the same kind of task finds what it needs faster.
+- 每个候选都能指回会话中的某个具体时刻，而不是一条泛泛的最佳实践。
+- 重复出现的错误变成了会失败的检查，你的 `AGENTS.md` 随着时间变短，而不是变长。
+- 如果某个检查早就存在只是没有接上，发现会是「把它接上」，而不是提议再造一个新的。
+- 下一次处理同类任务的会话，能更快找到它需要的东西。
 
-## Where it fits
+## 在体系中的位置
 
-`retro` is the last step of the main chain, where you review how the chain went:
+`retro` 是主链路的最后一步，你在这里复盘整条链路跑得怎么样：
 
 ```txt
 grill-with-docs → to-spec → to-tickets → implement → code-review → retro
 ```
 
-Run it after a build worth learning from, in the same session or pointed at that session's log. You can skip it after a smooth build.
+在一次值得从中学习的构建之后运行它，可以在同一个会话里，也可以指向那次会话的日志。构建很顺利的话可以跳过。
 
-- [code-review](https://aihero.dev/skills-code-review) is the reviewer agent that `retro` most often tunes. New coding standards go where its Standards axis reads them.
-- [writing-for-agents](https://aihero.dev/skills-writing-for-agents) sets the writing style for every steering file and skill that `retro` proposes, and `retro` loads it before it starts.
+- [code-review](https://aihero.dev/skills-code-review) 是 `retro` 最常调校的 reviewer agent。新的编码规范要放在它的 Standards 轴会去读的地方。
+- [writing-for-agents](https://aihero.dev/skills-writing-for-agents) 为 `retro` 提出的每个引导文件和 skill 设定写作风格，`retro` 开始前会先加载它。
 
-[ask-matt](https://aihero.dev/skills-ask-matt) routes across the whole set when you are unsure which skill the situation needs.
+当你不确定当前情况需要哪个 skill 时，[ask-matt](https://aihero.dev/skills-ask-matt) 会在整套 skill 上为你指路。

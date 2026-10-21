@@ -1,26 +1,27 @@
 ---
 name: prototype
-description: Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.
+description: >
+  构建一个一次性原型来回答一个设计问题。当用户想验证某个状态模型或逻辑是否合理，或者想探索某个 UI 应该长什么样时使用。触发短语：「做个原型」「prototype this」「试几个 UI 方案」「这个状态机对不对」。
 ---
 
-# Prototype
+# 原型（Prototype）
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+原型是**用来回答一个问题的一次性代码**。问题决定原型的形态。
 
-## Pick a branch
+## 选择分支
 
-Identify which question is being answered, using the user's prompt, the surrounding code, or by asking if the user is around:
+先弄清要回答的是哪个问题：依据用户的 prompt、周边代码，或者在用户在场时直接问：
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a single shareable HTML file (free-play buttons plus tabbed guided walkthroughs) that pushes the state machine through cases that are hard to reason about on paper, and that a non-developer can drive.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+- **「这套逻辑 / 状态模型对不对？」** → [LOGIC.md](LOGIC.md)。构建一个可分享的单文件 HTML（自由操作按钮加上分标签页的引导式演练），把状态机推进到纸面上难以推理的各种情况，并且让非开发者也能上手操作。
+- **「这个应该长什么样？」** → [UI.md](UI.md)。在同一个路由上生成几个截然不同的 UI 变体，通过 URL 查询参数和一个悬浮底栏切换。
 
-The two branches produce very different artifacts, so getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+两个分支产出的东西完全不同，选错了整个原型就白做了。如果问题确实模棱两可而用户又联系不上，就选和周边代码更匹配的那个分支（后端模块 → 逻辑；页面或组件 → UI），并在原型顶部写明这个假设。
 
-## Rules that apply to both
+## 两个分支都适用的规则
 
-1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious, but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
-2. **Trivial to run.** A UI prototype starts from one command in the project's task runner: `pnpm <name>`, `python <path>`, `bun <path>`, etc. A logic demo is a single HTML file the user double-clicks. Either way, no thinking required to start it.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE, wipe me" name.
-4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **Capture it when done.** Fold any validated decision into the real code, then capture the prototype itself as a **primary source**: commit it to a throwaway branch, out of main, and leave a context pointer to that branch on the implementation issue. Capture the answer too (the verdict and the question it settled) in the issue or a commit. The main branch keeps only the validated decision.
+1. **从第一天起就是一次性的，并且明确标注。** 把原型代码放在靠近它实际使用的位置（挨着它所服务的模块或页面），让上下文一目了然，但命名要让随便看一眼的人都知道这是原型，不是生产代码。对于一次性 UI 路由，遵循项目已有的路由约定，不要自创新的顶层结构。
+2. **运行起来毫不费力。** UI 原型用项目任务运行器里的一条命令启动：`pnpm <name>`、`python <path>`、`bun <path>` 等。逻辑演示是一个用户双击即可打开的 HTML 文件。无论哪种，启动都不需要动脑子。
+3. **默认不做持久化。** 状态只存在内存里。持久化是原型要*检验*的东西，而不是它应该依赖的东西。如果问题明确涉及数据库，就连一个临时数据库或本地文件，并起一个清楚的名字，比如「PROTOTYPE, wipe me」。
+4. **不要打磨。** 不写测试，除了让原型*能跑起来*所需的之外不做错误处理，不做抽象。目的是快速学到东西。
+5. **把状态展示出来。** 每次操作之后（逻辑）或每次切换变体时（UI），打印或渲染完整的相关状态，让用户看到发生了什么变化。
+6. **完成后留存。** 把任何已验证的决定合入真实代码，然后把原型本身作为**一手资料**（primary source）留存：commit 到一个一次性 branch 上，不进 main，并在实现 issue 上留一个指向该 branch 的上下文指针（context pointer）。答案也要留存（结论以及它解决的问题），写在 issue 或 commit 里。main branch 只保留已验证的决定。

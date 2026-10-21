@@ -1,23 +1,23 @@
-# Dependency management
+# 依赖管理
 
-**Applies when:** Projects with a package manager
+**适用条件：** 有包管理器的项目
 
-**Probe first:** Which lockfiles and how many, dependency update tool (dependabot / renovate), audit command
+**先探查：** 有哪些 lockfile、有几个，依赖更新工具（dependabot / renovate），审计命令
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| One package manager | The lockfile decides the single package manager; never mix | With `pnpm-lock.yaml`, use only pnpm |
-| Bar for adding | Prefer the standard library and existing dependencies; a new one needs a stated reason, maintenance status, and license | none |
-| Version pinning | The lockfile must be committed; applications pin exact versions | none |
-| Vulnerability audit | Audit command and fix deadline | `pnpm audit --prod`, `pip-audit` |
-| Banned | `npx` without `--no-install` downloading on the fly; installing project dependencies globally | none |
+| 唯一包管理器 | 由 lockfile 决定唯一的包管理器；绝不混用 | 有 `pnpm-lock.yaml` 就只用 pnpm |
+| 新增门槛 | 优先用标准库和已有依赖；新增依赖要写明理由、维护状况和许可证 | 无 |
+| 版本锁定 | lockfile 必须提交；应用锁定精确版本 | 无 |
+| 漏洞审计 | 审计命令和修复期限 | `pnpm audit --prod`、`pip-audit` |
+| 禁止 | 不带 `--no-install` 的 `npx` 临时下载；全局安装项目依赖 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 1: `permissions.deny` rejects the wrong package manager (e.g. a pnpm project denies `Bash(npm install:*)`)
-- Layer 2: audit goes into CI, with severity recorded as "warning" or "blocking"
-- Layer 5: the bar for adding dependencies goes in CLAUDE.md; the agent rules say "ask before adding a dependency"
+- 第 1 层：`permissions.deny` 拒绝错误的包管理器（例如 pnpm 项目 deny `Bash(npm install:*)`）
+- 第 2 层：审计放进 CI，严重程度记为「警告」或「阻断」
+- 第 5 层：新增依赖的门槛写进 CLAUDE.md；agent 规则写明「加依赖之前先问」

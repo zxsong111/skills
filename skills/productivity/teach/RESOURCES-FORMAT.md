@@ -1,32 +1,32 @@
-# RESOURCES.md Format
+# RESOURCES.md 格式
 
-`RESOURCES.md` is the curated set of trusted sources for this topic. Knowledge for explainers should be drawn from here, not from parametric guesses. Wisdom comes from the communities listed here.
+`RESOURCES.md` 是这个主题经过筛选的可信来源集合。讲解所用的知识应该从这里获取，而不是靠参数化的猜测。智慧来自这里列出的社区。
 
-## Structure
+## 结构
 
 ```md
-# {Topic} Resources
+# {主题} 资源
 
-## Knowledge
+## 知识
 
-- [Book: _The Science and Practice of Strength Training_ by Zatsiorsky & Kraemer](https://example.com)
-  Foundational text on programming and adaptation. Use for: anything to do with periodisation, recovery, intensity zones.
-- [Article: "How Much Should I Train?" by Greg Nuckols (Stronger By Science)](https://example.com)
-  Evidence-based review of volume landmarks. Use for: weekly set targets per muscle group.
+- [书籍：_The Science and Practice of Strength Training_，Zatsiorsky & Kraemer 著](https://example.com)
+  关于训练编排和身体适应的奠基性著作。适用于：任何与周期化、恢复、强度区间有关的内容。
+- [文章："How Much Should I Train?"，Greg Nuckols 著（Stronger By Science）](https://example.com)
+  基于证据的训练量标志点综述。适用于：每个肌群每周的组数目标。
 
-## Wisdom (Communities)
+## 智慧（社区）
 
 - [r/weightroom](https://reddit.com/r/weightroom)
-  High-signal subreddit, moderated against bro-science. Use for: programme critique, plateau troubleshooting.
-- Local: Tuesday strength class at {gym name}
-  Use for: real-time coaching feedback on lifts.
+  高信噪比的 subreddit，有管理员抵制伪科学。适用于：训练计划点评、平台期排查。
+- 线下：{健身房名称} 周二的力量训练课
+  适用于：针对动作的实时教练反馈。
 ```
 
-## Rules
+## 规则
 
-- **High-trust only.** Prefer primary sources, recognised experts, peer-reviewed work, and communities with strong moderation. If a resource is marketing dressed as education, leave it out.
-- **Annotate every entry.** A bare link is useless in three months. Add one line: what it covers and when to reach for it.
-- **Group by Knowledge / Wisdom.** Mirrors the philosophy in [SKILL.md](./SKILL.md). It is fine for a resource to appear in only one group.
-- **Surface gaps explicitly.** If no good resource exists for an area the mission needs, write a `## Gaps` section listing what is missing. This drives future search.
-- **Prune ruthlessly.** A resource that turned out to be wrong, shallow, or off-mission should be removed, not buried. Better five sharp sources than thirty mediocre ones.
-- **Record community preferences.** If the user has opted out of joining communities, note it here so future sessions don't keep proposing them.
+- **只收高可信度的资源。**优先选择一手资料、公认的专家、同行评审的成果，以及管理严格的社区。如果某个资源是披着教育外衣的营销，就别收。
+- **每个条目都要加注释。**一个光秃秃的链接三个月后就毫无用处。加一行：它讲什么，以及什么时候去用它。
+- **按知识 / 智慧分组。**这与 [SKILL.md](./SKILL.md) 中的理念相呼应。一个资源只出现在其中一组里也没问题。
+- **明确标出缺口。**如果使命需要的某个领域没有好的资源，就写一个 `## 缺口` 小节列出缺少的东西。这会驱动之后的搜索。
+- **毫不留情地修剪。**被证明是错误的、肤浅的或偏离使命的资源，应该删掉，而不是埋起来。五个锋利的来源胜过三十个平庸的。
+- **记录对社区的偏好。**如果用户选择不加入社区，在这里记下来，免得之后的会话不停地提议。

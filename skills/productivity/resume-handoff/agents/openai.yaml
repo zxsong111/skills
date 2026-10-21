@@ -1,5 +1,5 @@
 interface:
   display_name: "Resume handoff"
-  short_description: "Find the handoff doc in a new session and carry on"
+  short_description: "在新会话里找到交接文档并接着干"
 policy:
   allow_implicit_invocation: false

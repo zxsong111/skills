@@ -1,23 +1,23 @@
-# Security baseline
+# 安全基线
 
-**Applies when:** Any project that handles user input, auth, or secrets
+**适用条件：** 任何处理用户输入、认证或密钥的项目
 
-**Probe first:** Whether `.gitignore` ignores `.env`; how secrets are loaded; where the auth middleware lives
+**先探查：** `.gitignore` 是否忽略了 `.env`；密钥如何加载；认证中间件在哪
 
-## Items to decide
+## 待定项
 
-Decide each item; write "not applicable" for any this project doesn't need. Phrase each one as a checkable sentence.
+逐项拍板；本项目不需要的写「不适用」。每项都写成可检查的句子。
 
-| Item | What to decide | Example |
+| 项 | 要定什么 | 例子 |
 |---|---|---|
-| Secrets | Read only from environment variables / a secrets manager; `.env` is never committed | none |
-| Input validation | Validate with a schema at the boundary layer; internal code trusts validated data | zod, pydantic |
-| Where auth happens | Which layer does authentication and authorization checks; never scattered through business code | none |
-| Output encoding | HTML escaping, parameterized SQL; never build queries by string concatenation | none |
-| Sensitive operations | Deletions, permission changes, and money operations must write an audit log | none |
+| 密钥 | 只从环境变量 / 密钥管理服务读取；`.env` 绝不提交 | 无 |
+| 输入校验 | 在边界层用 schema 校验；内部代码信任已校验的数据 | zod、pydantic |
+| 认证放在哪 | 哪一层做认证和授权检查；绝不散落在业务代码里 | 无 |
+| 输出编码 | HTML 转义、参数化 SQL；绝不用字符串拼接查询 | 无 |
+| 敏感操作 | 删除、权限变更和资金操作必须写审计日志 | 无 |
 
-## Where it lands
+## 落点
 
-- Layer 1: add `Read(./.env)`, `Read(./.env.*)`, `Read(**/secrets/**)` to `permissions.deny`
-- Layer 2: secret scanning (gitleaks) and SAST go into CI
-- Layer 5: the key points go in CLAUDE.md, with details referencing this plugin's `references/security-checklist.md`; deep audits go through `security-and-hardening`
+- 第 1 层：在 `permissions.deny` 中加入 `Read(./.env)`、`Read(./.env.*)`、`Read(**/secrets/**)`
+- 第 2 层：密钥扫描（gitleaks）和 SAST 放进 CI
+- 第 5 层：要点写进 CLAUDE.md，细节引用本 plugin 的 `references/security-checklist.md`；深度审计走 `security-and-hardening`

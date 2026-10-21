@@ -1,51 +1,51 @@
-## What it does
+## 它做什么
 
-`i-have-adhd` sets the shape of replies. The first line is an action the reader can take, multi-step tasks are numbered, the state is restated every turn, tangents are held back, finished work is stated in concrete terms, and there is no preamble, no after-the-fact recap and no closing pleasantries. It comes from one fact: **knowing the answer is not the same as doing it**. The small friction between "got it" and "done" is where work dies, so output is shaped into something the reader can act on directly, not just made short.
+`i-have-adhd` 规定回复的形态。第一行是读者可以执行的行动，多步骤任务编号列出，每轮都重申当前状态，岔开的话题收着不展开，做完的工作用具体的话来说，没有开场白，没有事后回顾，也没有收尾客套。它来自一个事实：**知道答案不等于做完事情**。「懂了」和「做完了」之间的那点摩擦正是工作死掉的地方，所以输出被塑造成读者可以直接照着行动的东西，而不只是变短。
 
-This version loads automatically. Compared with upstream, it drops the rule to give concrete time estimates (an estimate is a guess, not evidence), and it exempts evidence output from the five-item cap: every row of a gate table, a list of review findings or a list of test failures is shown.
+这一版会自动加载。与上游相比，它去掉了给出具体时间估计的规则（估计是猜测，不是证据），并且让证据输出不受五条上限约束：门禁表格的每一行、审查发现列表或测试失败列表，都完整展示。
 
-## When to reach for it
+## 什么时候用
 
-Type `/i-have-adhd`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task fits: the agent loads it when replying, and typing the command switches it on explicitly. Say `stop adhd mode` or `normal mode` to turn it off for the rest of the [session](https://www.aihero.dev/ai-coding-dictionary/session).
+输入 `/i-have-adhd`，或者在任务匹配时由 [agent](https://www.aihero.dev/ai-coding-dictionary/agent) 自动调用：agent 在回复时加载它，输入命令则是显式开启。说 `stop adhd mode` 或 `normal mode` 可以在本次[会话](https://www.aihero.dev/ai-coding-dictionary/session)剩余时间里关掉它。
 
-| Situation | How the rules change |
+| 情况 | 规则如何变化 |
 | --- | --- |
-| An ordinary reply | Lead with the action, and stop once the answer is given |
-| A multi-step task | A numbered list, one action per step, as few steps as possible |
-| An error | The cause and the fix, no "oops" |
-| You ask it to "explain" or "walk me through" | The body can run long, still with no preamble or pleasantries |
-| Before a destructive operation | Confirm first, because safety beats brevity |
-| Three debugging turns in a row of "still broken" | Stop iterating on the code and name the assumption that is probably wrong |
+| 普通回复 | 行动开头，答案给完就停 |
+| 多步骤任务 | 编号列表，一步一个行动，步骤越少越好 |
+| 出错 | 直接给原因和修法，不「哎呀」 |
+| 你让它「解释」或「带我走一遍」 | 正文可以长，但依然没有开场白和客套 |
+| 破坏性操作之前 | 先确认，因为安全压过简洁 |
+| 连续三轮调试都是「还是不行」 | 停止在代码上打转，点出最可能错的那个假设 |
 
-Automatic loading happens only when the agent judges that the task fits, so it is not guaranteed on every reply. To make it take effect from the start of every session, run `touch ~/.claude/.i-have-adhd-always`. A companion SessionStart hook (to be added in the hooks phase) then injects it into the session.
+自动加载只在 agent 判断任务匹配时发生，所以并不保证每条回复都生效。要让它在每个会话一开始就生效，运行 `touch ~/.claude/.i-have-adhd-always`。之后由一个配套的 SessionStart hook（将在 hooks 阶段添加）把它注入会话。
 
-## The check before sending
+## 发送前的检查
 
-Before a reply goes out, the skill cuts:
+每条回复发出去之前，skill 会砍掉：
 
-- the first sentence, if it announces what is about to happen
-- the last sentence, if it asks whether there is anything else
-- any by-the-way aside
-- vague adverbs that carry no information
-- idioms, replaced with the literal action
+- 第一句，如果它是在宣布接下来要做什么
+- 最后一句，如果它是在问还有什么需要
+- 任何顺带一提的题外话
+- 不携带信息量的模糊副词
+- 惯用语，替换成字面的行动
 
-Then it checks: reading only the first and last lines, does the reader know what to do next and what just happened?
+然后它做一次检查：只读第一行和最后一行，读者知不知道接下来做什么、刚才发生了什么？
 
-## Common questions
+## 常见问题
 
-**Will it cut things that need saying?**
-No. When a rule conflicts with the task, the task wins and the shape stays. "What are my options" gets 2 to 4 ranked options, because those options are the answer. Evidence output is exempt from the five-item cap entirely.
+**它会不会把该说的话砍掉？**
+不会。当某条规则和任务冲突时，任务赢，形态保留。「我有哪些选项」会得到 2 到 4 个排好序的选项，因为这些选项本身就是答案。证据输出完全不受五条上限约束。
 
-**What if it conflicts with the harness's system prompt?**
-The system prompt wins. If the [harness](https://www.aihero.dev/ai-coding-dictionary/harness) asks for tool calls to be announced, it announces them, and when there is work to do, it does the work. The constraint wins and the shape stays.
+**如果它和 harness 的系统提示词冲突怎么办？**
+系统提示词赢。如果 [harness](https://www.aihero.dev/ai-coding-dictionary/harness) 要求先宣告工具调用，它就宣告，有活要干时它就把活干了。约束赢，形态保留。
 
-## It's working if
+## 起作用的标志
 
-- The first line of a reply is an action, a command or a path, not background.
-- At step three of a five-step task, the reply says "step 3 of 5 done".
-- A reply ends with "Next: ...", not "Hope this helps".
-- An error shows the cause and the fix straight away.
+- 回复的第一行是一个行动、一条命令或一个路径，不是背景。
+- 五步任务做到第三步时，回复说「第 3 步（共 5 步）完成」。
+- 回复以「下一步：……」结束，而不是「希望有帮助」。
+- 出错时立刻给出原因和修法。
 
-## Where it fits
+## 在体系中的位置
 
-`i-have-adhd` is a **reach-for-it-anytime standalone** that works as an output layer across every flow. It is not a step on the main chain and changes no skill's steps, only the shape of replies. Its neighbours are [humanizer](https://github.com/zxsong111/skills/blob/main/skills/productivity/humanizer/SKILL.md), because that governs the tone of prose while this governs the structure of replies, and [wait-what](https://aihero.dev/skills-wait-what), the after-the-fact fix when one message didn't land. [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`i-have-adhd` 是一个**随时可用的独立工具**，作为输出层横跨所有流程。它不在主链路上，也不改任何 skill 的步骤，只改回复的形态。它的邻居是 [humanizer](https://github.com/zxsong111/skills/blob/main/skills/productivity/humanizer/SKILL.md)，因为那个管文字的语气，这个管回复的结构；还有 [wait-what](https://aihero.dev/skills-wait-what)，某条消息没落到点上时的事后补救。[ask-matt](https://aihero.dev/skills-ask-matt) 有整套体系的地图。
