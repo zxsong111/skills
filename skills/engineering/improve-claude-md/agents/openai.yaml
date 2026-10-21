@@ -1,0 +1,3 @@
+interface:
+  display_name: "Improve CLAUDE.md"
+  short_description: "Audit CLAUDE.md / AGENTS.md and write dev conventions"

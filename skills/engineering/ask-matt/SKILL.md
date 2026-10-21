@@ -31,6 +31,8 @@ The route most work travels. You have an idea and want it built.
 
    When the work goes up as a pull request, **`/pr`** shapes the body: the smallest visual that shows the change, before/after evidence that it works, and a one-way or two-way door call. It's model-invoked, so the agent reaches for it whenever it writes a PR.
 
+   Committing, pushing and opening the PR is orchestrated by **`/commit-push-pr`**. It's model-invoked, so saying "commit" or "push it" fires it. On the trunk it stops and asks instead of committing, the commit message follows `type(scope): description`, and the PR body comes from `pr` plus a Verification section listing only commands that actually ran. When review feedback comes back (a `/code-review` report, or comments on the PR), **`/receiving-code-review`** verifies each point before acting on it, with no performative agreement. A judgement-call rule that keeps getting flagged goes into `CODING_STANDARDS.md`, so the next `/code-review` checks it.
+
 4. **`/retro`** closes the loop. After a build, and especially one that went sideways, it looks back over the session and suggests changes to the agent's **environment**, not the code: navigation pointers, automated checks, the coding standards `/code-review` enforces, steering files, tooling. Mechanical mistakes become deterministic checks; judgement calls become coding standards. The next build then starts from a better environment.
 
 ### Context hygiene
@@ -72,7 +74,7 @@ A **phase** is a chunk of work inside a session: the grilling, the implementatio
 
 - **Continue**: stay put. Costs nothing, loses nothing.
 - **`/clear`**: empty the window, when nothing here matters to what's next.
-- **`/handoff`** writes a portable markdown file. Narrow: only for a **new harness**, a **new directory**, a **colleague**, or forking a side task **mid-phase**. What it buys is portability.
+- **`/handoff`** writes a portable markdown file. Narrow: only for a **new harness**, a **new directory**, a **colleague**, or forking a side task **mid-phase**. What it buys is portability. In the fresh session, **`/resume-handoff`** picks it back up: it finds the document (`tasks/handoff.md` at the repo root, another worktree, or the OS temp directory), checks the branch and working tree still match, and continues from its next step.
 - **Subagent**: send a tightly-scoped task to its own window and get a report back.
 - **`/compact`** compresses this context and seeds a fresh session with it. The **default**, at the bottom of the tree rather than the first reach.
 
@@ -91,7 +93,12 @@ Off the main flow entirely.
 - **`/wait-what`** is the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `GLOSSARY.md` vocabulary. It works after the fact; `/grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
 - **`/teach`**: learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/writing-for-agents`** is the reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
+- **`/security-and-hardening`** (model-invoked) is a triggered security checklist. It loads when a change touches auth, sessions, payments, PII, file uploads, webhooks, untrusted external input or new dependencies, maps the trust boundaries first, then hardens item by item against OWASP. It stays out of context otherwise.
+- **`/humanizer`** (model-invoked) strips the AI tone whenever the agent writes prose for people: PR descriptions, READMEs, docs, reports. It rewrites against 26 patterns without changing the meaning or inventing facts, and touches prose only, never code.
+- **`/i-have-adhd`** (model-invoked) shapes every reply: the first line is the next action, multi-step work is numbered, state is restated each turn, and there are no openers or sign-offs. Say "stop adhd mode" to turn it off for the session.
 
 ## Precondition
 
 **`/setup-matt-pocock-skills`**: run before your first engineering flow to configure the issue tracker, triage labels, and doc layout the other skills assume. Custom issue trackers also work.
+
+**`/improve-claude-md`** (model-invoked; "optimize CLAUDE.md" or "set conventions" fires it): run it when you first bring a project onto these skills, or when an existing project's `CLAUDE.md` / `AGENTS.md` has gone unmaintained. It audits the memory files (missing sections, commands that don't match the repo, empty gates, generic filler, prose rules a linter could enforce, length, staleness), fills in the Verification commands, Quality gates, Known pitfalls and Required workflows sections, then picks the standards this project needs from a 29-item menu, tagging each with the layer it belongs in. Judgement-call rules go into `CODING_STANDARDS.md` for `/code-review` to read. It reports first and writes only after approval. The split with **`/retro`**: retro looks back at one session, improve-claude-md audits the whole repo's memory files, and both write to the same set of files.

@@ -45,6 +45,13 @@
     "./skills/productivity/teach",
     "./skills/productivity/to-questionnaire",
     "./skills/productivity/wait-what",
-    "./skills/productivity/writing-for-agents"
+    "./skills/productivity/writing-for-agents",
+    "./skills/engineering/commit-push-pr",
+    "./skills/engineering/receiving-code-review",
+    "./skills/engineering/security-and-hardening",
+    "./skills/engineering/improve-claude-md",
+    "./skills/productivity/resume-handoff",
+    "./skills/productivity/humanizer",
+    "./skills/productivity/i-have-adhd"
   ]
 }

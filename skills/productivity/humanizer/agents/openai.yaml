@@ -1,0 +1,3 @@
+interface:
+  display_name: "Humanizer"
+  short_description: "Strip the AI tone from prose without changing meaning"

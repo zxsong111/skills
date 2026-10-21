@@ -1,0 +1,3 @@
+interface:
+  display_name: "Security and hardening"
+  short_description: "Security checklist: auth, payments, PII, uploads, webhooks"

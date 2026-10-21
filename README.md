@@ -239,6 +239,10 @@ Skills I use daily for code work.
 - **[code-review](./skills/engineering/code-review/SKILL.md)**: Two-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?) and **Spec** (does it faithfully implement the originating issue/spec?), run as parallel sub-agents so neither pollutes the other.
 - **[pr](./skills/engineering/pr/SKILL.md)**: The shape a pull request body should take: a summary as the smallest visual that makes the change clear, before/after evidence that it works, and a merge-danger call (one-way or two-way door, plus blast radius).
 - **[wizard](./skills/engineering/wizard/SKILL.md)**: Generate an interactive bash wizard that walks a human through steps only they can perform: provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover.
+- **[commit-push-pr](./skills/engineering/commit-push-pr/SKILL.md)**: Commit, push and open a PR to a fixed convention, with a trunk guard (on `main` / `master` it stops and asks instead of committing). The PR body is handed to `pr`. The agent reaches for it when you say "commit" or "push it".
+- **[receiving-code-review](./skills/engineering/receiving-code-review/SKILL.md)**: Take review feedback (a `code-review` report, PR comments) by verifying before implementing, with no performative agreement. A judgement-call rule that keeps coming back is routed into `CODING_STANDARDS.md`.
+- **[security-and-hardening](./skills/engineering/security-and-hardening/SKILL.md)**: A security checklist for changes that touch auth, sessions, payments, PII, file uploads, webhooks, untrusted external input or new dependencies: map the trust boundaries first, then harden item by item against OWASP.
+- **[improve-claude-md](./skills/engineering/improve-claude-md/SKILL.md)**: Audit and improve a project's `CLAUDE.md` / `AGENTS.md` / `.claude/rules/` (existing projects included), then generate the coding standards this project actually needs from a 29-item menu, each tagged with the layer it belongs in. Reports first, writes only after approval.
 
 ### Productivity
 
@@ -251,8 +255,11 @@ General workflow tools, not code-specific.
 - **[teach](./skills/productivity/teach/SKILL.md)**: Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace.
 - **[to-questionnaire](./skills/productivity/to-questionnaire/SKILL.md)**: Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can, filled in async, or together over a meeting. It grills you about the send (who it's for, what you need back), not the subject.
 - **[wait-what](./skills/productivity/wait-what/SKILL.md)**: Fire this the moment a message doesn't land. The agent re-pitches it with the context you're missing, in plain English, using your `GLOSSARY.md` vocabulary.
+- **[resume-handoff](./skills/productivity/resume-handoff/SKILL.md)**: In a fresh session, find the document `/handoff` wrote, check the working tree still matches it, and carry on from its next step. The other half of `handoff`.
 
 **Model-invoked**
 
 - **[grilling](./skills/productivity/grilling/SKILL.md)**: Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)**: Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
+- **[humanizer](./skills/productivity/humanizer/SKILL.md)**: Strip the AI tone from prose written for people (PR descriptions, READMEs, docs, reports) automatically: rewrites against 26 patterns without changing the meaning or inventing facts, and touches prose only, never code.
+- **[i-have-adhd](./skills/productivity/i-have-adhd/SKILL.md)**: Shape every reply automatically: the first line is the next action, multi-step work is numbered, state is restated each turn, and there are no openers or sign-offs. Say "stop adhd mode" to turn it off for the session.

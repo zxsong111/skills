@@ -11,6 +11,7 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[teach](./teach/SKILL.md)**: Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace.
 - **[to-questionnaire](./to-questionnaire/SKILL.md)**: Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can (filled in async, or together over a meeting).
 - **[wait-what](./wait-what/SKILL.md)**: Fire this the moment a message doesn't land. The agent re-pitches it with the context you're missing, in plain English, using your `GLOSSARY.md` vocabulary.
+- **[resume-handoff](./resume-handoff/SKILL.md)**: In a fresh session, find the document `/handoff` wrote, check the working tree still matches it, and carry on from its next step. The other half of `handoff`.
 
 ## Model-invoked
 
@@ -18,3 +19,5 @@ Model- or user-reachable (rich trigger phrasing so the model can reach for them)
 
 - **[grilling](./grilling/SKILL.md)**: Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved.
 - **[writing-for-agents](./writing-for-agents/SKILL.md)**: Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
+- **[humanizer](./humanizer/SKILL.md)**: Strip the AI tone from prose written for people (PR descriptions, READMEs, docs, reports) automatically: rewrites against 26 patterns without changing the meaning or inventing facts, and touches prose only, never code.
+- **[i-have-adhd](./i-have-adhd/SKILL.md)**: Shape every reply automatically: the first line is the next action, multi-step work is numbered, state is restated each turn, and there are no openers or sign-offs. Say "stop adhd mode" to turn it off for the session.

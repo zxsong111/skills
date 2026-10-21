@@ -1,0 +1,3 @@
+interface:
+  display_name: "Commit, push, PR"
+  short_description: "Commit, push, open a PR; stops first on the trunk"
