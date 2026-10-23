@@ -27,12 +27,12 @@ Type `/improve-claude-md`, or the [agent](https://www.aihero.dev/ai-coding-dicti
 
 | Situation | Use it? |
 | --- | --- |
-| Wiring this skill set into a project for the first time | Yes, after [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) |
+| Wiring this skill set into a project for the first time | Yes, after [setup-zxs-skills](https://github.com/zxsong111/skills/blob/main/docs/engineering/setup-zxs-skills.md) |
 | An old project's `CLAUDE.md` runs to hundreds of lines and nobody dares touch it | Yes, with `/improve-claude-md audit` |
 | The architecture design is approved and the first line of code is not yet written | Yes, to settle the conventions first |
 | A small single-entry script with no external interface | No, and it won't fire |
 
-It does not touch `docs/agents/*.md`, `GLOSSARY.md` or `docs/adr/`. Those belong to [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) and [domain-modeling](https://aihero.dev/skills-domain-modeling).
+It does not touch `docs/agents/*.md`, `GLOSSARY.md` or `docs/adr/`. Those belong to [setup-zxs-skills](https://github.com/zxsong111/skills/blob/main/docs/engineering/setup-zxs-skills.md) and [domain-modeling](https://aihero.dev/skills-domain-modeling).
 
 ## Conventions are summarized, not invented
 
@@ -61,4 +61,4 @@ Only one of them can hold the body. If you also use Codex, the body goes in `AGE
 
 ## Where it fits
 
-`improve-claude-md` is a **run-once setup** when the skills come into a project, and **periodic maintenance** after that. Together with [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) it forms the groundwork. Its neighbours are [retro](https://aihero.dev/skills-retro), because it does the same kind of work at session level, and [code-review](https://aihero.dev/skills-code-review), because it reads the `CODING_STANDARDS.md` this skill writes. [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`improve-claude-md` is a **run-once setup** when the skills come into a project, and **periodic maintenance** after that. Together with [setup-zxs-skills](https://github.com/zxsong111/skills/blob/main/docs/engineering/setup-zxs-skills.md) it forms the groundwork. Its neighbours are [retro](https://aihero.dev/skills-retro), because it does the same kind of work at session level, and [code-review](https://aihero.dev/skills-code-review), because it reads the `CODING_STANDARDS.md` this skill writes. [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) has the map of the whole set.

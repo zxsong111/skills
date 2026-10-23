@@ -39,4 +39,4 @@ No. It never switches the text into another language while rewriting it.
 
 ## Where it fits
 
-`humanizer` is a **reach-for-it-anytime standalone** that follows any step producing prose: [pr](https://aihero.dev/skills-pr) writing a PR body, [research](https://aihero.dev/skills-research) writing research notes, [retro](https://aihero.dev/skills-retro) writing its suggestions. For documents written for agents, use [writing-for-agents](https://aihero.dev/skills-writing-for-agents), which is a different set of rules. [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`humanizer` is a **reach-for-it-anytime standalone** that follows any step producing prose: [pr](https://aihero.dev/skills-pr) writing a PR body, [research](https://aihero.dev/skills-research) writing research notes, [retro](https://aihero.dev/skills-retro) writing its suggestions. For documents written for agents, use [writing-for-agents](https://aihero.dev/skills-writing-for-agents), which is a different set of rules. [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) has the map of the whole set.

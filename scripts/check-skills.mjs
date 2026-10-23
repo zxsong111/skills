@@ -13,7 +13,7 @@
 //   3. Invocation pairing: disable-model-invocation: true in SKILL.md
 //      frontmatter iff agents/openai.yaml sets
 //      policy.allow_implicit_invocation: false.
-//   4. ask-matt mentions every user-invoked skill.
+//   4. ask-zxs mentions every user-invoked skill.
 //   5. SKILLS-MAP.md mentions every promoted skill (one direction only:
 //      the map also covers non-promoted skills).
 //   6. claude plugin validate . reports nothing beyond the two known
@@ -104,9 +104,9 @@ for (const path of declared) {
   if (!existsSync(docs)) pushProblems(`${name}: no docs page at docs/${path.split('/')[1]}/${name}.md`);
 }
 
-// --- 3. Invocation pairing and 4. ask-matt coverage ---
+// --- 3. Invocation pairing and 4. ask-zxs coverage ---
 
-const askMatt = read(join(ROOT, 'skills', 'engineering', 'ask-matt', 'SKILL.md'));
+const askMatt = read(join(ROOT, 'skills', 'engineering', 'ask-zxs', 'SKILL.md'));
 const userInvoked = [];
 
 for (const path of declared) {
@@ -132,7 +132,7 @@ for (const path of declared) {
 
 for (const name of userInvoked.sort()) {
   const mentioned = new RegExp(`(^|[^a-z0-9-])${name}([^a-z0-9-]|$)`).test(askMatt);
-  if (!mentioned) pushProblems(`${name}: user-invoked but not mentioned in ask-matt/SKILL.md`);
+  if (!mentioned) pushProblems(`${name}: user-invoked but not mentioned in ask-zxs/SKILL.md`);
 }
 
 // --- 5. SKILLS-MAP membership ---
@@ -180,5 +180,5 @@ if (problems.length) {
 
 console.log(
   `check-skills: OK, ${declared.length} promoted skills wired ` +
-    `(plugin.json, disk, READMEs, docs pages, invocation pairs, ask-matt, SKILLS-MAP)`,
+    `(plugin.json, disk, READMEs, docs pages, invocation pairs, ask-zxs, SKILLS-MAP)`,
 );

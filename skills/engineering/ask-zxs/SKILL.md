@@ -1,10 +1,10 @@
 ---
-name: ask-matt
+name: ask-zxs
 description: Ask which skill or flow fits your situation. A router over the skills in this repo.
 disable-model-invocation: true
 ---
 
-# Ask Matt
+# Ask ZXS
 
 You don't remember every skill, so ask.
 
@@ -99,6 +99,6 @@ Off the main flow entirely.
 
 ## Precondition
 
-**`/setup-matt-pocock-skills`**: run before your first engineering flow to configure the issue tracker, triage labels, and doc layout the other skills assume. Custom issue trackers also work.
+**`/setup-zxs-skills`**: run before your first engineering flow to configure the issue tracker, triage labels, and doc layout the other skills assume. Custom issue trackers also work.
 
 **`/improve-claude-md`** (model-invoked; "optimize CLAUDE.md" or "set conventions" fires it): run it when you first bring a project onto these skills, or when an existing project's `CLAUDE.md` / `AGENTS.md` has gone unmaintained. It audits the memory files (missing sections, commands that don't match the repo, empty gates, generic filler, prose rules a linter could enforce, length, staleness), fills in the Verification commands, Quality gates, Known pitfalls and Required workflows sections, then picks the standards this project needs from a 29-item menu, tagging each with the layer it belongs in. Judgement-call rules go into `CODING_STANDARDS.md` for `/code-review` to read. It reports first and writes only after approval. The split with **`/retro`**: retro looks back at one session, improve-claude-md audits the whole repo's memory files, and both write to the same set of files.

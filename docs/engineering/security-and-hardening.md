@@ -46,4 +46,4 @@ Then most sections don't apply, and the skill won't fire. The sections on handli
 
 ## Where it fits
 
-`security-and-hardening` is a **reach-for-it-anytime standalone**, not a step on the main chain. It gets pulled in when code driven by [tdd](https://aihero.dev/skills-tdd) during implementation reaches a security-sensitive area. When a security incident needs its root cause found first, use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs). [ask-matt](https://aihero.dev/skills-ask-matt) has the map of the whole set.
+`security-and-hardening` is a **reach-for-it-anytime standalone**, not a step on the main chain. It gets pulled in when code driven by [tdd](https://aihero.dev/skills-tdd) during implementation reaches a security-sensitive area. When a security incident needs its root cause found first, use [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs). [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) has the map of the whole set.

@@ -20,7 +20,7 @@ You invoke this by typing `/triage` and then describing what you want in plain l
 
 ## Prerequisites
 
-`triage` reads and writes your issue tracker, so [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) must first configure that tracker and its label vocabulary. The role names below are **canonical**. The label strings in your tracker may differ, and setup provides the mapping. If your tracker already uses the canonical names exactly, you have nothing to map and nothing to set up.
+`triage` reads and writes your issue tracker, so [setup-zxs-skills](https://github.com/zxsong111/skills/blob/main/docs/engineering/setup-zxs-skills.md) must first configure that tracker and its label vocabulary. The role names below are **canonical**. The label strings in your tracker may differ, and setup provides the mapping. If your tracker already uses the canonical names exactly, you have nothing to map and nothing to set up.
 
 The tracker config also decides whether external pull requests count as a request surface, and who counts as external. That flag is off by default, and setup no longer asks about it. To bring PRs into scope, turn it on in `docs/agents/issue-tracker.md`.
 
@@ -75,13 +75,13 @@ No. They are already agent-ready. `to-tickets` applies the `ready-for-agent` lab
 Only if you have inbound work. `triage` is older than that flow and does a different job: it handles reports other people filed. If everything in your tracker came from your own planning, you will rarely use it. If you maintain anything public, or your team files bugs to you, it is where that work starts. The main use is open-source repos that take issues from external contributors.
 
 **The agent tried to apply `ready-for-agent` and `gh` said the label doesn't exist.**
-This is a known open bug ([#616](https://github.com/mattpocock/skills/issues/616)). `setup-matt-pocock-skills` writes the label vocabulary into `docs/agents/triage-labels.md`, but does not create the labels in your tracker. Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and the error stops. The issue links to a community fix branch that has not been merged.
+This is a known open bug ([#616](https://github.com/zxsong111/skills/issues/616)). `setup-zxs-skills` writes the label vocabulary into `docs/agents/triage-labels.md`, but does not create the labels in your tracker. Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and the error stops. The issue links to a community fix branch that has not been merged.
 
 **Five states aren't enough. What about blocked, or deferred, or implemented?**
 This is the most-filed gap on the skill. It comes in three forms:
 
-- An issue that is fully specified but waits on another issue to close ([#139](https://github.com/mattpocock/skills/issues/139)). The reporter said `ready-for-agent` is "technically true" there but misleading, so an agent picks it up and gets stuck.
-- Future work that is intended but waits on a trigger, so it is not actionable yet ([#297](https://github.com/mattpocock/skills/issues/297)).
+- An issue that is fully specified but waits on another issue to close ([#139](https://github.com/zxsong111/skills/issues/139)). The reporter said `ready-for-agent` is "technically true" there but misleading, so an agent picks it up and gets stuck.
+- Future work that is intended but waits on a trigger, so it is not actionable yet ([#297](https://github.com/zxsong111/skills/issues/297)).
 - A terminal state for "implemented, awaiting verification". Without it, an AFK runner can queue finished tickets again.
 
 The blocked case is accepted as real, but the name is undecided (`blocked` versus `paused`). None of it has shipped. As a workaround, people add a repo-local extra label next to the category. The state slot then holds an accurate value, but the skill does not know about the extra label. One community fork goes further and adds `needs-slicing`, `tracking` and effort labels. That works, but it belongs to that fork, not to the skill.
@@ -93,7 +93,7 @@ The verification step here is shallow on purpose. It answers "is this real, and 
 You can ask, but watch what it reads. The "show what needs attention" pass is a cheap listing for *selection*. You pick one issue, and then `triage` gathers full [context](https://www.aihero.dev/ai-coding-dictionary/context) on that issue. If you run it across twenty issues at once, the agent can use that cheap listing as its only evidence without telling you. The listing returns issue bodies but not comments. One user hit exactly this. Three issues already had a comment that said "already fixed, recommend closing", and all three got new agent briefs instead. For a bulk pass, say explicitly that it must read the comments on each issue.
 
 **Does it work with Linear, or anything other than GitHub Issues?**
-Yes. The tracker is config, not a hard-coded assumption. People run it against Linear (through the `linear` CLI), GitLab, and plain markdown files under `.scratch/`. A common split is Linear for issues and planning, and GitHub for code and PRs. Skills that say "issue tracker" then map to Linear, and skills that say "PR" map to GitHub. The local-markdown tracker has an open template bug: the generated file can contain the acceptance criteria twice, once at the top level and once inside the agent brief ([#200](https://github.com/mattpocock/skills/issues/200)).
+Yes. The tracker is config, not a hard-coded assumption. People run it against Linear (through the `linear` CLI), GitLab, and plain markdown files under `.scratch/`. A common split is Linear for issues and planning, and GitHub for code and PRs. Skills that say "issue tracker" then map to Linear, and skills that say "PR" map to GitHub. The local-markdown tracker has an open template bug: the generated file can contain the acceptance criteria twice, once at the top level and once inside the agent brief ([#200](https://github.com/zxsong111/skills/issues/200)).
 
 ## It's working if
 
@@ -106,4 +106,4 @@ Yes. The tracker is config, not a hard-coded assumption. People run it against L
 
 ## Where it fits
 
-`triage` is an **on-ramp**, not a step in the main chain. The main flow starts from an idea you had (grill, spec, tickets, implement, review). `triage` is the parallel lane for work that came from someone else. Both lanes end at the same place: an issue labelled `ready-for-agent` with a brief on it. [implement](https://aihero.dev/skills-implement) picks that up the same way it picks up a ticket from [to-tickets](https://aihero.dev/skills-to-tickets). When a request needs more detail before `triage` can brief it, `triage` runs [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) together, one round of questions at a time, so it records decisions in `GLOSSARY.md` and the ADRs as you make them. When you're not sure which lane you are in, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+`triage` is an **on-ramp**, not a step in the main chain. The main flow starts from an idea you had (grill, spec, tickets, implement, review). `triage` is the parallel lane for work that came from someone else. Both lanes end at the same place: an issue labelled `ready-for-agent` with a brief on it. [implement](https://aihero.dev/skills-implement) picks that up the same way it picks up a ticket from [to-tickets](https://aihero.dev/skills-to-tickets). When a request needs more detail before `triage` can brief it, `triage` runs [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) together, one round of questions at a time, so it records decisions in `GLOSSARY.md` and the ADRs as you make them. When you're not sure which lane you are in, [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) routes you.

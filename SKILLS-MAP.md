@@ -1,7 +1,7 @@
 # Skills Map
 
-> A map of the 38 skills in the mattpocock/skills repo: what they are, how they connect, and where changes are cheapest.
-> It pairs with the repo's own text router, [`ask-matt`](skills/engineering/ask-matt/SKILL.md).
+> A map of the 38 skills in the zxsong111/skills repo: what they are, how they connect, and where changes are cheapest.
+> It pairs with the repo's own text router, [`ask-zxs`](skills/engineering/ask-zxs/SKILL.md).
 > Legend: **user** = user-invoked (only fires when you type `/name`; the frontmatter has `disable-model-invocation: true`); **model** = model-invoked (the model calls it based on its description, and you can also call it by hand).
 
 ---
@@ -15,7 +15,7 @@ flowchart LR
   classDef q fill:#fff,stroke:#2f4f85,color:#1e222a
 
   subgraph pre["Prerequisite: once per repo, writes docs/agents/*.md"]
-    setup["/setup-matt-pocock-skills"]:::user
+    setup["/setup-zxs-skills"]:::user
   end
 
   subgraph ramps["Entry ramps: work originates here, then joins the trunk"]
@@ -79,7 +79,7 @@ flowchart LR
 
 ### Phase boundaries: when one phase ends, how to move to the next
 
-From [`PHASE-BOUNDARIES.md`](skills/engineering/ask-matt/PHASE-BOUNDARIES.md). Ask in order; the first "yes" is the answer. Continue costs nothing, so it is ruled out first; `/compact` is where you land most often, but it is asked last.
+From [`PHASE-BOUNDARIES.md`](skills/engineering/ask-zxs/PHASE-BOUNDARIES.md). Ask in order; the first "yes" is the answer. Continue costs nothing, so it is ruled out first; `/compact` is where you land most often, but it is asked last.
 
 ```mermaid
 flowchart TD
@@ -103,7 +103,7 @@ flowchart TD
 
 | skill | invoked by | In one line | Calls → | Bundled files / reads and writes |
 | --- | --- | --- | --- | --- |
-| [`ask-matt`](skills/engineering/ask-matt/SKILL.md) | user | Router: ask it which skill or flow to use. Navigates only, does no work | | `PHASE-BOUNDARIES.md` |
+| [`ask-zxs`](skills/engineering/ask-zxs/SKILL.md) | user | Router: ask it which skill or flow to use. Navigates only, does no work | | `PHASE-BOUNDARIES.md` |
 | [`code-review`](skills/engineering/code-review/SKILL.md) | model | Reviews the diff from a fixed point on two parallel axes: Standards (coding standards + Fowler code smells) and Spec (does it faithfully implement the issue) | | Reads `CODING_STANDARDS.md` and the spec in the tracker. Needs setup |
 | [`codebase-design`](skills/engineering/codebase-design/SKILL.md) | model | Deep module vocabulary and design-it-twice. Pure reference | | `DEEPENING.md`, `DESIGN-IT-TWICE.md` |
 | [`diagnosing-bugs`](skills/engineering/diagnosing-bugs/SKILL.md) | model | Diagnosis loop for hard bugs: first build a feedback loop that goes red, then minimize → hypothesize → instrument → fix → regression test | | `scripts/` |
@@ -116,7 +116,7 @@ flowchart TD
 | [`prototype`](skills/engineering/prototype/SKILL.md) | model | Throwaway code that answers one design question: single-file HTML for logic, multiple variants for UI. Saved to a `prototype/<name>` branch | | `LOGIC.md`, `UI.md` |
 | [`research`](skills/engineering/research/SKILL.md) | model | A background agent researches against primary sources and writes a markdown file with citations into the repo | | Only 12 lines |
 | [`retro`](skills/engineering/retro/SKILL.md) | user | Reviews the session and suggests improvements to the agent's "environment": navigation pointers, automated checks, coding standards, slimming steering files, tool economy | writing-for-agents | Suggests edits to `CLAUDE.md`, `CODING_STANDARDS.md`, lint |
-| [`setup-matt-pocock-skills`](skills/engineering/setup-matt-pocock-skills/SKILL.md) | user | Once per repo: choose a tracker, set triage labels, set the domain docs layout | | Writes `docs/agents/issue-tracker.md`, `triage-labels.md`, `domain.md`; edits `CLAUDE.md` |
+| [`setup-zxs-skills`](skills/engineering/setup-zxs-skills/SKILL.md) | user | Once per repo: choose a tracker, set triage labels, set the domain docs layout | | Writes `docs/agents/issue-tracker.md`, `triage-labels.md`, `domain.md`; edits `CLAUDE.md` |
 | [`tdd`](skills/engineering/tdd/SKILL.md) | model | Red-green loop rules: test only on a seam confirmed in advance, one vertical slice at a time, leave refactoring to review | codebase-design | `tests.md`, `mocking.md` |
 | [`to-spec`](skills/engineering/to-spec/SKILL.md) | user | Asks no more questions, synthesizes the conversation into a spec and publishes it to the tracker | | Needs setup |
 | [`to-tickets`](skills/engineering/to-tickets/SKILL.md) | user | Splits a spec into tracer-bullet tickets, each declaring its blocking edges | | Needs setup; locally writes `.scratch/<feature>/issues/` |
@@ -169,7 +169,7 @@ flowchart TD
 | [`humanizer`](skills/productivity/humanizer/SKILL.md) | productivity | model | Removes the AI tone when the model writes prose (PR descriptions, README, docs) | |
 | [`i-have-adhd`](skills/productivity/i-have-adhd/SKILL.md) | productivity | model | Replies lead with the action, steps are numbered, no preamble and no pleasantries | |
 
-Position in the workflow map: `commit-push-pr` and `receiving-code-review` follow code-review; `improve-claude-md` is a prerequisite alongside setup-matt-pocock-skills; the rest are standalone tools.
+Position in the workflow map: `commit-push-pr` and `receiving-code-review` follow code-review; `improve-claude-md` is a prerequisite alongside setup-zxs-skills; the rest are standalone tools.
 
 ### deprecated (0)
 
@@ -179,7 +179,7 @@ A retired skill is deleted outright, and the changeset names its replacement; it
 
 ## 3. Call graph
 
-Solid lines come from operative instructions in SKILL.md, `Call the Skill tool with "x"`. Dashed lines mean the skill reads the `docs/agents/*.md` written by `/setup-matt-pocock-skills`; setup is user-invoked, so nothing can call it, and a skill can only prompt you to run it.
+Solid lines come from operative instructions in SKILL.md, `Call the Skill tool with "x"`. Dashed lines mean the skill reads the `docs/agents/*.md` written by `/setup-zxs-skills`; setup is user-invoked, so nothing can call it, and a skill can only prompt you to run it.
 
 ```mermaid
 flowchart LR
@@ -211,7 +211,7 @@ flowchart LR
   end
   subgraph refs["Reference / config"]
     cd["codebase-design"]:::model
-    docs["docs/agents/*.md<br/>written by /setup-matt-pocock-skills"]:::cfg
+    docs["docs/agents/*.md<br/>written by /setup-zxs-skills"]:::cfg
   end
 
   gm --> g
@@ -248,7 +248,7 @@ Ordered from lowest to highest cost of change. The first two tiers do not requir
 
 ### Tier 1: change config, do not touch any skill
 
-Run `/setup-matt-pocock-skills` once. It writes three config files, and every flow skill reads from them:
+Run `/setup-zxs-skills` once. It writes three config files, and every flow skill reads from them:
 
 | File | Who reads it | What you can change |
 | --- | --- | --- |
@@ -277,7 +277,7 @@ The three files most worth changing first: `implement/SKILL.md` (17 lines, your 
 
 ### Tier 4: change the flow itself
 
-The flow is written in `ask-matt/SKILL.md` (trunk, entry ramps, standalone tools) and `ask-matt/PHASE-BOUNDARIES.md` (the phase-boundary decision tree). ask-matt is user-invoked, so only you read it, and changing it has no side effects. Repo convention: any add, remove, or rename of a user-reachable skill must come back and sync this router.
+The flow is written in `ask-zxs/SKILL.md` (trunk, entry ramps, standalone tools) and `ask-zxs/PHASE-BOUNDARIES.md` (the phase-boundary decision tree). ask-zxs is user-invoked, so only you read it, and changing it has no side effects. Repo convention: any add, remove, or rename of a user-reachable skill must come back and sync this router.
 
 ### Tier 5: add / remove / move a skill
 
@@ -285,7 +285,7 @@ The sync checklist set by the repo's [`CLAUDE.md`](CLAUDE.md):
 
 | Placed in | Must sync | Must not appear in |
 | --- | --- | --- |
-| `engineering/` or `productivity/` (in plugin) | Top-level README entry (linking to SKILL.md), bucket README, the skills array in `.claude-plugin/plugin.json`, the `docs/<bucket>/<name>.md` docs page (four sections: What it does / When to reach for it / Common questions / It's working if), the ask-matt router | |
+| `engineering/` or `productivity/` (in plugin) | Top-level README entry (linking to SKILL.md), bucket README, the skills array in `.claude-plugin/plugin.json`, the `docs/<bucket>/<name>.md` docs page (four sections: What it does / When to reach for it / Common questions / It's working if), the ask-zxs router | |
 | `in-progress/` | bucket README | Top-level README, plugin.json, docs/ |
 | `misc/` | bucket README | Same as above |
 | `deprecated/` | Delete the files, changeset names the replacement; the original docs page stays and is marked archived | Same as above |
@@ -300,7 +300,7 @@ The sync checklist set by the repo's [`CLAUDE.md`](CLAUDE.md):
 1. **Run it as-is for two weeks**: do only the Tier 1 config. Note the problems code-review raises and retro's suggestions; that is your first draft of `CODING_STANDARDS.md`.
 2. **After forking, put personal skills in `in-progress/`**: public, symlinkable, and no docs or plugin.json to maintain. Promote to engineering once stable.
 3. **Turn implement into your own loop**: for example add "run lint", "update CHANGELOG", "local e2e". It is user-invoked, so changing it does not affect the model's automatic behavior.
-4. **Write your own ask-matt**: delete the entries you do not use (say, if you do not use wayfinder), add your own skills (deploy, release, migration), so the router describes only the flow you really follow.
+4. **Write your own ask-zxs**: delete the entries you do not use (say, if you do not use wayfinder), add your own skills (deploy, release, migration), so the router describes only the flow you really follow.
 5. **Keep the two invariants**: user-invoked skills are not called by other skills; the trunk from interview to to-tickets stays in one context window. Everything else is up to you.
 
 ### What the flow leaves in the repo

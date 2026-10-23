@@ -42,4 +42,4 @@ Yes. Its third step looks in `$TMPDIR` (or `/tmp` when that is unset) for markdo
 
 ## Where it fits
 
-`resume-handoff` is a **reach-for-it-anytime standalone** that works at a phase boundary: `/handoff` writes, `/resume-handoff` reads. Its only neighbour is [handoff](https://aihero.dev/skills-handoff), because that writes the document this skill reads. For choosing among the five options at a phase boundary, see [ask-matt](https://aihero.dev/skills-ask-matt).
+`resume-handoff` is a **reach-for-it-anytime standalone** that works at a phase boundary: `/handoff` writes, `/resume-handoff` reads. Its only neighbour is [handoff](https://aihero.dev/skills-handoff), because that writes the document this skill reads. For choosing among the five options at a phase boundary, see [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md).
