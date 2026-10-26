@@ -41,6 +41,8 @@ Step 1 depends on the tracker doc, which [setup-zxs-skills](https://github.com/z
 | Reports | Documented breaches (can be hard), and smells (always judgement calls) | Missing or partial requirements, scope creep, requirements implemented wrongly |
 | Every finding cites | The standards file and the rule, or the named smell plus the hunk | The line of the spec |
 
+Both axes report under the same discipline. Every finding is tagged `Important` or `Nit`, and `Important` is reserved for something that would break behaviour, leak data, or breach a documented standard or the spec; style and naming are nits no matter how strongly the reviewer feels. A review shows at most five nits and summarises the rest as a count, so the report stays readable on a large diff. If `CODING_STANDARDS.md` has a `## Do not report` section (generated files, vendored code, what CI already checks), both axes skip what it names.
+
 This design exists to avoid a generic review skill that does not know your standards. Such a skill flags what is deliberate in your codebase and misses the invariants your codebase depends on. So the repo's own documentation is the [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source) on the Standards axis, and **the repo always overrides**.
 
 The **smell baseline** sits under the repo's standards. It is twelve code smells from chapter 3 of Fowler's _Refactoring_: Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man, Refused Bequest. Each is a labelled heuristic ("possible Feature Envy"), never a hard violation. Each states what the smell is and how to fix it, so a finding comes with a fix attached rather than only a complaint. Both axes skip anything your linter already enforces.
@@ -58,7 +60,7 @@ One answer is to remove Claude Code's built-in skills entirely. That saves a lot
 
 **Its sub-agents keep invoking `/code-review` again and spawn more agents.**
 
-This is a known open bug. Several people have reproduced it, in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can find the skill again and fan out again. One report reached more than 50 agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents: perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+This was a known bug in the upstream skill. Several people reproduced it, in more than one harness: the Standards and Spec prompts did not forbid delegation, so a sub-agent could find the skill again and fan out again, and one report reached more than 50 agents. This fork ships the fix people had applied by hand: both sub-agent briefs now end with "Do not invoke `/code-review` or spawn further agents: perform this review directly." If you run it unattended, it is still worth watching the agent count the first time.
 
 **Should I run it in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) that wrote the code?**
 
@@ -85,7 +87,8 @@ No. It diffs `<fixed-point>...HEAD`. The three-dot form measures from the merge-
 - It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
 - The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
 - Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
-- The closing summary gives a worst issue per axis and declines to pick an overall winner.
+- Every finding carries `Important` or `Nit`, a smell on its own is never `Important`, and no more than five nits appear in full.
+- The closing summary gives counts and the worst `Important` issue per axis and declines to pick an overall winner.
 - With no spec available, the Spec block says so instead of listing requirements it inferred from the code.
 
 ## Where it fits

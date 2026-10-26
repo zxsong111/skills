@@ -35,6 +35,8 @@ Look for the originating spec, in this order:
 
 Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
 
+If `CODING_STANDARDS.md` has a `## Do not report` section, read it: it lists paths and classes of finding the repo has decided not to hear about (generated files, vendored code, anything CI already enforces). Both sub-agents get that list and skip what it names.
+
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
@@ -59,11 +61,18 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
 
+Both briefs carry the same **report discipline**, pasted in full:
+
+- Tag every finding `Important` or `Nit`. `Important` is reserved for a finding that would break behaviour, leak data, or breach a documented standard or the spec. Style, naming and layout are nits, however strongly felt.
+- Report at most five nits. Summarise the rest as a count ("and 7 further nits, mostly naming").
+- Skip anything in the repo's `## Do not report` list and anything tooling already enforces.
+- Do not invoke `/code-review` or spawn further agents: perform this review directly.
+
 **Standards sub-agent prompt** should include:
 
 - The full diff command and commit list.
 - The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).
-- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. A baseline smell is never `Important` on its own. Under 400 words."
 
 **Spec sub-agent prompt** should include:
 
@@ -77,7 +86,7 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
 
-End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
+End with a one-line summary per axis: how many `Important` findings, how many nits (shown plus summarised), and the worst `Important` issue _within that axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
 
 ## Why two axes
 

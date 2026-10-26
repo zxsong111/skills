@@ -141,8 +141,22 @@ General workflow tools, not code-specific.
 - **[humanizer](./skills/productivity/humanizer/SKILL.md)**: Strip the AI tone from prose written for people (PR descriptions, READMEs, docs, reports) automatically: rewrites against 26 patterns without changing the meaning or inventing facts, and touches prose only, never code.
 - **[i-have-adhd](./skills/productivity/i-have-adhd/SKILL.md)**: Shape every reply automatically: the first line is the next action, multi-step work is numbered, state is restated each turn, and there are no openers or sign-offs. Say "stop adhd mode" to turn it off for the session.
 
+## Guard hooks and agents
+
+The plugin also ships two deterministic guards and one agent, the layer the skills alone cannot provide (see [ADR 0003](./.agents/adr/0003-ship-guard-hooks-agents-and-evals-in-the-plugin.md)).
+
+The guards are **opt-in per repository**: they stay silent until the repo contains a marker file, `.claude/guards` (an empty file; commit it with `git add -f` if the repo ignores `.claude/`). With the marker present, both run before any `git commit`:
+
+- **trunk-guard** denies a commit on the repo's trunk (`origin/HEAD`, else `main` or `master`) and names the branch to open instead. It is the deterministic twin of `commit-push-pr`'s branch guard.
+- **secret-scan** denies a commit whose staged lines look like credentials (cloud keys, API tokens, private keys, quoted passwords) and lists `file:line`. Append a comment containing `secret-scan:allow` to a false positive.
+
+Delete the marker to switch both off for that repo.
+
+- **[verify-app](./agents/verify-app.md)** (`zxs-skills:verify-app`) is a reporting-only subagent with `Bash` and `Read`: it runs the build, tests and the changed flow in a fresh context and returns a READY / NOT READY verdict with the command output, without touching a file.
+
 ## Maintainer notes
 
 - Skill wiring is enforced by `npm run check-skills`, also run in CI on every push to `main`.
+- `hooks/` and `agents/` are plugin components, not skills: they take no README entry under the skill rules and no docs page, and `claude plugin validate . --strict` must stay green after touching them.
 - Changelog entries come from changesets (`npm run changeset`); the release workflow opens a "chore: version skills" PR on this repo when one merges to `main`.
 - The local daily driver loads this checkout as a directory marketplace, so it refreshes when `plugin.json`'s `version` changes.
