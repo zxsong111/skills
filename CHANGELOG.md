@@ -1,5 +1,23 @@
 # mattpocock-skills
 
+## 1.5.0
+
+### Minor Changes
+
+- [`2d16991`](https://github.com/zxsong111/skills/commit/2d1699180d01dbde9d67a2029ef0e8fd565bd025) Thanks [@zxsong111](https://github.com/zxsong111)! - Add **`drift-check`** (Engineering, user-invoked): checks the repo's narrative docs (ADRs, `GLOSSARY.md`, the top-level `README.md`, the pages under `docs/`) against the code they describe, one `goldfish-code-fit` reviewer per document in a fresh context, and reports the disagreements in the conversation, each `Important` finding tagged fix the doc, fix the code, or your call. It leaves `CLAUDE.md` and `AGENTS.md` to `improve-claude-md`, writes no report file, asks before spawning more than ten reviewers, and hands "fix the code" findings to the main flow the way `improve-codebase-architecture` does (ADR 0004). Its first live run, on this repo's own `GLOSSARY.md`, caught a triage role example (`ready-for-afk`) that never existed; the canonical role is `ready-for-agent`, and the glossary now says so.
+
+- [`4836b50`](https://github.com/zxsong111/skills/commit/4836b5004c35fc0c8bda878350d53e926d969471) Thanks [@zxsong111](https://github.com/zxsong111)! - Add **`goldfish-review`** (Engineering, model-invoked) and the three agents behind it, after Google's Elephant-Goldfish Model (ADR 0004):
+
+  - `goldfish-review` reviews a spec, design doc, ADR, RFC or plan with three subagents (`zxs-skills:goldfish-zoom-out`, `goldfish-reader`, `goldfish-code-fit`) that see the document, the files it names and the repository source, and nothing of the conversation that produced it. Each agent is read-only (`Read`, `Grep`, `Glob`) and loads no `CLAUDE.md`. The three reports are shown side by side under `## Zoom-out`, `## Reader` and `## Code-fit` with the `Important` / `Nit` discipline `code-review` uses, one round per run, and the skill refuses to run inline when the harness cannot spawn subagents.
+  - `ask-zxs` now tells the main flow as two review gates: the spec passes `goldfish-review` before `to-tickets`, the code passes `code-review` before the PR, and both sets of findings go through `receiving-code-review`.
+  - `receiving-code-review` now covers findings on documents as well as code, with two goldfish rules: a Reader gap is never contested, and evidence the reviewers could not read goes to the user before it goes into the document.
+  - `GLOSSARY.md` defines **Goldfish reviewer** and **Finding**; `SKILLS-MAP.md` gains a plugin components section listing the hooks and agents.
+  - Evals: `trigger-goldfish-review` and `behaviour-goldfish-review` (three agents spawned, three lens headings, the planted undefined term and the planted contradiction both caught).
+
+### Patch Changes
+
+- [`3da59a5`](https://github.com/zxsong111/skills/commit/3da59a5841d2dd687108f347741fdaba58a537a6) Thanks [@zxsong111](https://github.com/zxsong111)! - Point every skill at `/setup-zxs-skills` instead of the pre-fork `/setup-matt-pocock-skills`, which no longer exists: `code-review`, `implement-spec`, `improve-claude-md`, `to-spec`, `to-tickets`, `triage` and `wayfinder` told the user to run a command that resolved to nothing. `setup-zxs-skills` itself now carries that name in its frontmatter and Codex metadata, and `GLOSSARY.md` names the fork. ADR 0001 keeps the old name as history.
+
 ## 1.4.0
 
 ### Minor Changes
