@@ -1,6 +1,6 @@
 # Skills Map
 
-> A map of the 39 skills in the zxsong111/skills repo: what they are, how they connect, and where changes are cheapest.
+> A map of the 40 skills in the zxsong111/skills repo: what they are, how they connect, and where changes are cheapest.
 > It pairs with the repo's own text router, [`ask-zxs`](skills/engineering/ask-zxs/SKILL.md).
 > Legend: **user** = user-invoked (only fires when you type `/name`; the frontmatter has `disable-model-invocation: true`); **model** = model-invoked (the model calls it based on its description, and you can also call it by hand).
 
@@ -20,6 +20,7 @@ flowchart LR
 
   subgraph ramps["Entry ramps: work originates here, then joins the trunk"]
     improve["/improve-codebase-architecture"]:::user
+    drift["/drift-check"]:::user
     way["/wayfinder"]:::user
     triage["/triage"]:::user
     diag["diagnosing-bugs"]:::model
@@ -53,6 +54,7 @@ flowchart LR
 
   setup --> grill
   improve -- "a chosen deepening opportunity = a new idea" --> grill
+  drift -- "a 'fix the code' finding = a new idea" --> grill
   way -- "once the fog clears, hand to to-spec, not straight to implement" --> spec
   triage -- "agent-ready issue" --> impl
   diag -- "retro in the same session after the fix" --> retro
@@ -98,9 +100,9 @@ flowchart TD
 
 ## 2. Skill catalog
 
-39 in total. Only engineering and productivity (28) ship in the plugin; in-progress is public but not in the plugin; misc is occasionally used; deprecated is currently empty.
+40 in total. Only engineering and productivity (29) ship in the plugin; in-progress is public but not in the plugin; misc is occasionally used; deprecated is currently empty.
 
-### engineering (21, in plugin)
+### engineering (22, in plugin)
 
 | skill | invoked by | In one line | Calls → | Bundled files / reads and writes |
 | --- | --- | --- | --- | --- |
@@ -109,6 +111,7 @@ flowchart TD
 | [`codebase-design`](skills/engineering/codebase-design/SKILL.md) | model | Deep module vocabulary and design-it-twice. Pure reference | | `DEEPENING.md`, `DESIGN-IT-TWICE.md` |
 | [`diagnosing-bugs`](skills/engineering/diagnosing-bugs/SKILL.md) | model | Diagnosis loop for hard bugs: first build a feedback loop that goes red, then minimize → hypothesize → instrument → fix → regression test | | `scripts/` |
 | [`domain-modeling`](skills/engineering/domain-modeling/SKILL.md) | model | Challenges fuzzy terms, splits words with multiple meanings, stress-tests with scenarios, updates GLOSSARY.md and ADRs in place | | `ADR-FORMAT.md`, `GLOSSARY-FORMAT.md`; writes `GLOSSARY.md`, `docs/adr/` |
+| [`drift-check`](skills/engineering/drift-check/SKILL.md) | user | Reads ADRs, GLOSSARY.md, the top-level README and docs pages against the code, one goldfish-code-fit reviewer per document; tags findings fix the doc / fix the code / your call. Leaves CLAUDE.md to improve-claude-md | domain-modeling | Spawns `agents/goldfish-code-fit.md`; writes nothing unless a doc fix is agreed |
 | [`goldfish-review`](skills/engineering/goldfish-review/SKILL.md) | model | Reviews a spec, design doc, ADR or plan with three read-only goldfish agents that see the document and the code but none of the conversation: Zoom-out, Reader, Code-fit. Gate 1 of two; hands findings to receiving-code-review | receiving-code-review | Spawns `agents/goldfish-*.md`; reads `GLOSSARY.md` and ADRs when present |
 | [`grill-with-docs`](skills/engineering/grill-with-docs/SKILL.md) | user | In-repo interview = grilling + domain-modeling, capturing terms and decisions as you go. Start of the trunk | grilling, domain-modeling | Only 7 lines |
 | [`implement`](skills/engineering/implement/SKILL.md) | user | Picks up a ticket, runs tdd on the agreed seam, runs typecheck often, finishes with code-review, commits | tdd, code-review | Only 17 lines, the best place for personalization |
@@ -208,6 +211,7 @@ flowchart LR
     tri["triage"]:::user
     way["wayfinder"]:::user
     imp["improve-codebase-architecture"]:::user
+    dc["drift-check"]:::user
     tsd["setup-ts-deep-modules"]:::user
     spec["to-spec"]:::user
     tk["to-tickets"]:::user
@@ -236,6 +240,7 @@ flowchart LR
   tri --> g & dm
   way --> g & dm & rs & pt
   imp --> cd & g & dm
+  dc --> dm
   tsd --> cd
   impl --> tdd & cr
   is --> tdd & cr
@@ -283,6 +288,7 @@ Run `/setup-zxs-skills` once. It writes three config files, and every flow skill
 - **Fixing a bug**: `/diagnosing-bugs` → `/retro` in the same session.
 - **External issue**: `/triage` produces an agent-ready brief, then `/implement`. Do not triage tickets you made yourself with to-tickets.
 - **After every build**: `/retro`. It changes the environment (lint, standards, navigation pointers), so the next run hits fewer of the same pitfalls.
+- **After a refactor that touched a documented area**: `/drift-check`. Docs that fell behind get fixed; a decision the code abandoned becomes an idea for the trunk.
 
 ### Tier 3: change one skill's behavior
 

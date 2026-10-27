@@ -1,0 +1,5 @@
+interface:
+  display_name: "Drift Check"
+  short_description: "Find where ADRs, the glossary, README and docs no longer match the code"
+policy:
+  allow_implicit_invocation: false

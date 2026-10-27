@@ -63,6 +63,10 @@ Not feature work, just upkeep.
 
 - **`/improve-codebase-architecture`** runs whenever you have a spare moment to keep the codebase good for agents to operate in. It surfaces **deepening opportunities**; picking one _generates an idea_ you can take into the main flow at `/grill-with-docs`. It's the survey that finds the candidates; **`/codebase-design`** (below) is the bench you design the chosen one on.
 
+- **`/drift-check`** is the same kind of survey over the **documents**: it reads the ADRs, `GLOSSARY.md`, the top-level `README.md` and the docs pages against the code, one goldfish reviewer per document, and reports where they disagree. Each finding is tagged **fix the doc** (edited now, glossary and ADR changes through `/domain-modeling`), **fix the code** (an idea for the main flow, like a deepening opportunity: `/grill-with-docs` if large, `/implement` if small) or **your call**. Run it after a refactor or a build that touched a documented area, not on a timer; findings stay in the conversation.
+
+  The split with **`/improve-claude-md`**: that skill audits the **memory files** (`CLAUDE.md`, `AGENTS.md`, `.claude/rules/`) for stale commands and paths and never touches the narrative docs; `/drift-check` audits the narrative docs and never touches the memory files. One file, one auditor. Anything a script could check (an index entry, a manifest) belongs in neither; `/retro` is where a recurring drift becomes such a script.
+
 ## Vocabulary underneath
 
 Two model-invoked references that run *beneath* the other skills, each the single source of truth for its vocabulary. Reach for them directly when the **words**, not the process, are the problem; or let the skills above pull them in.

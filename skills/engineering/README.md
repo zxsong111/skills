@@ -17,6 +17,7 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[implement-spec](./implement-spec/SKILL.md)**: Implement a whole spec on one integration branch. Works the tickets as a task graph, running implementer subagents across the ready frontier for maximum concurrency, then closes out with `/code-review`.
 - **[wayfinder](./wayfinder/SKILL.md)**: Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear.
 - **[retro](./retro/SKILL.md)**: Suggest improvements to the coding agent's environment (navigation, automated checks, coding standards, steering files, tooling) after a session, most severe first.
+- **[drift-check](./drift-check/SKILL.md)**: Check the repo's narrative docs (ADRs, `GLOSSARY.md`, the top-level README, docs pages) against the code they describe, one goldfish reviewer per document, and tag each finding fix the doc / fix the code / your call. `CLAUDE.md` and `AGENTS.md` stay with `improve-claude-md`.
 
 ## Model-invoked
 
