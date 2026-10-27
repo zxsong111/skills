@@ -27,7 +27,7 @@ allowed-tools: Bash(git:*), Bash(ls:*), Bash(find:*), Bash(python3 -m json.tool:
 - Stack and package manager: !`ls -1 package.json pnpm-lock.yaml package-lock.json yarn.lock pyproject.toml uv.lock go.mod Cargo.toml pom.xml build.gradle Makefile 2>/dev/null || echo "(none)"`
 - Existing automated-check config: !`ls -1 .eslintrc* eslint.config.* .prettierrc* biome.json ruff.toml .editorconfig tsconfig.json mypy.ini pyrightconfig.json 2>/dev/null || echo "(none)"`
 - CI and collaboration: !`ls -1 .github/workflows .gitlab-ci.yml .github/CODEOWNERS .github/pull_request_template.md 2>/dev/null || echo "(none)"`
-- Domain docs and tracker config: !`ls -1 GLOSSARY.md docs/adr docs/agents 2>/dev/null || echo "(none; consider running /setup-matt-pocock-skills first)"`
+- Domain docs and tracker config: !`ls -1 GLOSSARY.md docs/adr docs/agents 2>/dev/null || echo "(none; consider running /setup-zxs-skills first)"`
 
 ### Focus
 
@@ -47,7 +47,7 @@ and **generates** the development standards the project will actually use, placi
 
 | | Owns |
 |---|---|
-| `setup-matt-pocock-skills` (run manually by the user) | Issue tracker, triage labels, and domain docs layout, written to `docs/agents/*.md`. This skill does not touch those files |
+| `setup-zxs-skills` (run manually by the user) | Issue tracker, triage labels, and domain docs layout, written to `docs/agents/*.md`. This skill does not touch those files |
 | `domain-modeling` | Domain language: `GLOSSARY.md` and ADRs. This skill writes no terms; it only leaves navigation pointers to them in CLAUDE.md |
 | `retro` | Suggests environment improvements after a retrospective on **one session**. This skill audits the memory files of the **whole repo**. Both land their output in the same set of files |
 | `code-review` | Reads `CODING_STANDARDS.md` for the Standards axis. The judgement-call standards this skill generates go there so it can review against them |
@@ -204,7 +204,7 @@ Once you confirm, I'll write everything in table C. Say now if you want any row 
   `gh pr merge`); `deny` gets only entries the user approved. Validate with `python3 -m json.tool` after writing
 - Don't write machine-specific tools or paths: this config has to work on a fresh machine
 - **Actually run** every command in the gate table first. Leave out any that fail, and say so in the report
-- Don't touch a single word of `docs/agents/*.md`, `GLOSSARY.md`, or `docs/adr/`. They belong to `setup-matt-pocock-skills` and `domain-modeling`
+- Don't touch a single word of `docs/agents/*.md`, `GLOSSARY.md`, or `docs/adr/`. They belong to `setup-zxs-skills` and `domain-modeling`
 - Write only what was finally decided, not the discussion or the rejected options
 
 ## Wrap-up
