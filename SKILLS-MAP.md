@@ -1,6 +1,6 @@
 # Skills Map
 
-> A map of the 38 skills in the zxsong111/skills repo: what they are, how they connect, and where changes are cheapest.
+> A map of the 39 skills in the zxsong111/skills repo: what they are, how they connect, and where changes are cheapest.
 > It pairs with the repo's own text router, [`ask-zxs`](skills/engineering/ask-zxs/SKILL.md).
 > Legend: **user** = user-invoked (only fires when you type `/name`; the frontmatter has `disable-model-invocation: true`); **model** = model-invoked (the model calls it based on its description, and you can also call it by hand).
 
@@ -29,18 +29,19 @@ flowchart LR
     grill["/grill-with-docs"]:::user
     q1{"Multi-session build?"}:::q
     spec["/to-spec"]:::user
+    goldfish["goldfish-review<br/>gate 1: the spec"]:::model
     tickets["/to-tickets"]:::user
     impl["/implement"]:::user
     implspec["/implement-spec"]:::user
     tdd["tdd"]:::model
-    review["code-review"]:::model
+    review["code-review<br/>gate 2: the diff"]:::model
     pr["pr"]:::model
     retro["/retro"]:::user
     handoff["/handoff"]:::user
     proto["prototype"]:::model
 
     grill --> q1
-    q1 -- Yes --> spec --> tickets
+    q1 -- Yes --> spec --> goldfish --> tickets
     tickets -- "one ticket at a time, /clear in between" --> impl
     tickets -- "whole spec in one run" --> implspec
     q1 -- "No: implement directly in the same window" --> impl
@@ -97,9 +98,9 @@ flowchart TD
 
 ## 2. Skill catalog
 
-38 in total. Only engineering and productivity (27) ship in the plugin; in-progress is public but not in the plugin; misc is occasionally used; deprecated is currently empty.
+39 in total. Only engineering and productivity (28) ship in the plugin; in-progress is public but not in the plugin; misc is occasionally used; deprecated is currently empty.
 
-### engineering (20, in plugin)
+### engineering (21, in plugin)
 
 | skill | invoked by | In one line | Calls → | Bundled files / reads and writes |
 | --- | --- | --- | --- | --- |
@@ -108,6 +109,7 @@ flowchart TD
 | [`codebase-design`](skills/engineering/codebase-design/SKILL.md) | model | Deep module vocabulary and design-it-twice. Pure reference | | `DEEPENING.md`, `DESIGN-IT-TWICE.md` |
 | [`diagnosing-bugs`](skills/engineering/diagnosing-bugs/SKILL.md) | model | Diagnosis loop for hard bugs: first build a feedback loop that goes red, then minimize → hypothesize → instrument → fix → regression test | | `scripts/` |
 | [`domain-modeling`](skills/engineering/domain-modeling/SKILL.md) | model | Challenges fuzzy terms, splits words with multiple meanings, stress-tests with scenarios, updates GLOSSARY.md and ADRs in place | | `ADR-FORMAT.md`, `GLOSSARY-FORMAT.md`; writes `GLOSSARY.md`, `docs/adr/` |
+| [`goldfish-review`](skills/engineering/goldfish-review/SKILL.md) | model | Reviews a spec, design doc, ADR or plan with three read-only goldfish agents that see the document and the code but none of the conversation: Zoom-out, Reader, Code-fit. Gate 1 of two; hands findings to receiving-code-review | receiving-code-review | Spawns `agents/goldfish-*.md`; reads `GLOSSARY.md` and ADRs when present |
 | [`grill-with-docs`](skills/engineering/grill-with-docs/SKILL.md) | user | In-repo interview = grilling + domain-modeling, capturing terms and decisions as you go. Start of the trunk | grilling, domain-modeling | Only 7 lines |
 | [`implement`](skills/engineering/implement/SKILL.md) | user | Picks up a ticket, runs tdd on the agreed seam, runs typecheck often, finishes with code-review, commits | tdd, code-review | Only 17 lines, the best place for personalization |
 | [`implement-spec`](skills/engineering/implement-spec/SKILL.md) | user | Treats tickets as a task graph, dispatches implementer subagents in parallel for frontier tickets (each in its own worktree), merges into an integration branch, then runs one code-review | tdd, code-review | Needs setup |
@@ -169,11 +171,24 @@ flowchart TD
 | [`humanizer`](skills/productivity/humanizer/SKILL.md) | productivity | model | Removes the AI tone when the model writes prose (PR descriptions, README, docs) | |
 | [`i-have-adhd`](skills/productivity/i-have-adhd/SKILL.md) | productivity | model | Replies lead with the action, steps are numbered, no preamble and no pleasantries | |
 
-Position in the workflow map: `commit-push-pr` and `receiving-code-review` follow code-review; `improve-claude-md` is a prerequisite alongside setup-zxs-skills; the rest are standalone tools.
+Position in the workflow map: `commit-push-pr` follows code-review; `receiving-code-review` sits behind both review gates (goldfish-review on the spec, code-review on the diff); `improve-claude-md` is a prerequisite alongside setup-zxs-skills; the rest are standalone tools.
 
 ### deprecated (0)
 
 A retired skill is deleted outright, and the changeset names its replacement; its docs page stays and is marked archived.
+
+### Plugin components that are not skills
+
+Shipped beside the skills by the plugin, registered through `hooks/hooks.json` and `agents/`. They get no README skill entry and no docs page ([ADR 0003](.agents/adr/0003-ship-guard-hooks-agents-and-evals-in-the-plugin.md), [ADR 0004](.agents/adr/0004-goldfish-review-and-drift-check.md)).
+
+| Component | Kind | In one line | Used by |
+| --- | --- | --- | --- |
+| [`trunk-guard`](hooks/trunk-guard.sh) | PreToolUse hook | Denies `git commit` on the trunk; silent unless the repo has a `.claude/guards` marker | Deterministic twin of `commit-push-pr`'s branch guard |
+| [`secret-scan`](hooks/secret-scan.sh) | PreToolUse hook | Denies a commit whose staged lines look like credentials; same marker | Every `git commit` in a guarded repo |
+| [`verify-app`](agents/verify-app.md) | agent (`Bash`, `Read`) | Runs build, tests and the changed flow in a fresh context, returns READY / NOT READY, changes nothing | Model-delegated before a task is called done |
+| [`goldfish-zoom-out`](agents/goldfish-zoom-out.md) | agent (`Read`, `Grep`, `Glob`, no `CLAUDE.md`) | Is this the right amount of thing to build? Reuse missed, scope without a goal | goldfish-review |
+| [`goldfish-reader`](agents/goldfish-reader.md) | agent (same) | Can someone build from this document alone? Undefined terms, missing prerequisites | goldfish-review |
+| [`goldfish-code-fit`](agents/goldfish-code-fit.md) | agent (same) | Does the document agree with the code, and is it precise enough to act on? | goldfish-review (plan mode), drift-check (description mode) |
 
 ---
 
@@ -207,6 +222,8 @@ flowchart LR
     pt["prototype"]:::model
     tdd["tdd"]:::model
     cr["code-review"]:::model
+    gr["goldfish-review"]:::model
+    rcr["receiving-code-review"]:::model
     wfa["writing-for-agents"]:::model
   end
   subgraph refs["Reference / config"]
@@ -223,6 +240,7 @@ flowchart LR
   impl --> tdd & cr
   is --> tdd & cr
   tdd --> cd
+  gr --> rcr
   retro --> wfa
   spec -.-> docs
   tk -.-> docs
@@ -261,7 +279,7 @@ Run `/setup-zxs-skills` once. It writes three config files, and every flow skill
 ### Tier 2: trim the trunk into your own flow (no file changes)
 
 - **Small change**: `/grill-with-docs` → `/implement`, two steps. implement already includes tdd and code-review.
-- **Multi-session**: add `/to-spec` → `/to-tickets`, then `/implement` one ticket at a time (with `/clear` in between), or `/implement-spec` to run the whole bundle in parallel.
+- **Multi-session**: add `/to-spec` → `/goldfish-review` → `/to-tickets`, then `/implement` one ticket at a time (with `/clear` in between), or `/implement-spec` to run the whole bundle in parallel. The spec passes the goldfish, the code passes code-review; both sets of findings go through receiving-code-review.
 - **Fixing a bug**: `/diagnosing-bugs` → `/retro` in the same session.
 - **External issue**: `/triage` produces an agent-ready brief, then `/implement`. Do not triage tickets you made yourself with to-tickets.
 - **After every build**: `/retro`. It changes the environment (lint, standards, navigation pointers), so the next run hits fewer of the same pitfalls.

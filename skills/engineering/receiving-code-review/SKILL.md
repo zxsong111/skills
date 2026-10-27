@@ -1,13 +1,13 @@
 ---
 name: receiving-code-review
-description: Use when receiving code review feedback (a code-review report, review comments on a PR, feedback the user passes along), before implementing the suggestions, especially when the feedback is unclear or technically questionable. Calls for technical rigor and verification, not performative agreement or blind implementation.
+description: Use when receiving review feedback on code or on a document (a code-review report, a goldfish-review report on a spec or design doc, review comments on a PR, feedback the user passes along), before implementing the suggestions, especially when the feedback is unclear or technically questionable. Calls for technical rigor and verification, not performative agreement or blind implementation.
 ---
 
 # Receiving Code Review
 
 ## Overview
 
-Code review calls for technical evaluation, not emotional performance.
+Review feedback, whether on a diff or on a spec, calls for technical evaluation, not emotional performance.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
@@ -69,6 +69,15 @@ As you implement each piece of feedback, also judge whether it is a **repeat mis
 - The feedback points to a **judgment** rule (cross-file consistency, style) and keeps coming up → suggest writing it into `CODING_STANDARDS.md`, so `code-review` checks it next time; for **mechanical** ones (fixed syntax, banned APIs), suggest a lint rule instead of prose
 
 When the repo root has a `CODING_STANDARDS.md`, its rules on feeding back are the project's version of this section and take precedence.
+
+## Findings from goldfish reviewers
+
+A `goldfish-review` report comes from reviewers that saw the document, the files it names and the code, and nothing of the conversation that wrote it. Two rules apply on top of everything above:
+
+- **A Reader gap is never contested.** If a reviewer holding the page could not follow a term, a step or a claim, the page is unclear; "everyone on the team knows this" is not a defence. Define the term in the document (or in `GLOSSARY.md`, so every later review sees it), or write the missing step in.
+- **Evidence the reviewer could not read goes to the user first.** When a finding is wrong because of something decided in conversation, in a ticket, or in your head, say so to the user and let them decide whether that decision belongs in the document. If it does, write it in as a decision with its reason, not as a note aimed at the reviewer. If it does not, decline the finding and say why. Never pad the document with context whose only purpose is to make a reviewer stop flagging it.
+
+For every other finding, verify against the code as usual: a `Code-fit` contradiction is checked at the cited `path:line` before the document changes, and a `Zoom-out` "this already exists" is checked by reading what it points at.
 
 ## Treat feedback by source
 

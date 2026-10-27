@@ -1,0 +1,3 @@
+interface:
+  display_name: "Goldfish Review"
+  short_description: "Review a spec or design doc with reviewers that have no memory of writing it"

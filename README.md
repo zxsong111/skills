@@ -114,10 +114,11 @@ Skills for daily code work.
 - **[domain-modeling](./skills/engineering/domain-modeling/SKILL.md)**: Actively build and sharpen a project's domain model: challenge terms against the glossary, stress-test with edge-case scenarios, and update `GLOSSARY.md` and ADRs inline.
 - **[codebase-design](./skills/engineering/codebase-design/SKILL.md)**: Shared discipline and vocabulary for designing deep modules: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface.
 - **[code-review](./skills/engineering/code-review/SKILL.md)**: Two-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?) and **Spec** (does it faithfully implement the originating issue/spec?), run as parallel sub-agents so neither pollutes the other.
+- **[goldfish-review](./skills/engineering/goldfish-review/SKILL.md)**: Review a spec, design doc, ADR or plan with three read-only subagents that see the document and the code but none of the conversation that wrote it: **Zoom-out** (is this the right amount to build?), **Reader** (can someone build from the page alone?) and **Code-fit** (does it agree with the code?). The first of the two review gates; `code-review` is the second.
 - **[pr](./skills/engineering/pr/SKILL.md)**: The shape a pull request body should take: a summary as the smallest visual that makes the change clear, before/after evidence that it works, and a merge-danger call (one-way or two-way door, plus blast radius).
 - **[wizard](./skills/engineering/wizard/SKILL.md)**: Generate an interactive bash wizard that walks a human through steps only they can perform: provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover.
 - **[commit-push-pr](./skills/engineering/commit-push-pr/SKILL.md)**: Commit, push and open a PR to a fixed convention, with a trunk guard (on `main` / `master` it stops and asks instead of committing). The PR body is handed to `pr`. The agent reaches for it when you say "commit" or "push it".
-- **[receiving-code-review](./skills/engineering/receiving-code-review/SKILL.md)**: Take review feedback (a `code-review` report, PR comments) by verifying before implementing, with no performative agreement. A judgement-call rule that keeps coming back is routed into `CODING_STANDARDS.md`.
+- **[receiving-code-review](./skills/engineering/receiving-code-review/SKILL.md)**: Take review feedback (a `code-review` report, a `goldfish-review` report, PR comments) by verifying before implementing, with no performative agreement. A Reader gap is never contested; a judgement-call rule that keeps coming back is routed into `CODING_STANDARDS.md`.
 - **[security-and-hardening](./skills/engineering/security-and-hardening/SKILL.md)**: A security checklist for changes that touch auth, sessions, payments, PII, file uploads, webhooks, untrusted external input or new dependencies: map the trust boundaries first, then harden item by item against OWASP.
 - **[improve-claude-md](./skills/engineering/improve-claude-md/SKILL.md)**: Audit and improve a project's `CLAUDE.md` / `AGENTS.md` / `.claude/rules/` (existing projects included), then generate the coding standards this project actually needs from a 29-item menu, each tagged with the layer it belongs in. Reports first, writes only after approval.
 
@@ -143,7 +144,7 @@ General workflow tools, not code-specific.
 
 ## Guard hooks and agents
 
-The plugin also ships two deterministic guards and one agent, the layer the skills alone cannot provide (see [ADR 0003](./.agents/adr/0003-ship-guard-hooks-agents-and-evals-in-the-plugin.md)).
+The plugin also ships two deterministic guards and four agents, the layer the skills alone cannot provide (see [ADR 0003](./.agents/adr/0003-ship-guard-hooks-agents-and-evals-in-the-plugin.md) and [ADR 0004](./.agents/adr/0004-goldfish-review-and-drift-check.md)).
 
 The guards are **opt-in per repository**: they stay silent until the repo contains a marker file, `.claude/guards` (an empty file; commit it with `git add -f` if the repo ignores `.claude/`). With the marker present, both run before any `git commit`:
 
@@ -153,14 +154,16 @@ The guards are **opt-in per repository**: they stay silent until the repo contai
 Delete the marker to switch both off for that repo.
 
 - **[verify-app](./agents/verify-app.md)** (`zxs-skills:verify-app`) is a reporting-only subagent with `Bash` and `Read`: it runs the build, tests and the changed flow in a fresh context and returns a READY / NOT READY verdict with the command output, without touching a file.
+- **[goldfish-zoom-out](./agents/goldfish-zoom-out.md)**, **[goldfish-reader](./agents/goldfish-reader.md)** and **[goldfish-code-fit](./agents/goldfish-code-fit.md)** are the goldfish reviewers `goldfish-review` spawns: read-only (`Read`, `Grep`, `Glob`), loading no `CLAUDE.md`, each answering one question about a document (is this the right amount to build, can someone build from the page alone, does it agree with the code). `drift-check` reuses `goldfish-code-fit` on documents that describe existing code.
 
 ## Evals
 
-`evals/` is a [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals) suite: the regression tests for the configuration that steers the agent, rerun whenever a skill, hook or agent changes. Six cases so far, all graded deterministically (no judge model, so no judge cost):
+`evals/` is a [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals) suite: the regression tests for the configuration that steers the agent, rerun whenever a skill, hook or agent changes. Eight cases so far, all graded deterministically (no judge model, so no judge cost):
 
-- `trigger-*`: does a prompt phrased the way a user types it load the skill it should? One case each for `humanizer`, `i-have-adhd` (a Chinese prompt, the known weak spot), `security-and-hardening` and `commit-push-pr`.
+- `trigger-*`: does a prompt phrased the way a user types it load the skill it should? One case each for `humanizer`, `i-have-adhd` (a Chinese prompt, the known weak spot), `security-and-hardening`, `commit-push-pr` and `goldfish-review`.
 - `behaviour-tdd`: a test-first request writes the test, runs it red, and only then writes the implementation.
 - `behaviour-code-review`: a review against a fixed point loads the skill, runs both axes in sub-agents, reports `## Standards` and `## Spec` with `Important` tags, catches the planted spec gap and honours `## Do not report`.
+- `behaviour-goldfish-review`: a review of a design doc loads the skill, spawns the three goldfish agents, reports `## Zoom-out`, `## Reader` and `## Code-fit`, and catches both the planted undefined term and the planted contradiction with the code.
 
 Run it locally from the repo root (Bash cases need `bubblewrap` and `socat` on Linux):
 

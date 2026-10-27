@@ -18,11 +18,20 @@ A `wayfinder` unit: a child **Issue** of a `wayfinder:map` holding a *question* 
 **Triage role**:
 A canonical state-machine label applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-afk`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
 
+**Goldfish reviewer**:
+A read-only subagent that reviews a document with none of the conversation that produced it: no drafting context, no `CLAUDE.md`, only the document, the files it names and the repository source. `goldfish-review` spawns three (`goldfish-zoom-out`, `goldfish-reader`, `goldfish-code-fit`); `drift-check` reuses the last one. The session that wrote the document is the **elephant**, by contrast: it remembers everything, including what it never wrote down.
+_Avoid_: fresh reviewer, independent reviewer (both leave open whether the reviewer still loads project context; a goldfish does not)
+
+**Finding**:
+One item a review gate reports, on a diff (`code-review`) or on a document (`goldfish-review`, `drift-check`). Every finding carries one of two severities: **Important** (would break behaviour, leak data, breach a documented standard or the spec, contradict the code, build the wrong thing or block an implementer) or **Nit** (everything else, style and naming included). A review shows at most five nits and counts the rest. Findings are worked through by `receiving-code-review`.
+_Avoid_: Blocker, Major, High, Medium, Low (other severity scales; the repo uses two levels only)
+
 ## Relationships
 
 - An **Issue tracker** holds many **Issues**
 - An **Issue** carries one **Triage role** at a time
 - A **Decision ticket** is an **Issue** (a child of a `wayfinder:map`)
+- A **Goldfish reviewer** produces **Findings**; so does `code-review`'s pair of sub-agents
 
 ## Flagged ambiguities
 

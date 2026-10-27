@@ -13,8 +13,9 @@ Type `/receiving-code-review`, or the agent reaches for it automatically when a 
 | You (the partner) | Trusted: implemented once understood, though it still asks when the scope is unclear |
 | The two-axis `code-review` report | Treated as an external review: each item is checked before anything changes |
 | An external reviewer on the PR | Five checks: is it correct for this codebase, will it break something else, is there a reason for the current code, does it work on every platform, does the reviewer have the full context |
+| A `goldfish-review` report on a spec or design doc | Checked like an external review, with two extra rules: a Reader gap is never contested, and evidence the reviewers could not read goes to you before it goes into the document |
 
-It covers how to take feedback, not how to give it. To run a review, use [code-review](https://aihero.dev/skills-code-review).
+It covers how to take feedback, not how to give it. To run a review, use [code-review](https://aihero.dev/skills-code-review) for a diff or [goldfish-review](https://aihero.dev/skills-goldfish-review) for a document.
 
 ## Ask first, then act
 
@@ -40,4 +41,4 @@ Actions speak. Fix it and move on: the code itself shows the feedback was heard.
 
 ## Where it fits
 
-`receiving-code-review` is a **chain step** at the close of the main flow: after [code-review](https://aihero.dev/skills-code-review) or a PR review produces feedback, and before the changes land. Its neighbours are [code-review](https://aihero.dev/skills-code-review), because it produces the feedback this skill takes in, and [retro](https://aihero.dev/skills-retro), because it turns recurring problems into environment improvements systematically. [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) has the map of the whole set.
+`receiving-code-review` is a **chain step** behind both review gates of the main flow: after [goldfish-review](https://aihero.dev/skills-goldfish-review) reports on the spec, and after [code-review](https://aihero.dev/skills-code-review) or a PR review reports on the diff, before the changes land. Its neighbours are those two gates, because they produce the feedback this skill takes in, and [retro](https://aihero.dev/skills-retro), because it turns recurring problems into environment improvements systematically. [ask-zxs](https://github.com/zxsong111/skills/blob/main/docs/engineering/ask-zxs.md) has the map of the whole set.
