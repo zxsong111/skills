@@ -154,6 +154,23 @@ Delete the marker to switch both off for that repo.
 
 - **[verify-app](./agents/verify-app.md)** (`zxs-skills:verify-app`) is a reporting-only subagent with `Bash` and `Read`: it runs the build, tests and the changed flow in a fresh context and returns a READY / NOT READY verdict with the command output, without touching a file.
 
+## Evals
+
+`evals/` is a [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals) suite: the regression tests for the configuration that steers the agent, rerun whenever a skill, hook or agent changes. Six cases so far, all graded deterministically (no judge model, so no judge cost):
+
+- `trigger-*`: does a prompt phrased the way a user types it load the skill it should? One case each for `humanizer`, `i-have-adhd` (a Chinese prompt, the known weak spot), `security-and-hardening` and `commit-push-pr`.
+- `behaviour-tdd`: a test-first request writes the test, runs it red, and only then writes the implementation.
+- `behaviour-code-review`: a review against a fixed point loads the skill, runs both axes in sub-agents, reports `## Standards` and `## Spec` with `Important` tags, catches the planted spec gap and honours `## Do not report`.
+
+Run it locally from the repo root (Bash cases need `bubblewrap` and `socat` on Linux):
+
+```bash
+claude plugin eval . --trust-plugin --ablation none --scaffold \
+  --allow-tools Write Edit "Bash(node *)" "Bash(git *)" --no-publish
+```
+
+CI runs the same command nightly and on pull requests that touch `skills/`, `hooks/`, `agents/`, `evals/` or the manifest. The job reports and never fails the build until the pass rate has a baseline. Results land in `evals/results/`, which is ignored.
+
 ## Maintainer notes
 
 - Skill wiring is enforced by `npm run check-skills`, also run in CI on every push to `main`.

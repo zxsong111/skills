@@ -1,0 +1,89 @@
+name: Evals
+
+# Runs the plugin's eval suite (evals/) with `claude plugin eval`. Reporting only for now:
+# the job never fails the build (ADR 0003 batch 2), so the pass rate can build a baseline
+# before any case becomes a required check. Only deterministic graders are in the suite,
+# so the cost is the agent runs themselves, capped below.
+
+on:
+  pull_request:
+    paths:
+      - "skills/**"
+      - "hooks/**"
+      - "agents/**"
+      - "evals/**"
+      - ".claude-plugin/**"
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evals:
+    name: Plugin evals (non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+      ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for credentials
+        id: creds
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ] && [ -z "$ANTHROPIC_AUTH_TOKEN" ]; then
+            echo "No ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN secret; skipping the suite."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.creds.outputs.present == 'true'
+        with:
+          node-version: 22
+      - name: Install Claude Code and the Bash sandbox backend
+        if: steps.creds.outputs.present == 'true'
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q bubblewrap socat
+          npm install -g @anthropic-ai/claude-code
+      - name: Run the suite
+        if: steps.creds.outputs.present == 'true'
+        continue-on-error: true
+        # The model is left to the provider the secrets select, because the maintainer's
+        # endpoint maps Claude model names itself; pin --model here once CI runs on the
+        # Anthropic API directly.
+        run: |
+          claude plugin eval . \
+            --trust-plugin \
+            --ablation none \
+            --scaffold \
+            --allow-tools Write Edit "Bash(node *)" "Bash(git *)" \
+            --json results.json \
+            --threshold 1.0 \
+            --no-publish \
+            --max-cost-usd 10
+      - name: Summarise
+        if: steps.creds.outputs.present == 'true' && always()
+        run: |
+          [ -f results.json ] || { echo "No results.json written."; exit 0; }
+          {
+            echo "## Plugin evals"
+            echo
+            echo "| Case | Score | Passed |"
+            echo "|---|---|---|"
+            jq -r '.cases[] | "| \(.name) | \(.aggregates.score) | \(.passed) |"' results.json
+            echo
+            echo "Overall: $(jq -r '.aggregates.casesPassed' results.json)/$(jq -r '.aggregates.casesTotal' results.json) cases passed."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: steps.creds.outputs.present == 'true' && always()
+        with:
+          name: eval-results
+          path: |
+            results.json
+            evals/results/**/report.html
+          if-no-files-found: ignore
