@@ -2,7 +2,7 @@
 
 `i-have-adhd` sets the shape of replies. The first line is an action the reader can take, multi-step tasks are numbered, the state is restated every turn, tangents are held back, finished work is stated in concrete terms, and there is no preamble, no after-the-fact recap and no closing pleasantries. It comes from one fact: **knowing the answer is not the same as doing it**. The small friction between "got it" and "done" is where work dies, so output is shaped into something the reader can act on directly, not just made short.
 
-This version loads automatically. Compared with upstream, it drops the rule to give concrete time estimates (an estimate is a guess, not evidence), and it exempts evidence output from the five-item cap: every row of a gate table, a list of review findings or a list of test failures is shown.
+This version loads automatically. Compared with upstream, it drops the rule to give concrete time estimates (an estimate is a guess, not evidence), it exempts evidence output from the five-item cap: every row of a gate table, a list of review findings or a list of test failures is shown, and it restricts numbering to ASCII (`1.`, `2.`, sub-items `(a)`): circled numbers like `①` or `②a` are East Asian Ambiguous width characters that several terminals, iTerm2 included, draw overlapping into garbage, so the skill bans them along with emoji numbering (`1️⃣`) and decorative checkmarks and arrows in lists.
 
 ## When to reach for it
 

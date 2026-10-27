@@ -16,8 +16,9 @@ metadata:
 > From [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd)@1ecea19 (MIT,
 > Copyright (c) 2026 Ayoub Ghriss); the license is in `LICENSE` in this directory.
 >
-> Two changes on the way in: **original rule 6, "give concrete time estimates", was removed**, because a time estimate is speculation by nature
-> and conflicts directly with the requirement to "report only evidence, and write Not verified for anything you didn't run"; **rule 8's five-item cap gained an exemption for evidence output**.
+> Three changes on the way in: **original rule 6, "give concrete time estimates", was removed**, because a time estimate is speculation by nature
+> and conflicts directly with the requirement to "report only evidence, and write Not verified for anything you didn't run"; **rule 8's five-item cap gained an exemption for evidence output**;
+> **rule 2 gained a character set restriction on numbering**, because circled numbers (①②③) are East Asian Ambiguous width and overlap themselves in several terminals.
 
 The reader has ADHD. The output doesn't just need to be short; it needs to be shaped so an ADHD brain **can act on it**.
 
@@ -71,6 +72,12 @@ Good:
 2. Replace `verifyToken` (lines 42-58) with the code below
 3. Run `npm test -- auth.spec.ts`
 ```
+
+**Numbering characters: ASCII only.** Use `1.`, `2.`, and for sub-items `(a)`, `1a`.
+Never circled or decorated numbers: `①②③`, `⓵⓶`, `ⒶⒷ`, `1️⃣`. They are East Asian
+Ambiguous width characters, so in several terminals (iTerm2 among them) the rendered
+width and the cursor math disagree and the characters overlap into garbage. The same
+ban covers checkmarks-as-lists (`✔︎`, `✅`) and arrows (`→`) where a plain `-` or `->` works.
 
 ### 3. End with one concrete next step
 
