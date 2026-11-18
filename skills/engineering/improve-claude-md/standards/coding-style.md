@@ -22,6 +22,7 @@ Decide each item; write "not applicable" for any this project doesn't need. Phra
 
 - Layer 2: everything a formatter / linter can handle (indentation, quotes, import order, line width) goes in config, not in text
 - Layer 5: naming semantics the linter can't reach (boolean prefixes, domain terms) go in CLAUDE.md "Project conventions"
+- PostToolUse hook: when the repo carries lint debt, so a whole-file lint or a `--fix` pass would touch thousands of old lines, register a hook that lints the edited file and reports only the violations its HEAD version does not have. Old debt never blocks an edit; new debt is caught at the edit. A runnable ruff version ships beside this template (see below)
 - Companion: with no `.editorconfig`, generate one (indentation, line endings, final newline, charset)
 
 ## Companion file skeleton
@@ -45,3 +46,7 @@ indent_size = 4
 [Makefile]
 indent_style = tab
 ```
+
+## Companion hook script
+
+[lint-new-violations.py](lint-new-violations.py) copies into the project as `.claude/hooks/lint_new_violations.py` and registers as a `PostToolUse` hook on `Edit|Write`; the docstring carries the settings snippet. It finds the repo through the edited file, so the main checkout and worktrees behave the same, and it takes the linter from `LINT_BIN`, falling back to the repo's `.venv/bin/ruff`. Live-tested against ruff only: porting another linter means rewriting `lint()` and `key()`, the two functions that speak the linter's output format.

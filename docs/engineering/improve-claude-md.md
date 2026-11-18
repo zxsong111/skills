@@ -11,6 +11,8 @@
 - duplication and contradictions
 - excess length
 - stale content
+- workflow entries that name a skill which is not installed
+- blocking gates that no CI job or hook actually runs
 
 Every convention is tagged with the layer it lands in:
 
@@ -52,12 +54,20 @@ No. It reads only `standards/INDEX.md` to filter, and only the templates you tic
 **I have both `CLAUDE.md` and `AGENTS.md`. Now what?**
 Only one of them can hold the body. If you also use Codex, the body goes in `AGENTS.md` and `CLAUDE.md` imports it with `@AGENTS.md`. If you use only Claude, everything merges into `CLAUDE.md`. Conflicting entries are listed for you to decide.
 
+**The repo has hundreds of old lint violations. Won't a lint rule block every edit?**
+That case gets a hook, not a rule. The skill's coding-style template ships a `PostToolUse` script that lints the edited file and reports only the violations its HEAD version does not have: old debt stays invisible, new debt is caught at the edit.
+
+**There was no CI when the skill ran. Is CI/CD skipped?**
+No. A quality gate table with no workflow running it is itself in scope for the CI/CD standard, and wiring the blocking gates into CI belongs in the same pass as the audit.
+
 ## It's working if
 
 - The first reply is a problem table with `file:line` references plus a checklist of conventions to tick, and no file in the working tree has changed.
 - Every verification command is followed by a sample of healthy output, and that sample came from a real run.
 - The root `CLAUDE.md` gets shorter, with the detail moved into `CODING_STANDARDS.md` or `.claude/rules/`.
 - Every convention written down can be checked: either a command backs it, or it is a sentence you can judge true or false.
+- Every deny rule and hook it proposed has fired at least once against the thing it is meant to stop.
+- Every blocking gate it left in the table has a machine that runs it: a CI job, a hook, or an honest demotion to warning.
 
 ## Where it fits
 

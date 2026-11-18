@@ -107,6 +107,8 @@ The root `CLAUDE.md` (or `AGENTS.md`) should have these sections, in this order.
 | Too long | Root CLAUDE.md over about 200 lines | Move details down into rules or CODING_STANDARDS.md. The root file keeps only global items and navigation pointers |
 | Stale | Mentions a deleted directory / script | Delete or correct it |
 | No-op instruction | A sentence that won't change the agent's behavior even when read | Delete it |
+| Flow names a missing skill | Required workflows says "use project-memory", and no such skill is installed | Replace with the installed equivalent, or with the plain steps the skill would have taken |
+| Blocking gate nothing runs | The gate table marks a row 阻断, and no CI job or hook runs that command | Wire it into CI (see `standards/ci-cd.md`) or demote it honestly to warning |
 
 ## 3. Standards menu
 
@@ -204,6 +206,8 @@ Once you confirm, I'll write everything in table C. Say now if you want any row 
   `gh pr merge`); `deny` gets only entries the user approved. Validate with `python3 -m json.tool` after writing
 - Don't write machine-specific tools or paths: this config has to work on a fresh machine
 - **Actually run** every command in the gate table first. Leave out any that fail, and say so in the report
+- **Run the gate commands from a clean checkout** (a fresh clone or a worktree), not the machine that wrote them: a path that exists on one machine only (a gitignored directory, a locally installed tool, a file the test image never copies) passes at home and fails anywhere else
+- **Prove the Layer 1 entries work before reporting them done**: replay each deny rule and hook against a real command or payload. The `git -C <path>` form of a command slips past a rule written for the bare `git` form, and a hook registered but never fired is a wish, not a block
 - Don't touch a single word of `docs/agents/*.md`, `GLOSSARY.md`, or `docs/adr/`. They belong to `setup-zxs-skills` and `domain-modeling`
 - Write only what was finally decided, not the discussion or the rejected options
 

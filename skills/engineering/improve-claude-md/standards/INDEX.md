@@ -26,7 +26,7 @@ Filter by the "Applies when" column against the step 1 inventory. Anything that 
 | 20 | Database access | [database-access.md](database-access.md) | Services that read and write a database |
 | 21 | Caching | [caching.md](caching.md) | Uses Redis / Memcached / in-memory cache / CDN |
 | 22 | Versioning and release | [versioning-release.md](versioning-release.md) | Libraries or apps released externally, or services with a formal release process |
-| 23 | CI/CD | [ci-cd.md](ci-cd.md) | Has a CI pipeline or deployment process |
+| 23 | CI/CD | [ci-cd.md](ci-cd.md) | Has a CI pipeline, a deployment process, or a quality gate table no workflow runs |
 | 24 | Code ownership | [code-ownership.md](code-ownership.md) | Repos where several people or teams contribute |
 | 25 | Privacy and data retention | [privacy-retention.md](privacy-retention.md) | Handles personal data (names, phone numbers, emails, addresses, payment info) |
 | 26 | License compliance | [license-compliance.md](license-compliance.md) | Closed-source commercial projects, or ones that vendor third-party code |
